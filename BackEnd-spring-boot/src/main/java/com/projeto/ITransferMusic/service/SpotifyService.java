@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.projeto.ITransferMusic.dto.TrackDTO;
+import com.projeto.ITransferMusic.utils.CastUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,12 +52,14 @@ public class SpotifyService {
     }
 
     // Métodos auxiliares
+    @SuppressWarnings("unchecked")
     private Map<String, Object> fetchFromAPI(String url, String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         return restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), Map.class).getBody();
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> postToAPI(String url, String accessToken, Map<String, Object> body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -64,29 +67,46 @@ public class SpotifyService {
         return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(body, headers), Map.class).getBody();
     }
 
+    @SuppressWarnings("unchecked")
     private List<TrackDTO> extractTracks(Map<String, Object> response) {
+        // Cast explícito para List<Map<String, Object>>
+        
+        List<Map<String, Object>> items = CastUtils.<Map<String, Object>>safeCastToList(
+                response.get("items"), 
+                (Class<Map<String, Object>>) (Class<?>) Map.class
+        );
+    
         List<TrackDTO> tracks = new ArrayList<>();
-        List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
-
         for (Map<String, Object> item : items) {
-            Map<String, Object> track = (Map<String, Object>) item.get("track");
-            String artist = ((Map<String, Object>) ((List<?>) track.get("artists")).get(0)).get("name").toString();
-            String trackId = track.get("id").toString();
-
+            Map<String, Object> track = CastUtils.safeCast(item.get("track"), Map.class);
+            
+            
+            List<Map<String, Object>> artists = CastUtils.<Map<String, Object>>safeCastToList(
+                    track.get("artists"), 
+                    (Class<Map<String, Object>>) (Class<?>) Map.class
+            );
+            
+            String artist = artists.isEmpty() ? "Desconhecido" : (String) artists.get(0).get("name");
+            String trackId = (String) track.get("id");
+    
             tracks.add(new TrackDTO(
-                    trackId,
-                    track.get("name").toString(),
-                    artist,
-                    "spotify:track:" + trackId // Adiciona a URI do Spotify
+                trackId,
+                (String) track.get("name"),
+                artist,
+                "spotify:track:" + trackId
             ));
         }
         return tracks;
     }
-
+    
+    @SuppressWarnings("unchecked")
     private String extractTrackId(Map<String, Object> response) {
-        Map<String, Object> tracks = (Map<String, Object>) response.get("tracks");
-        List<Map<String, Object>> items = (List<Map<String, Object>>) tracks.get("items");
-        return items.isEmpty() ? null : items.get(0).get("id").toString();
+        Map<String, Object> tracks = CastUtils.safeCast(response.get("tracks"), Map.class);
+        List<Map<String, Object>> items = CastUtils.<Map<String, Object>>safeCastToList(
+                tracks.get("items"), 
+                (Class<Map<String, Object>>) (Class<?>) Map.class
+        );
+        return items.isEmpty() ? null : (String) items.get(0).get("id");
     }
 
     private void addTracksToPlaylist(String playlistId, List<String> trackUris, String accessToken) {
@@ -97,4 +117,6 @@ public class SpotifyService {
                 .collect(Collectors.toList()));
         postToAPI(url, accessToken, body);
     }
+
+    
 }

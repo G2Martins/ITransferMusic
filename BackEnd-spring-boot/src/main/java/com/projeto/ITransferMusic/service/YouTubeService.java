@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.projeto.ITransferMusic.dto.TrackDTO;
+import com.projeto.ITransferMusic.utils.CastUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ public class YouTubeService {
         String url = API_BASE + "/playlists?part=snippet,status";
         Map<String, Object> body = buildPlaylistBody(name, description);
         Map<String, Object> response = postToAPI(url, accessToken, body);
+        @SuppressWarnings("unchecked")
         String playlistId = (String) ((Map<String, Object>) response.get("id")).get("playlistId");
         
         if (playlistId != null && !videoIds.isEmpty()) {
@@ -49,12 +51,14 @@ public class YouTubeService {
 
     // ================ MÉTODOS AUXILIARES ================ //
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> fetchFromAPI(String url, String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         return restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), Map.class).getBody();
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> postToAPI(String url, String accessToken, Map<String, Object> body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -62,27 +66,35 @@ public class YouTubeService {
         return restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(body, headers), Map.class).getBody();
     }
 
+    @SuppressWarnings("unchecked")
     private List<TrackDTO> extractTracks(Map<String, Object> response) {
-        List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
+        
+        List<Map<String, Object>> items = CastUtils.<Map<String, Object>>safeCastToList(
+                response.get("items"), 
+                (Class<Map<String, Object>>) (Class<?>) Map.class
+        );
         return items.stream().map(item -> {
-            Map<String, Object> snippet = (Map<String, Object>) item.get("snippet");
-            Map<String, Object> resource = (Map<String, Object>) snippet.get("resourceId");
-            String videoId = resource.get("videoId").toString();
-            String title = snippet.get("title").toString();
-            String channel = ((Map<String, Object>) snippet.get("channelTitle")).toString();
-
-            return new TrackDTO(
-                videoId,
-                title,
-                channel,
-                "youtube:video:" + videoId
-            );
+            Map<String, Object> snippet = CastUtils.safeCast(item.get("snippet"), Map.class);
+            Map<String, Object> resource = CastUtils.safeCast(snippet.get("resourceId"), Map.class);
+            
+            String videoId = (String) resource.get("videoId");
+            String title = (String) snippet.get("title");
+            String channel = (String) snippet.get("channelTitle");
+    
+            return new TrackDTO(videoId, title, channel, "youtube:video:" + videoId);
         }).collect(Collectors.toList());
     }
-
+    
+    @SuppressWarnings("unchecked")
     private String extractVideoId(Map<String, Object> response) {
-        List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
-        return items.isEmpty() ? null : ((Map<String, Object>) items.get(0).get("id")).get("videoId").toString();
+        List<Map<String, Object>> items = CastUtils.<Map<String, Object>>safeCastToList(
+                response.get("items"), 
+                (Class<Map<String, Object>>) (Class<?>) Map.class
+        );
+        if (items.isEmpty()) return null;
+        
+        Map<String, Object> idMap = CastUtils.safeCast(items.get(0).get("id"), Map.class);
+        return (String) idMap.get("videoId");
     }
 
     private Map<String, Object> buildPlaylistBody(String name, String description) {

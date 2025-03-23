@@ -29,7 +29,7 @@ public class PlaylistTransferService {
                                   "Transferida de " + sourceService, targetTrackIds, targetToken);
     }
 
-    private List<TrackDTO> getSourceTracks(String service, String playlistId, String token) {
+    public List<TrackDTO> getSourceTracks(String service, String playlistId, String token) {
         return switch (service.toLowerCase()) {
             case "spotify" -> spotifyService.getPlaylistTracks(playlistId, token);
             case "youtube" -> youtubeService.getPlaylistTracks(playlistId, token);
