@@ -1,22 +1,27 @@
 <nav class="bg-[#1e1730] text-white flex items-center justify-between p-4">
-    <!-- Logo -->
-    <div class="flex items-center">
-      <img src="assets/Logo/Logo ITransferMusic com Cores Fundo Roxo.png" alt="ITransferMusic Logo" class="w-32 h-auto">
-    </div>
-  
-    <!-- Menu Items -->
-    <ul class="hidden md:flex space-x-6">
-      <li><a href="#" class="hover:text-[#e5305e]">Início</a></li>
-      <li><a href="#" class="hover:text-[#e5305e]">Features</a></li>
-      <li><a href="#" class="hover:text-[#e5305e]">Ajuda</a></li>
-    </ul>
-  
-    <!-- Login e Seletor de Idioma -->
-    <div class="flex items-center space-x-4">
-      <a href="#" class="bg-[#e5305e] text-white px-4 py-2 rounded-md hover:bg-[#d02854]">Iniciar Sessão</a>
-      <button class="p-2 rounded-full border border-gray-400">
-        🌍
-      </button>
-    </div>
-  </nav>
-  
+  <!-- Logo -->
+  <div class="flex items-center">
+    <img src="assets/Logo/Logo ITransferMusic com Cores Fundo Roxo.png" alt="ITransferMusic Logo" class="w-32 h-auto">
+  </div>
+
+  <!-- Menu Items -->
+  <ul class="hidden md:flex space-x-6">
+    <li><a routerLink="/" class="hover:text-[#e5305e]">Início</a></li>
+    <li><a routerLink="/features" class="hover:text-[#e5305e]">Features</a></li>
+    <li><a routerLink="/help" class="hover:text-[#e5305e]">Ajuda</a></li>
+  </ul>
+
+  <!-- Login e Seletor de Idioma -->
+  <div class="flex items-center space-x-4">
+    <button
+      mat-raised-button
+      [routerLink]="['/login']"
+      style="background-color:#e5305e; color: white;"
+      class="hover:bg-[#d02854] transition-colors">
+      Iniciar Sessão
+    </button>
+    <button class="p-2 rounded-full border border-gray-400 hover:text-[#e5305e]">
+      🌍
+    </button>
+  </div>
+</nav>
