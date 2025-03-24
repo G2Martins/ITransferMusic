@@ -24,7 +24,7 @@ public class AuthController {
 
         User user = new User();
         user.setEmail(oauthUser.getAttribute("email"));
-        user.setName(oauthUser.getAttribute("name"));
+        user.setNome(oauthUser.getAttribute("name"));
 
         // Correção: Obter IDs corretamente
         if ("spotify".equals(clientRegistrationId)) {

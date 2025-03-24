@@ -3,6 +3,7 @@ package com.projeto.ITransferMusic.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+//DTO (Data Transfer Object) é um padrão de projeto usado para transferir dados entre camadas de um sistema
 @Data
 @AllArgsConstructor
 public class TrackDTO {
