@@ -1,27 +1,83 @@
-<nav class="bg-[#1e1730] text-white flex items-center justify-between p-4">
-  <!-- Logo -->
-  <div class="flex items-center">
-    <img src="assets/Logo/Logo ITransferMusic com Cores Fundo Roxo.png" alt="ITransferMusic Logo" class="w-32 h-auto">
-  </div>
+<nav
+  class="bg-[#1e1730] text-white fixed w-full top-0 left-0 z-50 h-[150px] shadow-xl"
+>
+  <div class="container mx-auto h-full px-8">
+    <div class="flex items-center justify-between h-full">
+      <!-- Logo Grande -->
+      <div class="h-full flex items-center py-2">
+        <img
+          src="assets/Logo/Logo ITransferMusic com Cores Fundo Roxo.png"
+          alt="ITransferMusic Logo"
+          class="menu-logo"
+        />
+      </div>
 
-  <!-- Menu Items -->
-  <ul class="hidden md:flex space-x-6">
-    <li><a routerLink="/" class="hover:text-[#e5305e]">Início</a></li>
-    <li><a routerLink="/features" class="hover:text-[#e5305e]">Features</a></li>
-    <li><a routerLink="/help" class="hover:text-[#e5305e]">Ajuda</a></li>
-  </ul>
+      <!-- Controles Direitos (menu, login, seletor de idioma) permanecem inalterados -->
+      <div class="flex items-center gap-8">
+        <!-- Menu Items -->
+        <ul class="hidden md:flex space-x-8 text-lg">
+          <li>
+            <a
+              routerLink="/features"
+              class="hover:text-[#e5305e] transition-colors duration-300"
+              >Features</a
+            >
+          </li>
+          <li>
+            <a
+              routerLink="/help"
+              class="hover:text-[#e5305e] transition-colors duration-300"
+              >Ajuda</a
+            >
+          </li>
+        </ul>
 
-  <!-- Login e Seletor de Idioma -->
-  <div class="flex items-center space-x-4">
-    <button
-      mat-raised-button
-      [routerLink]="['/login']"
-      style="background-color:#e5305e; color: white;"
-      class="hover:bg-[#d02854] transition-colors">
-      Iniciar Sessão
-    </button>
-    <button class="p-2 rounded-full border border-gray-400 hover:text-[#e5305e]">
-      🌍
-    </button>
+        <!-- Botão de Login -->
+        <button
+          [routerLink]="['/login']"
+          class="px-8 py-3 bg-[#e5305e] text-white rounded-xl hover:bg-[#d02854] transition-colors text-base font-semibold shadow-md hover:shadow-lg"
+        >
+          Iniciar Sessão
+        </button>
+
+        <!-- Seletor de Idioma -->
+        <div class="relative">
+          <button
+            (click)="toggleLanguageMenu()"
+            class="p-2 hover:bg-white/15 rounded-xl transition-colors duration-300"
+          >
+            <img
+              [src]="selectedLanguage.flag"
+              [alt]="selectedLanguage.name"
+              class="w-12 h-12 object-cover rounded-lg"
+            />
+          </button>
+
+          <!-- Dropdown -->
+          <div
+            *ngIf="isLanguageMenuOpen"
+            class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-2xl z-50"
+          >
+            <div class="py-2">
+              <button
+                *ngFor="let lang of languages"
+                (click)="changeLanguage(lang.code)"
+                class="w-full px-6 py-4 text-[#1e1730] hover:bg-gray-50 flex items-center text-base font-medium transition-colors duration-200"
+              >
+                <img
+                  [src]="lang.flag"
+                  [alt]="lang.name"
+                  class="w-10 h-10 object-cover rounded-lg mr-4"
+                />
+                <span>{{ lang.name }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
+
+<!-- Espaço para compensar a navbar fixa -->
+<div class="h-[151px]"></div>

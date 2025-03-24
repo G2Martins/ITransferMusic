@@ -1,0 +1,35 @@
+/* Animação refinada do dropdown */
+@keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .absolute {
+    animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Melhoria na qualidade da borda */
+  .border-white\/10 {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Ajuste fino no hover do botão de idioma */
+  .hover\:bg-white\/15:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .menu-logo {
+    height: 240px; /* Ajuste esse valor conforme necessário */
+    width: auto;
+    object-fit: contain;
+    /* Se quiser centralizar verticalmente dentro do container, pode usar: */
+    display: block;
+    margin: 0 auto;
+  }
+  
