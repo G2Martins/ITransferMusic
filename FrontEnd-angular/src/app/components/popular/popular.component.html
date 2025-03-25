@@ -1,0 +1,156 @@
+<section class="bg-white py-16 px-8">
+    <div class="container mx-auto max-w-5xl">
+      
+      <!-- Título -->
+      <h2 class="popular-title text-3xl md:text-4xl font-bold text-[#1E1730] text-center">
+        <span class="text-[#e5305e]">Conversões</span> populares
+      </h2>
+  
+      <!-- Lista de Conversões -->
+      <div class="popular-list w-full max-w-2xl mx-auto mt-10 space-y-4">
+  
+        <!-- Linha 1: Spotify -> YouTube -->
+        <div class="flex items-center justify-between bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center space-x-3">
+            <!-- Ícone Spotify (Font Awesome) -->
+            <i class="fab fa-spotify text-[#1E1730] text-2xl"></i>
+            <!-- Ícone seta (Font Awesome) -->
+            <i class="fas fa-arrow-right text-gray-400 text-xl"></i>
+            <!-- Ícone YouTube (Font Awesome) -->
+            <i class="fab fa-youtube text-[#1E1730] text-2xl"></i>
+            <span class="text-[#1E1730] font-medium">
+              Spotify para YouTube
+            </span>
+          </div>
+          <!-- Botão -->
+          <button
+            [routerLink]="['/login']"
+            class="bg-[#e5305e] text-white px-4 py-2 rounded-md font-semibold
+                       transition transform hover:scale-105"
+          >
+            Converter
+          </button>
+        </div>
+  
+        <!-- Linha 2: Deezer -> Spotify -->
+        <div class="flex items-center justify-between bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center space-x-3">
+            <!-- Ícone Deezer (Iconify) -->
+            <span class="iconify text-[#1E1730] text-2xl" data-icon="simple-icons:deezer"></span>
+            <!-- Ícone seta (Font Awesome) -->
+            <i class="fas fa-arrow-right text-gray-400 text-xl"></i>
+            <!-- Ícone Spotify (Font Awesome) -->
+            <i class="fab fa-spotify text-[#1E1730] text-2xl"></i>
+            <span class="text-[#1E1730] font-medium">
+              Deezer para Spotify
+            </span>
+          </div>
+          <button
+            [routerLink]="['/login']"
+            class="bg-[#e5305e] text-white px-4 py-2 rounded-md font-semibold
+                       transition transform hover:scale-105"
+          >
+            Converter
+          </button>
+        </div>
+  
+        <!-- Linha 3: YouTube -> Spotify -->
+        <div class="flex items-center justify-between bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center space-x-3">
+            <i class="fab fa-youtube text-[#1E1730] text-2xl"></i>
+            <i class="fas fa-arrow-right text-gray-400 text-xl"></i>
+            <i class="fab fa-spotify text-[#1E1730] text-2xl"></i>
+            <span class="text-[#1E1730] font-medium">
+              YouTube para Spotify
+            </span>
+          </div>
+          <button
+            [routerLink]="['/login']"
+            class="bg-[#e5305e] text-white px-4 py-2 rounded-md font-semibold
+                       transition transform hover:scale-105"
+          >
+            Converter
+          </button>
+        </div>
+  
+        <!-- Linha 4: Spotify -> Apple Music -->
+        <div class="flex items-center justify-between bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center space-x-3">
+            <i class="fab fa-spotify text-[#1E1730] text-2xl"></i>
+            <i class="fas fa-arrow-right text-gray-400 text-xl"></i>
+            <!-- Usando ícone da Apple para representar Apple Music -->
+            <i class="fab fa-apple text-[#1E1730] text-2xl"></i>
+            <span class="text-[#1E1730] font-medium">
+              Spotify para Apple Music
+            </span>
+          </div>
+          <button
+            [routerLink]="['/login']"
+            class="bg-[#e5305e] text-white px-4 py-2 rounded-md font-semibold
+                       transition transform hover:scale-105"
+          >
+            Converter
+          </button>
+        </div>
+  
+        <!-- Linha 5: Deezer -> YouTube -->
+        <div class="flex items-center justify-between bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center space-x-3">
+            <span class="iconify text-[#1E1730] text-2xl" data-icon="simple-icons:deezer"></span>
+            <i class="fas fa-arrow-right text-gray-400 text-xl"></i>
+            <i class="fab fa-youtube text-[#1E1730] text-2xl"></i>
+            <span class="text-[#1E1730] font-medium">
+              Deezer para YouTube
+            </span>
+          </div>
+          <button
+            [routerLink]="['/login']"
+            class="bg-[#e5305e] text-white px-4 py-2 rounded-md font-semibold
+                       transition transform hover:scale-105"
+          >
+            Converter
+          </button>
+        </div>
+  
+        <!-- Linha 6: YouTube -> Deezer -->
+        <div class="flex items-center justify-between bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center space-x-3">
+            <i class="fab fa-youtube text-[#1E1730] text-2xl"></i>
+            <i class="fas fa-arrow-right text-gray-400 text-xl"></i>
+            <span class="iconify text-[#1E1730] text-2xl" data-icon="simple-icons:deezer"></span>
+            <span class="text-[#1E1730] font-medium">
+              YouTube para Deezer
+            </span>
+          </div>
+          <button
+            [routerLink]="['/login']"
+            class="bg-[#e5305e] text-white px-4 py-2 rounded-md font-semibold
+                       transition transform hover:scale-105"
+          >
+            Converter
+          </button>
+        </div>
+  
+        <!-- Linha 7: Apple Music -> Spotify -->
+        <div class="flex items-center justify-between bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center space-x-3">
+            <i class="fab fa-apple text-[#1E1730] text-2xl"></i>
+            <i class="fas fa-arrow-right text-gray-400 text-xl"></i>
+            <i class="fab fa-spotify text-[#1E1730] text-2xl"></i>
+            <span class="text-[#1E1730] font-medium">
+              Apple Music para Spotify
+            </span>
+          </div>
+          <button
+            [routerLink]="['/login']"
+            class="bg-[#e5305e] text-white px-4 py-2 rounded-md font-semibold
+                       transition transform hover:scale-105"
+          >
+            Converter
+          </button>
+        </div>
+  
+      </div>
+    </div>
+  </section>
+  

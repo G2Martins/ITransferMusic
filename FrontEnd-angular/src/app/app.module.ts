@@ -13,6 +13,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { StartComponent } from './components/start/start.component';
 import { AboutComponent } from './components/about/about.component';
 import { FeatureComponent } from './components/feature/feature.component';
+import { PopularComponent } from './components/popular/popular.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { FeatureComponent } from './components/feature/feature.component';
     LoginComponent,
     StartComponent,
     AboutComponent,
-    FeatureComponent
+    FeatureComponent,
+    PopularComponent
   ],
   imports: [
     BrowserModule,
