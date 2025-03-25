@@ -11,6 +11,8 @@ import { FooterComponent } from './components/footer/footer.component';
 import { MenuBarComponent } from './components/menu-bar/menu-bar.component';
 import { LoginComponent } from './pages/login/login.component';
 import { StartComponent } from './components/start/start.component';
+import { AboutComponent } from './components/about/about.component';
+import { FeatureComponent } from './components/feature/feature.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { StartComponent } from './components/start/start.component';
     FooterComponent,
     MenuBarComponent,
     LoginComponent,
-    StartComponent
+    StartComponent,
+    AboutComponent,
+    FeatureComponent
   ],
   imports: [
     BrowserModule,
