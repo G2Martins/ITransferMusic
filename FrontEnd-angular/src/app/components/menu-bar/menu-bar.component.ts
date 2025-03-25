@@ -6,7 +6,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 	styleUrls: ['./menu-bar.component.css']
 })
 export class MenuBarComponent implements OnInit {
-	isLanguageMenuOpen = false;
+	isLanguageMenuOpen:boolean = false;
 
 	languages = [
 		{

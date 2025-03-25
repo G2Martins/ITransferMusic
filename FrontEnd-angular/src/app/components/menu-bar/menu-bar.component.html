@@ -8,7 +8,8 @@
         <img
           src="assets/Logo/Logo ITransferMusic com Cores Fundo Roxo.png"
           alt="ITransferMusic Logo"
-          class="menu-logo"
+          class="menu-logo cursor-pointer transition-all duration-300 hover:scale-105 hover:brightness-110"
+          [routerLink]="['/']"
         />
       </div>
 
@@ -35,7 +36,7 @@
         <!-- Botão de Login -->
         <button
           [routerLink]="['/login']"
-          class="px-8 py-3 bg-[#e5305e] text-white rounded-xl hover:bg-[#d02854] transition-colors text-base font-semibold shadow-md hover:shadow-lg"
+          class="px-8 py-3 bg-[#e5305e] text-white rounded-xl hover:bg-[#d02854] transition-all duration-300 transform hover:scale-105 text-base font-semibold shadow-md hover:shadow-lg"
         >
           Iniciar Sessão
         </button>
