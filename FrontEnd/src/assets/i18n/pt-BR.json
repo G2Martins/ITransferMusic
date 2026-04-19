@@ -1,0 +1,85 @@
+{
+  "nav": {
+    "features": "Funcionalidades",
+    "help": "Ajuda",
+    "contact": "Contato",
+    "login": "Iniciar Sessão",
+    "dashboard": "Meu Painel",
+    "logout": "Sair"
+  },
+  "features": {
+    "transferir": {
+      "title": "Transferir",
+      "desc": "Copie playlists de um serviço para outro facilmente."
+    },
+    "sincronizar": {
+      "title": "Sincronizar",
+      "desc": "Mantenha suas playlists sempre atualizadas."
+    },
+    "partilhar": {
+      "title": "Partilhar",
+      "desc": "Compartilhe suas playlists com amigos."
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Transfira suas playlists entre os principais serviços de streaming",
+      "subtitle": "Conecte Spotify, YouTube, Apple Music e Amazon Music em um só lugar.",
+      "cta": "Começar agora"
+    },
+    "featuresTitle": "Confira nossas melhores",
+    "featuresHighlight": "funcionalidades"
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "emailLabel": "E-mail",
+      "passwordLabel": "Senha",
+      "submit": "Entrar",
+      "noAccount": "Ainda não tem conta?",
+      "register": "Criar conta"
+    },
+    "register": {
+      "title": "Criar conta",
+      "nameLabel": "Nome",
+      "submit": "Criar conta",
+      "hasAccount": "Já tem conta?",
+      "login": "Entrar"
+    }
+  },
+  "dashboard": {
+    "title": "Painel de transferências",
+    "linkedAccounts": "Contas vinculadas",
+    "linkAction": "Vincular",
+    "unlinkAction": "Desvincular",
+    "newTransfer": "Nova transferência"
+  },
+  "wizard": {
+    "step1": "Escolher origem",
+    "step2": "Selecionar playlist",
+    "step3": "Escolher destino",
+    "step4": "Confirmar",
+    "next": "Avançar",
+    "back": "Voltar",
+    "start": "Iniciar transferência"
+  },
+  "help": {
+    "title": "Central de Ajuda",
+    "subtitle": "Encontre respostas para as dúvidas mais comuns.",
+    "faq": {
+      "q1": "Meus dados estão seguros?",
+      "a1": "Sim. Os tokens dos serviços de música são criptografados antes de serem armazenados."
+    }
+  },
+  "contact": {
+    "title": "Fale Conosco",
+    "subtitle": "Ficaremos felizes em ouvir você.",
+    "name": "Seu nome",
+    "email": "Seu e-mail",
+    "message": "Mensagem",
+    "submit": "Enviar"
+  },
+  "footer": {
+    "rights": "Todos os direitos reservados."
+  }
+}

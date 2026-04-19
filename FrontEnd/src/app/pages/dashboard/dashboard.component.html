@@ -1,0 +1,243 @@
+<section class="container mx-auto max-w-5xl px-6 py-16">
+  <h1 class="text-3xl font-bold text-brand md:text-4xl">
+    {{ 'dashboard.title' | transloco }}
+  </h1>
+
+  @if (error()) {
+    <p class="mt-4 rounded-xl bg-red-50 p-4 text-sm text-red-600">{{ error() }}</p>
+  }
+
+  <!-- Contas vinculadas -->
+  <div class="mt-10">
+    <h2 class="text-xl font-semibold text-brand">
+      {{ 'dashboard.linkedAccounts' | transloco }}
+    </h2>
+    <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      @for (p of providers; track p.id) {
+        <div class="card flex flex-col items-center gap-3">
+          <iconify-icon
+            [attr.icon]="p.icon"
+            class="text-4xl text-brand-accent"
+          ></iconify-icon>
+          <span class="font-semibold">{{ p.label }}</span>
+          @if (isLinked(p.id)) {
+            <button
+              type="button"
+              class="btn-ghost text-sm"
+              (click)="unlinkProvider(p.id)"
+            >
+              {{ 'dashboard.unlinkAction' | transloco }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn-primary text-sm"
+              (click)="linkProvider(p.id)"
+            >
+              {{ 'dashboard.linkAction' | transloco }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Wizard -->
+  <div class="mt-14">
+    <h2 class="text-xl font-semibold text-brand">
+      {{ 'dashboard.newTransfer' | transloco }}
+    </h2>
+
+    <!-- Stepper -->
+    <ol class="mt-6 flex flex-wrap items-center gap-3 text-sm font-medium">
+      @for (s of [1, 2, 3, 4]; track s) {
+        <li
+          class="flex items-center gap-2 rounded-full px-4 py-2 transition-colors"
+          [class.bg-brand-accent]="step() === s"
+          [class.text-white]="step() === s"
+          [class.bg-gray-100]="step() !== s"
+        >
+          <span>{{ s }}.</span>
+          <span>
+            @switch (s) {
+              @case (1) { {{ 'wizard.step1' | transloco }} }
+              @case (2) { {{ 'wizard.step2' | transloco }} }
+              @case (3) { {{ 'wizard.step3' | transloco }} }
+              @case (4) { {{ 'wizard.step4' | transloco }} }
+            }
+          </span>
+        </li>
+      }
+    </ol>
+
+    <div class="card mt-6">
+      @switch (step()) {
+        @case (1) {
+          <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+            @for (p of providers; track p.id) {
+              <button
+                type="button"
+                (click)="selectSource(p.id)"
+                class="flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all"
+                [class.border-brand-accent]="source() === p.id"
+                [class.bg-brand-accent/5]="source() === p.id"
+                [class.border-gray-200]="source() !== p.id"
+                [disabled]="!isLinked(p.id)"
+                [class.opacity-40]="!isLinked(p.id)"
+              >
+                <iconify-icon
+                  [attr.icon]="p.icon"
+                  class="text-3xl text-brand-accent"
+                ></iconify-icon>
+                <span class="text-sm font-semibold">{{ p.label }}</span>
+                @if (!isLinked(p.id)) {
+                  <span class="text-xs text-brand/50">Nao vinculado</span>
+                }
+              </button>
+            }
+          </div>
+        }
+        @case (2) {
+          @if (loadingPlaylists()) {
+            <p class="text-brand/70">Carregando playlists...</p>
+          } @else if (playlists().length === 0) {
+            <p class="text-brand/70">Nenhuma playlist encontrada.</p>
+          } @else {
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+              @for (pl of playlists(); track pl.id) {
+                <button
+                  type="button"
+                  (click)="selectPlaylist(pl)"
+                  class="flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all"
+                  [class.border-brand-accent]="selectedPlaylist()?.id === pl.id"
+                  [class.border-gray-200]="selectedPlaylist()?.id !== pl.id"
+                >
+                  @if (pl.image_url) {
+                    <img [src]="pl.image_url" alt="" class="h-14 w-14 rounded object-cover" />
+                  } @else {
+                    <div
+                      class="flex h-14 w-14 items-center justify-center rounded bg-brand-accent/10"
+                    >
+                      <iconify-icon
+                        icon="ph:music-notes-duotone"
+                        class="text-2xl text-brand-accent"
+                      ></iconify-icon>
+                    </div>
+                  }
+                  <div>
+                    <p class="font-semibold text-brand">{{ pl.name }}</p>
+                    @if (pl.track_count !== null) {
+                      <p class="text-xs text-brand/60">{{ pl.track_count }} faixas</p>
+                    }
+                  </div>
+                </button>
+              }
+            </div>
+          }
+        }
+        @case (3) {
+          <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+            @for (p of providers; track p.id) {
+              <button
+                type="button"
+                (click)="selectTarget(p.id)"
+                class="flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all"
+                [class.border-brand-accent]="target() === p.id"
+                [class.border-gray-200]="target() !== p.id"
+                [disabled]="!isLinked(p.id) || p.id === source()"
+                [class.opacity-40]="!isLinked(p.id) || p.id === source()"
+              >
+                <iconify-icon
+                  [attr.icon]="p.icon"
+                  class="text-3xl text-brand-accent"
+                ></iconify-icon>
+                <span class="text-sm font-semibold">{{ p.label }}</span>
+              </button>
+            }
+          </div>
+        }
+        @case (4) {
+          <div class="space-y-4">
+            <p class="text-brand/70">
+              Transferir <strong>{{ selectedPlaylist()?.name }}</strong>
+              de <strong>{{ source() }}</strong> para <strong>{{ target() }}</strong>.
+            </p>
+            <label class="block">
+              <span class="text-sm font-medium">Nome da nova playlist</span>
+              <input
+                class="input-base mt-1"
+                type="text"
+                [value]="newTransferName()"
+                (input)="newTransferName.set($any($event.target).value)"
+              />
+            </label>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="mt-6 flex justify-between">
+      <button
+        type="button"
+        class="btn-ghost"
+        (click)="back()"
+        [disabled]="step() === 1"
+      >
+        {{ 'wizard.back' | transloco }}
+      </button>
+
+      @if (step() < 4) {
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="next()"
+          [disabled]="!canAdvance()"
+        >
+          {{ 'wizard.next' | transloco }}
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="startTransfer()"
+          [disabled]="!canAdvance() || creatingTransfer()"
+        >
+          {{ 'wizard.start' | transloco }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Historico -->
+  @if (transfers().length > 0) {
+    <div class="mt-14">
+      <h2 class="text-xl font-semibold text-brand">Histórico</h2>
+      <div class="mt-4 space-y-3">
+        @for (t of transfers(); track t.id) {
+          <div class="card flex items-center justify-between">
+            <div>
+              <p class="font-semibold">{{ t.target_playlist_name }}</p>
+              <p class="text-xs text-brand/60">
+                {{ t.source_provider }} → {{ t.target_provider }} ·
+                {{ t.matched_tracks }}/{{ t.total_tracks }} faixas
+              </p>
+            </div>
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              [class.bg-green-100]="t.status === 'completed'"
+              [class.text-green-700]="t.status === 'completed'"
+              [class.bg-yellow-100]="t.status === 'partial' || t.status === 'running'"
+              [class.text-yellow-700]="t.status === 'partial' || t.status === 'running'"
+              [class.bg-gray-100]="t.status === 'pending'"
+              [class.text-gray-700]="t.status === 'pending'"
+              [class.bg-red-100]="t.status === 'failed'"
+              [class.text-red-700]="t.status === 'failed'"
+            >
+              {{ t.status }}
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</section>

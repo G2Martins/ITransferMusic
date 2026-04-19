@@ -1,0 +1,85 @@
+{
+  "nav": {
+    "features": "Features",
+    "help": "Help",
+    "contact": "Contact",
+    "login": "Sign in",
+    "dashboard": "My Dashboard",
+    "logout": "Sign out"
+  },
+  "features": {
+    "transferir": {
+      "title": "Transfer",
+      "desc": "Copy playlists from one service to another easily."
+    },
+    "sincronizar": {
+      "title": "Sync",
+      "desc": "Keep your playlists always up to date."
+    },
+    "partilhar": {
+      "title": "Share",
+      "desc": "Share your playlists with friends."
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Transfer your playlists between the major streaming services",
+      "subtitle": "Connect Spotify, YouTube, Apple Music and Amazon Music in one place.",
+      "cta": "Get started"
+    },
+    "featuresTitle": "Check out our best",
+    "featuresHighlight": "features"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Sign in",
+      "noAccount": "Don't have an account yet?",
+      "register": "Create account"
+    },
+    "register": {
+      "title": "Create account",
+      "nameLabel": "Name",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in"
+    }
+  },
+  "dashboard": {
+    "title": "Transfers dashboard",
+    "linkedAccounts": "Linked accounts",
+    "linkAction": "Link",
+    "unlinkAction": "Unlink",
+    "newTransfer": "New transfer"
+  },
+  "wizard": {
+    "step1": "Choose source",
+    "step2": "Select playlist",
+    "step3": "Choose target",
+    "step4": "Confirm",
+    "next": "Next",
+    "back": "Back",
+    "start": "Start transfer"
+  },
+  "help": {
+    "title": "Help Center",
+    "subtitle": "Find answers to the most common questions.",
+    "faq": {
+      "q1": "Is my data safe?",
+      "a1": "Yes. Music service tokens are encrypted before being stored."
+    }
+  },
+  "contact": {
+    "title": "Get in touch",
+    "subtitle": "We would love to hear from you.",
+    "name": "Your name",
+    "email": "Your email",
+    "message": "Message",
+    "submit": "Send"
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}
