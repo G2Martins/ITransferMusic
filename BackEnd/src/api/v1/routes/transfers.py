@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 
+from src.core.db import get_database
 from src.dependencies import CurrentUserId, PlaylistTransferServiceDep
 from src.models.transfer import TransferDocument
 from src.schemas.transfer import PlaylistTransferCreate, TransferResponse
-from src.services.account_service import LinkedAccountNotFoundError
+from src.services.account_service import AccountService, LinkedAccountNotFoundError
+from src.services.playlist_transfer_service import PlaylistTransferService
 
 router = APIRouter()
 
@@ -26,18 +28,27 @@ def _to_response(doc: TransferDocument) -> TransferResponse:
     )
 
 
+async def _execute_transfer_task(user_id: str, transfer_id: str) -> None:
+    """Executado em background. Instancia o service a partir do DB global."""
+    db = get_database()
+    accounts = AccountService(db)
+    service = PlaylistTransferService(db, accounts)
+    await service.execute_transfer(user_id, transfer_id)
+
+
 @router.post(
     "",
     response_model=TransferResponse,
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def create_transfer(
     payload: PlaylistTransferCreate,
     user_id: CurrentUserId,
     service: PlaylistTransferServiceDep,
+    background_tasks: BackgroundTasks,
 ) -> TransferResponse:
     try:
-        doc = await service.transfer(user_id, payload)
+        doc = await service.create_transfer(user_id, payload)
     except LinkedAccountNotFoundError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
@@ -46,6 +57,8 @@ async def create_transfer(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
         ) from exc
+
+    background_tasks.add_task(_execute_transfer_task, user_id, str(doc.id))
     return _to_response(doc)
 
 

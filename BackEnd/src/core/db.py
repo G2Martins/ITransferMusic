@@ -1,4 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo.errors import PyMongoError
 
 from src.core.config import get_settings
 
@@ -10,9 +11,19 @@ class MongoState:
 
 async def connect_to_mongo() -> None:
     settings = get_settings()
-    MongoState.client = AsyncIOMotorClient(settings.mongodb_uri)
+    MongoState.client = AsyncIOMotorClient(
+        settings.mongodb_uri,
+        serverSelectionTimeoutMS=5000,
+    )
     MongoState.database = MongoState.client[settings.mongodb_db_name]
-    await _ensure_indexes()
+    try:
+        await _ensure_indexes()
+    except PyMongoError as exc:
+        raise RuntimeError(
+            f"Nao foi possivel conectar ao MongoDB em '{settings.mongodb_uri}'. "
+            "Verifique se o servico MongoDB esta ativo (instalacao local ou MongoDB Atlas) "
+            f"e se MONGODB_URI no .env aponta para ele. Erro original: {exc}"
+        ) from exc
 
 
 async def close_mongo_connection() -> None:

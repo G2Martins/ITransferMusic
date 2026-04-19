@@ -15,11 +15,9 @@ from src.services.account_service import AccountService
 class PlaylistTransferService:
     """Orquestra a transferencia de playlists entre provedores.
 
-    Fluxo:
-      1. Busca tracks na origem
-      2. Para cada track, faz search no destino (por nome + artista)
-      3. Cria playlist no destino com as tracks encontradas
-      4. Persiste o job com metricas de matching
+    - `create_transfer` cria o job com status PENDING e retorna imediatamente.
+    - `execute_transfer` (roda em background) faz o trabalho: busca tracks,
+      faz matching no destino e cria a playlist. Atualiza status/metricas.
     """
 
     def __init__(self, db: AsyncIOMotorDatabase, accounts: AccountService) -> None:
@@ -40,7 +38,7 @@ class PlaylistTransferService:
         client = get_provider_client(provider)
         return await client.get_playlist_tracks(playlist_id, auth)
 
-    async def transfer(
+    async def create_transfer(
         self, user_id: str, payload: PlaylistTransferCreate
     ) -> TransferDocument:
         if payload.source_provider == payload.target_provider:
@@ -53,20 +51,33 @@ class PlaylistTransferService:
             source_playlist_id=payload.source_playlist_id,
             target_playlist_name=payload.target_playlist_name,
             target_playlist_description=payload.target_playlist_description,
-            status=TransferStatus.RUNNING,
+            status=TransferStatus.PENDING,
         )
         result = await self._transfers.insert_one(transfer.to_mongo())
         transfer.id = result.inserted_id
+        return transfer
+
+    async def execute_transfer(self, user_id: str, transfer_id: str) -> None:
+        if not ObjectId.is_valid(transfer_id):
+            return
+        raw = await self._transfers.find_one(
+            {"_id": ObjectId(transfer_id), "user_id": ObjectId(user_id)}
+        )
+        if not raw:
+            return
+
+        transfer = TransferDocument.model_validate(raw)
+        await self._mark_running(transfer)
 
         try:
-            source_auth = await self._accounts.get_auth(user_id, payload.source_provider)
-            target_auth = await self._accounts.get_auth(user_id, payload.target_provider)
+            source_auth = await self._accounts.get_auth(user_id, transfer.source_provider)
+            target_auth = await self._accounts.get_auth(user_id, transfer.target_provider)
 
-            source_client = get_provider_client(payload.source_provider)
-            target_client = get_provider_client(payload.target_provider)
+            source_client = get_provider_client(transfer.source_provider)
+            target_client = get_provider_client(transfer.target_provider)
 
             source_tracks = await source_client.get_playlist_tracks(
-                payload.source_playlist_id, source_auth
+                transfer.source_playlist_id, source_auth
             )
             transfer.total_tracks = len(source_tracks)
 
@@ -74,28 +85,32 @@ class PlaylistTransferService:
             for track in source_tracks:
                 query = f"{track.name} {track.artist}".strip()
                 found = await target_client.search_track(query, target_auth)
-                result_entry = TransferTrackResult(
-                    source_track_id=track.id,
-                    source_name=track.name,
-                    source_artist=track.artist,
-                    matched_target_id=found.id if found else None,
-                    matched=found is not None,
+                transfer.results.append(
+                    TransferTrackResult(
+                        source_track_id=track.id,
+                        source_name=track.name,
+                        source_artist=track.artist,
+                        matched_target_id=found.id if found else None,
+                        matched=found is not None,
+                    )
                 )
-                transfer.results.append(result_entry)
                 if found:
                     matched_ids.append(found.id)
 
             transfer.matched_tracks = len(matched_ids)
 
             target_playlist_id = await target_client.create_playlist(
-                name=payload.target_playlist_name,
-                description=payload.target_playlist_description,
+                name=transfer.target_playlist_name,
+                description=transfer.target_playlist_description,
                 track_ids=matched_ids,
                 auth=target_auth,
             )
             transfer.target_playlist_id = target_playlist_id
 
-            if transfer.matched_tracks == transfer.total_tracks:
+            if transfer.total_tracks == 0:
+                transfer.status = TransferStatus.FAILED
+                transfer.error_message = "Playlist de origem esta vazia"
+            elif transfer.matched_tracks == transfer.total_tracks:
                 transfer.status = TransferStatus.COMPLETED
             elif transfer.matched_tracks == 0:
                 transfer.status = TransferStatus.FAILED
@@ -112,7 +127,14 @@ class PlaylistTransferService:
             {"_id": transfer.id},
             {"$set": transfer.to_mongo()},
         )
-        return transfer
+
+    async def _mark_running(self, transfer: TransferDocument) -> None:
+        transfer.status = TransferStatus.RUNNING
+        transfer.updated_at = datetime.now(UTC)
+        await self._transfers.update_one(
+            {"_id": transfer.id},
+            {"$set": {"status": transfer.status, "updated_at": transfer.updated_at}},
+        )
 
     async def get_transfer(self, user_id: str, transfer_id: str) -> TransferDocument | None:
         if not ObjectId.is_valid(transfer_id):

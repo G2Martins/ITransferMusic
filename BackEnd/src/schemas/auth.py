@@ -20,3 +20,20 @@ class TokenResponse(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str
+
+
+class OAuthAuthorizeResponse(BaseModel):
+    authorize_url: str
+    state: str
+
+
+class OAuthCallbackRequest(BaseModel):
+    code: str = Field(min_length=1)
+    state: str = Field(min_length=1)
+
+
+class OAuthCallbackResponse(BaseModel):
+    status: str
+    provider: str
+    provider_user_id: str | None = None
+    provider_display_name: str | None = None

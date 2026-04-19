@@ -52,6 +52,27 @@ def decode_token(token: str) -> dict[str, Any]:
         raise ValueError("Token invalido ou expirado") from exc
 
 
+def create_oauth_state_token(user_id: str, provider: str) -> str:
+    """Token de curta duracao usado como `state` no fluxo OAuth (protecao CSRF)."""
+    settings = get_settings()
+    now = datetime.now(UTC)
+    payload = {
+        "sub": user_id,
+        "provider": provider,
+        "iat": now,
+        "exp": now + timedelta(minutes=10),
+        "type": "oauth_state",
+    }
+    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+
+
+def decode_oauth_state_token(token: str) -> dict[str, Any]:
+    payload = decode_token(token)
+    if payload.get("type") != "oauth_state":
+        raise ValueError("Token de state invalido")
+    return payload
+
+
 def _fernet() -> Fernet:
     settings = get_settings()
     return Fernet(settings.provider_token_encryption_key.encode())
