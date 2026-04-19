@@ -8,11 +8,19 @@ import { TranslocoPipe } from '@jsverse/transloco';
 
 import { FEATURES } from '../../shared/features.data';
 import { FeatureCardComponent } from '../../shared/feature-card/feature-card.component';
+import { AboutSectionComponent } from './sections/about-section.component';
+import { PopularSectionComponent } from './sections/popular-section.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, TranslocoPipe, FeatureCardComponent],
+  imports: [
+    RouterLink,
+    TranslocoPipe,
+    FeatureCardComponent,
+    AboutSectionComponent,
+    PopularSectionComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
@@ -21,10 +29,11 @@ import { FeatureCardComponent } from '../../shared/feature-card/feature-card.com
       class="bg-gradient-to-br from-brand via-brand to-brand-dark px-6 py-20 text-white md:py-28"
     >
       <div class="container mx-auto flex flex-col items-center text-center">
-        <iconify-icon
-          icon="ph:music-notes-plus-duotone"
-          class="mb-6 text-7xl text-brand-accent"
-        ></iconify-icon>
+        <img
+          src="logos/mascot.png"
+          alt=""
+          class="mb-6 h-28 w-28 object-contain drop-shadow-2xl"
+        />
         <h1 class="max-w-3xl text-4xl font-extrabold leading-tight md:text-5xl">
           {{ 'home.hero.title' | transloco }}
         </h1>
@@ -58,6 +67,12 @@ import { FeatureCardComponent } from '../../shared/feature-card/feature-card.com
         </div>
       </div>
     </section>
+
+    <!-- Sobre -->
+    <app-about-section />
+
+    <!-- Conversoes populares -->
+    <app-popular-section />
   `,
 })
 export class HomeComponent {

@@ -10,6 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { formatApiError } from '../../../core/utils/format-error';
 
 @Component({
   selector: 'app-register',
@@ -98,7 +99,7 @@ export class RegisterComponent {
         },
         error: (err) => {
           this.loading.set(false);
-          this.error.set(err?.error?.detail ?? 'Falha ao cadastrar');
+          this.error.set(formatApiError(err, 'Falha ao cadastrar'));
         },
       });
   }

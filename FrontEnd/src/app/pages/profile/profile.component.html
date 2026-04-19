@@ -1,0 +1,118 @@
+<section class="container mx-auto max-w-2xl px-6 py-16">
+  <div class="mb-10 flex items-center gap-4">
+    <div
+      class="flex h-16 w-16 items-center justify-center rounded-full bg-brand-accent/10"
+    >
+      <iconify-icon
+        icon="ph:user-circle-duotone"
+        class="text-4xl text-brand-accent"
+      ></iconify-icon>
+    </div>
+    <div>
+      <h1 class="text-3xl font-bold text-brand">
+        {{ 'profile.title' | transloco }}
+      </h1>
+      <p class="text-sm text-brand/60">{{ email() }}</p>
+    </div>
+  </div>
+
+  @if (loadingMe()) {
+    <p class="text-brand/70">Carregando...</p>
+  } @else {
+    <!-- Seção: Alterar nome -->
+    <div class="card mb-8">
+      <h2 class="text-xl font-semibold text-brand">
+        {{ 'profile.name.title' | transloco }}
+      </h2>
+      <p class="mt-1 text-sm text-brand/60">
+        {{ 'profile.name.subtitle' | transloco }}
+      </p>
+
+      <form (ngSubmit)="saveName()" class="mt-5 space-y-4">
+        <input
+          class="input-base"
+          type="text"
+          [value]="name()"
+          (input)="name.set($any($event.target).value)"
+          required
+          minlength="1"
+          maxlength="120"
+          [attr.placeholder]="'profile.name.label' | transloco"
+        />
+
+        @if (nameError()) {
+          <p class="text-sm text-red-600">{{ nameError() }}</p>
+        }
+        @if (nameSuccess()) {
+          <p class="text-sm text-green-600">
+            <iconify-icon icon="ph:check-circle-duotone" class="align-middle"></iconify-icon>
+            {{ 'profile.name.success' | transloco }}
+          </p>
+        }
+
+        <button type="submit" class="btn-primary" [disabled]="savingName()">
+          {{ 'profile.name.save' | transloco }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Seção: Alterar senha -->
+    <div class="card">
+      <h2 class="text-xl font-semibold text-brand">
+        {{ 'profile.password.title' | transloco }}
+      </h2>
+      <p class="mt-1 text-sm text-brand/60">
+        {{ 'profile.password.subtitle' | transloco }}
+      </p>
+
+      <form (ngSubmit)="savePassword()" class="mt-5 space-y-4">
+        <input
+          class="input-base"
+          type="password"
+          [(ngModel)]="currentPassword"
+          name="currentPassword"
+          required
+          minlength="8"
+          [attr.placeholder]="'profile.password.current' | transloco"
+          autocomplete="current-password"
+        />
+        <input
+          class="input-base"
+          type="password"
+          [(ngModel)]="newPassword"
+          name="newPassword"
+          required
+          minlength="8"
+          maxlength="72"
+          [attr.placeholder]="'profile.password.new' | transloco"
+          autocomplete="new-password"
+        />
+        <input
+          class="input-base"
+          type="password"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          required
+          minlength="8"
+          maxlength="72"
+          [attr.placeholder]="'profile.password.confirm' | transloco"
+          autocomplete="new-password"
+        />
+
+        @if (passwordError()) {
+          <p class="text-sm text-red-600">{{ passwordError() }}</p>
+        }
+        @if (passwordSuccess()) {
+          <p class="text-sm text-green-600">
+            <iconify-icon icon="ph:check-circle-duotone" class="align-middle"></iconify-icon>
+            {{ 'profile.password.success' | transloco }}
+          </p>
+        }
+
+        <button type="submit" class="btn-primary" [disabled]="savingPassword()">
+          {{ 'profile.password.save' | transloco }}
+        </button>
+      </form>
+    </div>
+  }
+</section>

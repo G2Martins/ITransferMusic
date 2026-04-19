@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { environment } from '@env/environment';
+import { environment } from '../../../environments/environment';
 
 export type Provider = 'spotify' | 'youtube' | 'apple_music' | 'amazon_music' | 'deezer';
 

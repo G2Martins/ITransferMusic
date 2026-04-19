@@ -6,13 +6,16 @@ from src.dependencies import AccountServiceDep, AuthServiceDep, CurrentUserId
 from src.integrations.oauth.registry import get_oauth_provider, is_oauth_supported
 from src.models.common import Provider
 from src.schemas.auth import (
+    ChangePasswordRequest,
     LoginRequest,
+    MeResponse,
     OAuthAuthorizeResponse,
     OAuthCallbackRequest,
     OAuthCallbackResponse,
     RefreshRequest,
     RegisterRequest,
     TokenResponse,
+    UpdateProfileRequest,
 )
 
 router = APIRouter()
@@ -47,6 +50,44 @@ async def refresh(payload: RefreshRequest, service: AuthServiceDep) -> TokenResp
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
+        ) from exc
+
+
+@router.get("/me", response_model=MeResponse)
+async def get_me(
+    user_id: CurrentUserId,
+    service: AuthServiceDep,
+) -> MeResponse:
+    try:
+        return await service.get_me(user_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
+
+
+@router.patch("/me", response_model=MeResponse)
+async def update_me(
+    payload: UpdateProfileRequest,
+    user_id: CurrentUserId,
+    service: AuthServiceDep,
+) -> MeResponse:
+    return await service.update_profile(user_id, payload.name)
+
+
+@router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
+async def change_password(
+    payload: ChangePasswordRequest,
+    user_id: CurrentUserId,
+    service: AuthServiceDep,
+) -> None:
+    try:
+        await service.change_password(
+            user_id, payload.current_password, payload.new_password
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
         ) from exc
 
 

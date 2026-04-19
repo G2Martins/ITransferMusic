@@ -80,7 +80,6 @@
                 (click)="selectSource(p.id)"
                 class="flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all"
                 [class.border-brand-accent]="source() === p.id"
-                [class.bg-brand-accent/5]="source() === p.id"
                 [class.border-gray-200]="source() !== p.id"
                 [disabled]="!isLinked(p.id)"
                 [class.opacity-40]="!isLinked(p.id)"

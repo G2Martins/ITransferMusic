@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -9,7 +11,7 @@ from src.core.security import (
     verify_password,
 )
 from src.models.user import UserDocument
-from src.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
+from src.schemas.auth import LoginRequest, MeResponse, RegisterRequest, TokenResponse
 
 
 class AuthService:
@@ -52,6 +54,47 @@ class AuthService:
         if not doc:
             raise ValueError("Usuario nao encontrado")
         return self._issue_tokens(user_id)
+
+    async def get_me(self, user_id: str) -> MeResponse:
+        doc = await self._find_user(user_id)
+        return MeResponse(
+            id=str(doc["_id"]),
+            name=doc["name"],
+            email=doc["email"],
+        )
+
+    async def update_profile(self, user_id: str, name: str) -> MeResponse:
+        await self._users.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {"name": name, "updated_at": datetime.now(UTC)}},
+        )
+        return await self.get_me(user_id)
+
+    async def change_password(
+        self, user_id: str, current_password: str, new_password: str
+    ) -> None:
+        doc = await self._find_user(user_id)
+        if not verify_password(current_password, doc["hashed_password"]):
+            raise ValueError("Senha atual incorreta")
+        if current_password == new_password:
+            raise ValueError("A nova senha precisa ser diferente da atual")
+        await self._users.update_one(
+            {"_id": ObjectId(user_id)},
+            {
+                "$set": {
+                    "hashed_password": hash_password(new_password),
+                    "updated_at": datetime.now(UTC),
+                }
+            },
+        )
+
+    async def _find_user(self, user_id: str) -> dict:
+        if not ObjectId.is_valid(user_id):
+            raise ValueError("Usuario invalido")
+        doc = await self._users.find_one({"_id": ObjectId(user_id)})
+        if not doc:
+            raise ValueError("Usuario nao encontrado")
+        return doc
 
     @staticmethod
     def _issue_tokens(user_id: str) -> TokenResponse:

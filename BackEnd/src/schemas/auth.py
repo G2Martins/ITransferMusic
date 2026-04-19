@@ -4,7 +4,8 @@ from pydantic import BaseModel, EmailStr, Field
 class RegisterRequest(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    # bcrypt suporta ate 72 bytes; limitamos no schema para falhar cedo com mensagem clara.
+    password: str = Field(min_length=8, max_length=72)
 
 
 class LoginRequest(BaseModel):
@@ -37,3 +38,18 @@ class OAuthCallbackResponse(BaseModel):
     provider: str
     provider_user_id: str | None = None
     provider_display_name: str | None = None
+
+
+class MeResponse(BaseModel):
+    id: str
+    name: str
+    email: EmailStr
+
+
+class UpdateProfileRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(min_length=8, max_length=72)
+    new_password: str = Field(min_length=8, max_length=72)

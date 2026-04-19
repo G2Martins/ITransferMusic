@@ -10,7 +10,7 @@ import { FooterComponent } from './layout/footer/footer.component';
   imports: [RouterOutlet, MenuBarComponent, FooterComponent],
   template: `
     <app-menu-bar />
-    <main class="min-h-[calc(100vh-350px)]">
+    <main class="min-h-[calc(100vh-450px)]">
       <router-outlet />
     </main>
     <app-footer />

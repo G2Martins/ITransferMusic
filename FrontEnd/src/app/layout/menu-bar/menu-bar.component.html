@@ -1,21 +1,19 @@
 <nav
-  class="fixed top-0 left-0 z-50 h-[110px] w-full bg-brand text-white shadow-xl"
+  class="fixed top-0 left-0 z-50 h-[130px] w-full bg-brand text-white shadow-xl"
   data-menu-root
 >
   <div class="container mx-auto flex h-full items-center justify-between px-6 md:px-10">
     <!-- Logo: volta para home -->
     <a
       [routerLink]="['/']"
-      class="flex h-full items-center gap-3 py-3 transition-transform duration-300 hover:scale-105"
+      class="flex h-full items-center py-3 transition-transform duration-300 hover:scale-105"
       aria-label="ITransferMusic - Inicio"
     >
-      <iconify-icon
-        icon="ph:music-notes-plus-duotone"
-        class="text-4xl text-brand-accent"
-      ></iconify-icon>
-      <span class="hidden text-xl font-extrabold tracking-tight md:inline">
-        ITransferMusic
-      </span>
+      <img
+        src="logos/logo-horizontal.png"
+        alt="ITransferMusic"
+        class="h-[260px] w-auto object-contain"
+      />
     </a>
 
     <!-- Menu -->
@@ -87,11 +85,23 @@
         <a [routerLink]="['/dashboard']" class="btn-primary hidden md:inline-flex">
           {{ 'nav.dashboard' | transloco }}
         </a>
+        <a
+          [routerLink]="['/profile']"
+          class="hidden rounded-full p-1 transition-colors hover:bg-white/10 md:inline-flex"
+          [attr.aria-label]="'nav.profile' | transloco"
+          [attr.title]="'nav.profile' | transloco"
+        >
+          <iconify-icon
+            icon="ph:user-circle-duotone"
+            class="text-3xl text-white"
+          ></iconify-icon>
+        </a>
         <button
           type="button"
           (click)="logout()"
           class="hidden rounded-lg p-2 transition-colors hover:bg-white/10 md:inline-flex"
           [attr.aria-label]="'nav.logout' | transloco"
+          [attr.title]="'nav.logout' | transloco"
         >
           <iconify-icon icon="ph:sign-out-duotone" class="text-2xl"></iconify-icon>
         </button>
@@ -134,4 +144,4 @@
 </nav>
 
 <!-- Spacer para compensar a navbar fixa -->
-<div class="h-[110px]"></div>
+<div class="h-[130px]"></div>

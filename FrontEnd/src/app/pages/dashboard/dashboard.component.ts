@@ -16,6 +16,7 @@ import {
   Provider,
   TransferResponse,
 } from '../../core/services/api.service';
+import { formatApiError } from '../../core/utils/format-error';
 
 type WizardStep = 1 | 2 | 3 | 4;
 
@@ -93,7 +94,7 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.loadingAccounts.set(false);
-        this.error.set(err?.error?.detail ?? 'Falha ao carregar contas');
+        this.error.set(formatApiError(err, 'Falha ao carregar contas'));
       },
     });
   }
@@ -109,7 +110,7 @@ export class DashboardComponent implements OnInit {
     this.api.oauthAuthorize(provider).subscribe({
       next: (res) => (window.location.href = res.authorize_url),
       error: (err) =>
-        this.error.set(err?.error?.detail ?? 'Provedor nao configurado no backend'),
+        this.error.set(formatApiError(err, 'Provedor nao configurado no backend')),
     });
   }
 
@@ -150,7 +151,7 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.loadingPlaylists.set(false);
-        this.error.set(err?.error?.detail ?? 'Falha ao listar playlists');
+        this.error.set(formatApiError(err, 'Falha ao listar playlists'));
       },
     });
   }
@@ -182,7 +183,7 @@ export class DashboardComponent implements OnInit {
         },
         error: (err) => {
           this.creatingTransfer.set(false);
-          this.error.set(err?.error?.detail ?? 'Falha ao iniciar transferencia');
+          this.error.set(formatApiError(err, 'Falha ao iniciar transferencia'));
         },
       });
   }

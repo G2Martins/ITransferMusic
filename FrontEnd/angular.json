@@ -25,6 +25,7 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              { "glob": "**/*", "input": "public" },
               { "glob": "**/*", "input": "src/assets", "output": "/assets/" }
             ],
             "styles": ["src/styles.css"],
@@ -54,6 +55,10 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "host": "127.0.0.1",
+            "port": 4200
+          },
           "configurations": {
             "production": { "buildTarget": "itransfermusic:build:production" },
             "development": { "buildTarget": "itransfermusic:build:development" }
@@ -66,5 +71,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "8e351ed6-5044-4736-917b-a926a0077dad"
   }
 }

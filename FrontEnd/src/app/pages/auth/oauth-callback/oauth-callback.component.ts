@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ApiService, Provider } from '../../../core/services/api.service';
+import { formatApiError } from '../../../core/utils/format-error';
 
 @Component({
   selector: 'app-oauth-callback',
@@ -52,7 +53,7 @@ export class OAuthCallbackComponent implements OnInit {
     this.api.oauthCallback(provider, code, state).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err) =>
-        this.error.set(err?.error?.detail ?? 'Falha ao finalizar vinculacao.'),
+        this.error.set(formatApiError(err, 'Falha ao finalizar vinculacao.')),
     });
   }
 

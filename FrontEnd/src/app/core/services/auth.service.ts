@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-import { environment } from '@env/environment';
+import { environment } from '../../../environments/environment';
 
 export interface TokenResponse {
   access_token: string;
@@ -17,6 +17,21 @@ export interface LoginPayload {
 
 export interface RegisterPayload extends LoginPayload {
   name: string;
+}
+
+export interface MeResponse {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface UpdateProfilePayload {
+  name: string;
+}
+
+export interface ChangePasswordPayload {
+  current_password: string;
+  new_password: string;
 }
 
 const ACCESS_KEY = 'itm:access';
@@ -57,6 +72,18 @@ export class AuthService {
     localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem(REFRESH_KEY);
     this.accessToken.set(null);
+  }
+
+  getMe(): Observable<MeResponse> {
+    return this.http.get<MeResponse>(`${this.base}/me`);
+  }
+
+  updateProfile(payload: UpdateProfilePayload): Observable<MeResponse> {
+    return this.http.patch<MeResponse>(`${this.base}/me`, payload);
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<void> {
+    return this.http.post<void>(`${this.base}/change-password`, payload);
   }
 
   private storeTokens(res: TokenResponse): void {

@@ -5,7 +5,27 @@
     "contact": "Contato",
     "login": "Iniciar Sessão",
     "dashboard": "Meu Painel",
+    "profile": "Meu perfil",
     "logout": "Sair"
+  },
+  "profile": {
+    "title": "Meu perfil",
+    "name": {
+      "title": "Seu nome",
+      "subtitle": "Como deseja ser chamado na plataforma.",
+      "label": "Nome",
+      "save": "Salvar nome",
+      "success": "Nome atualizado com sucesso."
+    },
+    "password": {
+      "title": "Alterar senha",
+      "subtitle": "Use ao menos 8 caracteres. Você precisa da senha atual para confirmar.",
+      "current": "Senha atual",
+      "new": "Nova senha",
+      "confirm": "Confirmar nova senha",
+      "save": "Alterar senha",
+      "success": "Senha alterada com sucesso."
+    }
   },
   "features": {
     "transferir": {
@@ -29,6 +49,19 @@
     },
     "featuresTitle": "Confira nossas melhores",
     "featuresHighlight": "funcionalidades"
+  },
+  "about": {
+    "titlePrefix": "O que é Transfer",
+    "titleHighlight": "Music",
+    "titleSuffix": " ?",
+    "p1": "Por décadas, nossa relação com a música passou por diversas transformações. Lembramos com nostalgia dos tempos em que colecionávamos discos de vinil, fitas cassete e CDs, e cada peça carregava histórias e emoções únicas. Hoje, com a ascensão dos serviços de streaming, a forma de curtir nossas músicas mudou radicalmente. Porém, essa nova realidade também traz desafios: como migrar aquela playlist especial de um serviço para outro? Ou converter uma coleção de arquivos MP3 na sua biblioteca digital?",
+    "p2": "É aí que o <strong>TransferMusic</strong> entra em cena. Nosso serviço possibilita a transferência de playlists entre plataformas como <strong>Spotify</strong>, <strong>Deezer</strong>, <strong>YouTube Music</strong> e muitas outras, facilitando o acesso às suas músicas favoritas sem complicações. Experimente e redescubra a forma de curtir sua trilha sonora pessoal, sempre no ritmo que você escolher!"
+  },
+  "popular": {
+    "titleHighlight": "Conversões",
+    "title": "populares",
+    "toWord": "para",
+    "convert": "Converter"
   },
   "auth": {
     "login": {
@@ -80,6 +113,9 @@
     "submit": "Enviar"
   },
   "footer": {
+    "tagline": "Conecte suas contas de streaming e transfira suas playlists entre plataformas em poucos cliques.",
+    "navigate": "Navegar",
+    "follow": "Siga-nos",
     "rights": "Todos os direitos reservados."
   }
 }
