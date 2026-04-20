@@ -20,6 +20,8 @@ class UserDocument(BaseModel):
     google_id: str | None = None
     avatar_url: str | None = None
     is_active: bool = True
+    # Offset em minutos em relacao ao UTC. -180 = UTC-3 (Brasilia).
+    timezone_offset_minutes: int = -180
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 

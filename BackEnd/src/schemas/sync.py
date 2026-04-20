@@ -25,6 +25,7 @@ class PlaylistSyncCreate(BaseModel):
 
     frequency: SyncFrequency = SyncFrequency.DAILY
     run_hour: int = Field(default=2, ge=0, le=23)
+    run_minute: int = Field(default=0, ge=0, le=59)
     method: SyncMethod = SyncMethod.ADD_ONLY
 
 
@@ -38,6 +39,7 @@ class PlaylistSyncResponse(BaseModel):
     target_playlist_name: str | None = None
     frequency: SyncFrequency
     run_hour: int
+    run_minute: int
     method: SyncMethod
     status: SyncStatus
     last_synced_at: datetime | None = None

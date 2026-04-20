@@ -44,10 +44,12 @@ class MeResponse(BaseModel):
     id: str
     name: str
     email: EmailStr
+    timezone_offset_minutes: int = -180
 
 
 class UpdateProfileRequest(BaseModel):
-    name: str = Field(min_length=1, max_length=120)
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    timezone_offset_minutes: int | None = Field(default=None, ge=-720, le=840)
 
 
 class ChangePasswordRequest(BaseModel):

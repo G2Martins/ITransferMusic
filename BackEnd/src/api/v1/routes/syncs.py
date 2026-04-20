@@ -38,6 +38,7 @@ def _to_response(doc: PlaylistSyncDocument) -> PlaylistSyncResponse:
         target_playlist_name=doc.target_playlist_name,
         frequency=doc.frequency,
         run_hour=doc.run_hour,
+        run_minute=doc.run_minute,
         method=doc.method,
         status=doc.status,
         last_synced_at=doc.last_synced_at,

@@ -23,10 +23,12 @@ export interface MeResponse {
   id: string;
   name: string;
   email: string;
+  timezone_offset_minutes: number;
 }
 
 export interface UpdateProfilePayload {
-  name: string;
+  name?: string;
+  timezone_offset_minutes?: number;
 }
 
 export interface ChangePasswordPayload {

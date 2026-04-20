@@ -1,6 +1,15 @@
 from fastapi import APIRouter
 
-from src.api.v1.routes import accounts, auth, health, playlists, shares, syncs, transfers
+from src.api.v1.routes import (
+    accounts,
+    auth,
+    generator,
+    health,
+    playlists,
+    shares,
+    syncs,
+    transfers,
+)
 
 api_router = APIRouter()
 api_router.include_router(health.router, tags=["health"])
@@ -13,3 +22,4 @@ api_router.include_router(
 )
 api_router.include_router(syncs.router, prefix="/syncs", tags=["syncs"])
 api_router.include_router(shares.router, prefix="/shares", tags=["shares"])
+api_router.include_router(generator.router, prefix="/generator", tags=["generator"])

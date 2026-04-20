@@ -85,7 +85,11 @@ async def update_me(
     user_id: CurrentUserId,
     service: AuthServiceDep,
 ) -> MeResponse:
-    return await service.update_profile(user_id, payload.name)
+    return await service.update_profile(
+        user_id,
+        name=payload.name,
+        timezone_offset_minutes=payload.timezone_offset_minutes,
+    )
 
 
 @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)

@@ -112,6 +112,41 @@
     </form>
   </div>
 
+  <!-- Fuso horario -->
+  <div class="card mb-6">
+    <h2 class="text-xl font-semibold text-brand dark:text-white">
+      {{ 'profile.timezone.title' | transloco }}
+    </h2>
+    <p class="mt-1 text-sm text-brand/60 dark:text-white/60">
+      {{ 'profile.timezone.subtitle' | transloco }}
+    </p>
+
+    <form (ngSubmit)="saveTimezone()" class="mt-5 space-y-4">
+      <select
+        class="input-base"
+        [value]="timezoneOffsetMinutes()"
+        (change)="timezoneOffsetMinutes.set(+$any($event.target).value)"
+      >
+        @for (tz of timezoneOptions; track tz.label) {
+          <option [value]="tz.offsetMinutes">{{ tz.label }}</option>
+        }
+      </select>
+
+      @if (timezoneError()) {
+        <p class="text-sm text-red-600 dark:text-red-300">{{ timezoneError() }}</p>
+      }
+      @if (timezoneSuccess()) {
+        <p class="text-sm text-green-600 dark:text-green-300">
+          {{ 'profile.timezone.success' | transloco }}
+        </p>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="savingTimezone()">
+        {{ 'profile.timezone.save' | transloco }}
+      </button>
+    </form>
+  </div>
+
   <!-- Servicos de musica vinculados -->
   <div class="card mb-6">
     <h2 class="text-xl font-semibold text-brand dark:text-white">

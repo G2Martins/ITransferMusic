@@ -24,12 +24,17 @@ def _is_due(sync: PlaylistSyncDocument, now: datetime) -> bool:
     """Decide se a sync deve rodar agora.
 
     - status precisa ser ACTIVE
-    - hora atual (UTC) precisa bater com `run_hour`
+    - hora:minuto atual (UTC) precisa estar dentro da janela de 15 min
+      a partir do horario agendado
     - last_synced_at precisa ser pelo menos intervalo inteiro atras
     """
     if sync.status != SyncStatus.ACTIVE:
         return False
-    if now.hour != sync.run_hour:
+
+    # Janela: se agendado para 13:20, roda quando now >= 13:20 e < 13:35
+    scheduled = now.replace(hour=sync.run_hour, minute=sync.run_minute, second=0, microsecond=0)
+    delta = (now - scheduled).total_seconds()
+    if delta < 0 or delta >= 15 * 60:
         return False
 
     interval = timedelta(days=1 if sync.frequency == SyncFrequency.DAILY else 7)

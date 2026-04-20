@@ -16,7 +16,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     <footer class="mt-16 bg-brand-dark text-white">
       <div class="container mx-auto px-6 py-14">
         <div
-          class="grid grid-cols-1 gap-10 border-b border-white/10 pb-10 md:grid-cols-3"
+          class="grid grid-cols-1 gap-10 border-b border-white/10 pb-10 md:grid-cols-4"
         >
           <!-- Logo + descricao -->
           <div class="flex flex-col items-start gap-4">
@@ -65,6 +65,31 @@ import { TranslocoPipe } from '@jsverse/transloco';
                   class="transition-colors hover:text-brand-accent"
                 >
                   {{ 'nav.dashboard' | transloco }}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Legal -->
+          <div>
+            <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-white/80">
+              {{ 'footer.legal' | transloco }}
+            </h3>
+            <ul class="space-y-2 text-sm text-white/70">
+              <li>
+                <a
+                  [routerLink]="['/terms']"
+                  class="transition-colors hover:text-brand-accent"
+                >
+                  {{ 'footer.terms' | transloco }}
+                </a>
+              </li>
+              <li>
+                <a
+                  [routerLink]="['/privacy']"
+                  class="transition-colors hover:text-brand-accent"
+                >
+                  {{ 'footer.privacy' | transloco }}
                 </a>
               </li>
             </ul>

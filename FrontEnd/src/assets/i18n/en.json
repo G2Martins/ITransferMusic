@@ -25,6 +25,12 @@
       "save": "Save name",
       "success": "Name updated successfully."
     },
+    "timezone": {
+      "title": "Time zone",
+      "subtitle": "Your time zone is used to schedule syncs and display correct times.",
+      "save": "Save time zone",
+      "success": "Time zone updated successfully."
+    },
     "password": {
       "title": "Change password",
       "subtitle": "Use at least 8 characters. You need the current password to confirm.",
@@ -234,6 +240,7 @@
     "mirrorDesc": "Keep the 2 playlists exactly in sync.",
     "confirm": "Create sync",
     "close": "Close",
+    "timezoneHint": "The time follows your zone",
     "successTitle": "Sync created successfully!",
     "successBody": "Your playlist will be checked and updated automatically at the configured time."
   },
@@ -273,11 +280,27 @@
     "save": "Save"
   },
   "help": {
-    "title": "Help Center",
-    "subtitle": "Find answers to the most common questions.",
+    "title": "Frequently asked questions",
+    "subtitle": "Have questions about how to transfer your music, save your playlists or sync across platforms? You're in the right place. Here's everything you need to know before you start.",
     "faq": {
-      "q1": "Is my data safe?",
-      "a1": "Yes. Music service tokens are encrypted before being stored."
+      "q1": "What is ITransferMusic?",
+      "a1": "ITransferMusic is a platform to transfer and sync playlists between the major streaming services. With official integrations for Spotify, YouTube Music, Apple Music, Amazon Music and more, our goal is to be the simplest and most reliable way to migrate your music library without rebuilding anything from scratch.",
+      "q2": "How does the transfer work?",
+      "a2": "You connect both the source and destination accounts via official OAuth, pick the playlist you want to move, and click Start Transfer. ITransferMusic reads every track, searches for the matching entry on the destination and creates a new playlist with as many matches as possible. It runs in the background — you can close the page and come back later.",
+      "q3": "Is my data safe?",
+      "a3": "Yes. We exclusively use official OAuth — we never request or store your streaming account passwords. Access tokens are encrypted with Fernet (AES 128) before being persisted. You can unlink an account at any time from the settings panel, which immediately invalidates the stored tokens.",
+      "q4": "Do transferred playlists stay automatically in sync?",
+      "a4": "Not by default. Every transfer creates a static copy at the moment you clicked Start. If you want to keep both playlists mirrored over time, enable a Sync from the Sync action in the dashboard — you pick the frequency (daily or weekly), the time, and whether to only add new tracks or keep both playlists identical (mirror mode).",
+      "q5": "What happens if some songs can't be matched?",
+      "a5": "Cross-platform matching is done by textual search (track name + artist). Some tracks may not be found on the destination because of region, licensing or metadata differences (explicit versions, remasters, etc). In those cases the transfer is created as partial: you can see how many tracks matched (e.g. 42/50) and the full list is stored in the Transfer History for review.",
+      "q6": "Can I link multiple accounts from the same service?",
+      "a6": "For now only one active account per service at a time. To switch accounts — e.g., migrating from a personal profile to a professional Spotify profile — click Switch Account on the selection step: the current token is invalidated and you log in again with the new account.",
+      "q7": "Do you charge anything?",
+      "a7": "While the project is in development, everything is completely free with unlimited transfers. We want you to try every tool before we revisit the monetization model.",
+      "q8": "Can I share a transferred playlist?",
+      "a8": "Yes. Once a transfer finishes, a Share button is available both in the dashboard and in the history. It generates a public page with the track list, covers and buttons to open the playlist in any compatible service. Only people with the link can view it, and you can edit the page name and description whenever you want.",
+      "q9": "What if I later delete the playlist on Spotify/YouTube?",
+      "a9": "ITransferMusic automatically detects when the destination playlist was removed from the provider. The card disappears from the dashboard (to avoid broken links), but the entry stays in the Transfer History with all tracks, covers, generated name and description — so you never lose what was migrated, even if the target playlist no longer exists."
     }
   },
   "contact": {
@@ -292,6 +315,9 @@
     "tagline": "Link your streaming accounts and transfer playlists across platforms in a few clicks.",
     "navigate": "Navigate",
     "follow": "Follow us",
+    "legal": "Legal",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy",
     "rights": "All rights reserved."
   }
 }

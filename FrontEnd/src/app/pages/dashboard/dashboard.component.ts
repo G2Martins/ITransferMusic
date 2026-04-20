@@ -29,6 +29,11 @@ import {
   providerLabel,
 } from '../../core/utils/playlist-url';
 import { formatApiError } from '../../core/utils/format-error';
+import {
+  localToUtc,
+  pad2,
+  timezoneLabel,
+} from '../../core/utils/timezone';
 
 interface ProviderMeta {
   id: Provider;
@@ -322,17 +327,33 @@ interface PlaylistCard {
                 <option value="daily">{{ 'syncModal.daily' | transloco }}</option>
                 <option value="weekly">{{ 'syncModal.weekly' | transloco }}</option>
               </select>
-              <select
-                class="input-base"
-                [ngModel]="syncRunHour()"
-                (ngModelChange)="syncRunHour.set(+$event)"
-                name="hour"
-              >
-                @for (h of hourOptions; track h) {
-                  <option [value]="h">{{ formatHour(h) }}</option>
-                }
-              </select>
+              <div class="flex items-center gap-2">
+                <select
+                  class="input-base"
+                  [ngModel]="syncLocalHour()"
+                  (ngModelChange)="syncLocalHour.set(+$event)"
+                  name="hour"
+                >
+                  @for (h of hourOptions; track h) {
+                    <option [value]="h">{{ padHour(h) }}h</option>
+                  }
+                </select>
+                <select
+                  class="input-base"
+                  [ngModel]="syncLocalMinute()"
+                  (ngModelChange)="syncLocalMinute.set(+$event)"
+                  name="minute"
+                >
+                  @for (m of minuteOptions; track m) {
+                    <option [value]="m">{{ padHour(m) }}</option>
+                  }
+                </select>
+              </div>
             </div>
+            <p class="mt-2 text-xs text-muted">
+              {{ 'syncModal.timezoneHint' | transloco }}
+              <strong>{{ userTimezoneLabel() }}</strong>
+            </p>
 
             <!-- Método -->
             <p class="mt-5 text-sm font-semibold text-brand dark:text-white">
@@ -436,14 +457,19 @@ export class DashboardComponent implements OnInit {
       }));
   });
 
-  // --- Modal de sincronização ---
+  // --- Modal de sincronização (hora/minuto no fuso local do usuario) ---
   readonly syncModalCard = signal<PlaylistCard | null>(null);
   readonly syncFrequency = signal<SyncFrequency>('weekly');
-  readonly syncRunHour = signal<number>(13); // 13:00 UTC (default)
+  readonly syncLocalHour = signal<number>(13);
+  readonly syncLocalMinute = signal<number>(0);
   readonly syncMethod = signal<SyncMethod>('add_only');
   readonly creatingSync = signal(false);
   readonly syncError = signal<string | null>(null);
   readonly syncCreated = signal(false);
+
+  readonly userTimezoneLabel = computed(() =>
+    timezoneLabel(this.auth.currentUser()?.timezone_offset_minutes ?? -180),
+  );
 
   ngOnInit(): void {
     this.auth.hydrate();
@@ -497,7 +523,8 @@ export class DashboardComponent implements OnInit {
   openSyncModal(c: PlaylistCard): void {
     this.syncModalCard.set(c);
     this.syncFrequency.set('weekly');
-    this.syncRunHour.set(13);
+    this.syncLocalHour.set(13);
+    this.syncLocalMinute.set(0);
     this.syncMethod.set('add_only');
     this.syncError.set(null);
     this.syncCreated.set(false);
@@ -508,14 +535,17 @@ export class DashboardComponent implements OnInit {
   }
 
   readonly hourOptions = Array.from({ length: 24 }, (_, i) => i);
+  readonly minuteOptions = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
-  formatHour(h: number): string {
-    return `${h.toString().padStart(2, '0')}:00 UTC`;
+  padHour(n: number): string {
+    return pad2(n);
   }
 
   confirmCreateSync(): void {
     const c = this.syncModalCard();
     if (!c) return;
+    const offset = this.auth.currentUser()?.timezone_offset_minutes ?? -180;
+    const utc = localToUtc(this.syncLocalHour(), this.syncLocalMinute(), offset);
     this.creatingSync.set(true);
     this.syncError.set(null);
     this.api
@@ -527,7 +557,8 @@ export class DashboardComponent implements OnInit {
         target_playlist_id: c.targetPlaylistId,
         target_playlist_name: c.name,
         frequency: this.syncFrequency(),
-        run_hour: this.syncRunHour(),
+        run_hour: utc.hour,
+        run_minute: utc.minute,
         method: this.syncMethod(),
       })
       .subscribe({

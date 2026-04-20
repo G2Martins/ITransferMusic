@@ -21,6 +21,7 @@ import {
   providerIcon,
   providerLabel,
 } from '../../../core/utils/playlist-url';
+import { TIMEZONE_OPTIONS } from '../../../core/utils/timezone';
 
 interface ProviderMeta {
   id: Provider;
@@ -44,6 +45,12 @@ export class AccountProfileComponent implements OnInit {
 
   readonly deleting = signal(false);
   readonly deleteError = signal<string | null>(null);
+
+  readonly timezoneOptions = TIMEZONE_OPTIONS;
+  readonly timezoneOffsetMinutes = signal<number>(-180);
+  readonly savingTimezone = signal(false);
+  readonly timezoneSuccess = signal(false);
+  readonly timezoneError = signal<string | null>(null);
 
   readonly name = signal('');
   readonly email = signal('');
@@ -76,6 +83,7 @@ export class AccountProfileComponent implements OnInit {
       next: (me) => {
         this.name.set(me.name);
         this.email.set(me.email);
+        this.timezoneOffsetMinutes.set(me.timezone_offset_minutes);
         this.auth.currentUser.set(me);
         this.loadingMe.set(false);
       },
@@ -109,6 +117,25 @@ export class AccountProfileComponent implements OnInit {
 
   unlinkProvider(p: Provider): void {
     this.api.unlinkAccount(p).subscribe({ next: () => this.loadLinked() });
+  }
+
+  saveTimezone(): void {
+    this.timezoneError.set(null);
+    this.timezoneSuccess.set(false);
+    this.savingTimezone.set(true);
+    this.auth
+      .updateProfile({ timezone_offset_minutes: this.timezoneOffsetMinutes() })
+      .subscribe({
+        next: (me) => {
+          this.auth.currentUser.set(me);
+          this.savingTimezone.set(false);
+          this.timezoneSuccess.set(true);
+        },
+        error: (err) => {
+          this.savingTimezone.set(false);
+          this.timezoneError.set(formatApiError(err, 'Falha ao atualizar fuso'));
+        },
+      });
   }
 
   confirmDelete(): void {

@@ -1,0 +1,224 @@
+<section class="min-h-screen bg-surface-muted dark:bg-brand-dark">
+  <div class="container mx-auto px-4 py-6">
+    <a
+      [routerLink]="['/dashboard']"
+      class="mb-4 inline-flex items-center gap-2 text-sm text-muted hover:text-brand-accent"
+    >
+      <iconify-icon icon="ph:arrow-left-bold"></iconify-icon>
+      Voltar ao painel
+    </a>
+
+    <div class="mb-8 flex items-center gap-3">
+      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-accent text-white shadow-lg">
+        <iconify-icon icon="ph:sparkle-duotone" class="text-2xl"></iconify-icon>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-brand dark:text-white">
+          Gerador de Playlists
+          <span class="rounded bg-brand-accent/20 px-2 py-0.5 text-xs font-semibold text-brand-accent">
+            BETA
+          </span>
+        </h1>
+        <p class="text-sm text-muted">By ITransferMusic</p>
+      </div>
+    </div>
+
+    @if (error()) {
+      <p class="alert-error mb-4">{{ error() }}</p>
+    }
+    @if (savedMatched() !== null) {
+      <p class="mb-4 rounded-xl bg-green-50 p-4 text-sm text-green-700 dark:bg-green-500/10 dark:text-green-300">
+        Playlist criada! {{ savedMatched() }}/{{ tracks().length }} faixas adicionadas.
+        Redirecionando para o dashboard...
+      </p>
+    }
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr_260px]">
+      <!-- SIDEBAR ESQUERDA -->
+      <aside class="card sticky top-6 h-fit">
+        <p class="mb-2 text-sm font-semibold text-brand dark:text-white">
+          Conecte suas bibliotecas de música
+        </p>
+        <p class="mb-4 text-xs text-muted">
+          As sugestões são personalizadas com base no provedor selecionado.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-2">
+          @for (a of linked(); track a.provider) {
+            <button
+              type="button"
+              (click)="sourceProvider.set(a.provider)"
+              class="flex h-10 w-10 items-center justify-center rounded-lg border-2 transition-colors"
+              [ngClass]="
+                sourceProvider() === a.provider
+                  ? 'border-brand-accent bg-brand-accent/10'
+                  : 'border-gray-200 dark:border-white/10'
+              "
+              [title]="providerLabel(a.provider)"
+            >
+              <iconify-icon [attr.icon]="providerIcon(a.provider)" class="text-xl"></iconify-icon>
+            </button>
+          }
+        </div>
+
+        <p class="mt-6 text-sm font-semibold text-brand dark:text-white">Gêneros</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          @for (g of genres; track g) {
+            <button
+              type="button"
+              (click)="toggleGenre(g)"
+              class="rounded-full border px-3 py-1 text-xs font-semibold transition-colors"
+              [ngClass]="
+                isGenreSelected(g)
+                  ? 'border-brand-accent bg-brand-accent text-white'
+                  : 'border-gray-300 text-brand dark:border-white/15 dark:text-white'
+              "
+            >
+              {{ g }}
+            </button>
+          }
+        </div>
+
+        <p class="mt-6 text-sm font-semibold text-brand dark:text-white">Humores</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          @for (m of moods; track m) {
+            <button
+              type="button"
+              (click)="toggleMood(m)"
+              class="rounded-full border px-3 py-1 text-xs font-semibold transition-colors"
+              [ngClass]="
+                isMoodSelected(m)
+                  ? 'border-brand-accent bg-brand-accent text-white'
+                  : 'border-gray-300 text-brand dark:border-white/15 dark:text-white'
+              "
+            >
+              {{ m }}
+            </button>
+          }
+        </div>
+
+        <p class="mt-6 text-sm font-semibold text-brand dark:text-white">
+          <iconify-icon icon="ph:sparkle-duotone" class="mr-1 text-brand-accent"></iconify-icon>
+          Que música você está procurando?
+        </p>
+        <textarea
+          class="input-base mt-2 min-h-[80px] text-sm"
+          [value]="prompt()"
+          (input)="prompt.set($any($event.target).value)"
+          placeholder="Ex: Trap noturno brasileiro"
+        ></textarea>
+
+        <button
+          type="button"
+          class="btn-primary mt-4 w-full"
+          (click)="generate()"
+          [disabled]="loading() || !hasSource()"
+        >
+          <iconify-icon icon="ph:plus-bold" class="mr-1"></iconify-icon>
+          Gerar faixas 20
+        </button>
+
+        <label class="mt-3 flex items-center gap-2 text-xs text-muted">
+          <input
+            type="checkbox"
+            class="h-4 w-4 rounded accent-brand-accent"
+            [checked]="replaceExisting()"
+            (change)="replaceExisting.set($any($event.target).checked)"
+          />
+          Substituir trilhos existentes
+        </label>
+
+        @if (!hasSource()) {
+          <p class="mt-3 text-xs text-yellow-700 dark:text-yellow-300">
+            Vincule uma conta em Configurações para gerar faixas.
+          </p>
+        }
+      </aside>
+
+      <!-- CENTRO: nome + tracks -->
+      <div class="card">
+        <label class="block text-sm font-semibold text-brand dark:text-white">
+          Nome da playlist
+        </label>
+        <input
+          type="text"
+          class="input-base mt-2"
+          [value]="playlistName()"
+          (input)="playlistName.set($any($event.target).value)"
+        />
+
+        <p class="mt-6 text-sm font-semibold text-brand dark:text-white">
+          Faixas sugeridas {{ tracks().length }}
+        </p>
+
+        @if (loading() && tracks().length === 0) {
+          <p class="mt-4 text-sm text-muted">Gerando faixas...</p>
+        } @else if (tracks().length === 0) {
+          <div class="empty-box mt-4 min-h-[200px]">
+            <iconify-icon icon="ph:music-notes-duotone" class="mb-3 text-5xl text-brand/40 dark:text-white/40"></iconify-icon>
+            <p class="text-muted">Selecione gêneros/humores e clique em <strong>Gerar faixas</strong>.</p>
+          </div>
+        } @else {
+          <div class="mt-4 space-y-2">
+            @for (t of tracks(); track t.id) {
+              <div class="flex items-center gap-3 rounded-xl surface-border p-3">
+                @if (t.image_url) {
+                  <img [src]="t.image_url" alt="" class="h-12 w-12 flex-shrink-0 rounded object-cover" />
+                } @else {
+                  <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded bg-brand-accent/10">
+                    <iconify-icon icon="ph:music-note-duotone" class="text-2xl text-brand-accent"></iconify-icon>
+                  </div>
+                }
+                <div class="flex-1 min-w-0">
+                  <p class="truncate text-sm font-semibold text-brand dark:text-white">
+                    {{ t.name }}
+                  </p>
+                  <p class="truncate text-xs text-muted">
+                    {{ t.artist }}{{ t.album ? ' · ' + t.album : '' }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  (click)="removeTrack(t.id)"
+                  class="text-brand/60 hover:text-red-600 dark:text-white/60 dark:hover:text-red-400"
+                  aria-label="Remover"
+                >
+                  <iconify-icon icon="ph:trash-duotone" class="text-lg"></iconify-icon>
+                </button>
+              </div>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="btn-primary mt-6 w-full"
+            (click)="save()"
+            [disabled]="saving()"
+          >
+            Salvar Lista de Reprodução
+            <iconify-icon icon="ph:caret-right-bold" class="ml-1"></iconify-icon>
+          </button>
+        }
+      </div>
+
+      <!-- DIREITA: sugestões de nomes -->
+      <aside class="card sticky top-6 h-fit">
+        <p class="text-sm font-semibold text-brand dark:text-white">
+          Sugestões de nomes para playlists
+        </p>
+        <div class="mt-3 flex flex-col gap-2">
+          @for (n of nameSuggestions; track n) {
+            <button
+              type="button"
+              (click)="pickNameSuggestion(n)"
+              class="rounded-lg surface-border px-3 py-2 text-left text-xs font-semibold transition-colors hover:border-brand-accent hover:text-brand-accent"
+              [ngClass]="playlistName() === n ? 'border-brand-accent bg-brand-accent/5' : ''"
+            >
+              {{ n }}
+            </button>
+          }
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

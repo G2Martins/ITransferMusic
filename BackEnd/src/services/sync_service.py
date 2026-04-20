@@ -35,6 +35,7 @@ class SyncService:
             target_playlist_name=payload.target_playlist_name,
             frequency=payload.frequency,
             run_hour=payload.run_hour,
+            run_minute=payload.run_minute,
             method=payload.method,
         )
         result = await self._collection.insert_one(doc.to_mongo())

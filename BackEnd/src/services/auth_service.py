@@ -80,12 +80,23 @@ class AuthService:
             id=str(doc["_id"]),
             name=doc["name"],
             email=doc["email"],
+            timezone_offset_minutes=doc.get("timezone_offset_minutes", -180),
         )
 
-    async def update_profile(self, user_id: str, name: str) -> MeResponse:
+    async def update_profile(
+        self,
+        user_id: str,
+        name: str | None = None,
+        timezone_offset_minutes: int | None = None,
+    ) -> MeResponse:
+        update: dict = {"updated_at": datetime.now(UTC)}
+        if name is not None:
+            update["name"] = name
+        if timezone_offset_minutes is not None:
+            update["timezone_offset_minutes"] = timezone_offset_minutes
         await self._users.update_one(
             {"_id": ObjectId(user_id)},
-            {"$set": {"name": name, "updated_at": datetime.now(UTC)}},
+            {"$set": update},
         )
         return await self.get_me(user_id)
 

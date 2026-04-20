@@ -193,6 +193,48 @@ export class ApiService {
   updateShare(token: string, body: { playlist_name?: string; playlist_description?: string }) {
     return this.http.patch<SharePublic>(`${this.base}/shares/${token}`, body);
   }
+
+  // --- Generator ---
+  generateTracks(payload: GeneratorRequest) {
+    return this.http.post<GeneratorResponse>(
+      `${this.base}/generator/tracks`,
+      payload,
+    );
+  }
+
+  saveGenerated(payload: GeneratorSavePayload) {
+    return this.http.post<GeneratorSaveResponse>(
+      `${this.base}/generator/save`,
+      payload,
+    );
+  }
+}
+
+export interface GeneratorRequest {
+  source_provider: Provider;
+  prompt?: string;
+  genres: string[];
+  moods: string[];
+  count: number;
+  exclude_track_ids?: string[];
+}
+
+export interface GeneratorResponse {
+  tracks: Track[];
+  used_queries: string[];
+}
+
+export interface GeneratorSavePayload {
+  target_provider: Provider;
+  playlist_name: string;
+  playlist_description?: string;
+  tracks: { name: string; artist: string }[];
+}
+
+export interface GeneratorSaveResponse {
+  playlist_id: string;
+  matched_count: number;
+  total_count: number;
 }
 
 export type SyncStatus = 'active' | 'paused' | 'error';
@@ -209,6 +251,7 @@ export interface PlaylistSync {
   target_playlist_name: string | null;
   frequency: SyncFrequency;
   run_hour: number;
+  run_minute: number;
   method: SyncMethod;
   status: SyncStatus;
   last_synced_at: string | null;
@@ -227,5 +270,6 @@ export interface SyncCreatePayload {
   target_playlist_name?: string;
   frequency?: SyncFrequency;
   run_hour?: number;
+  run_minute?: number;
   method?: SyncMethod;
 }

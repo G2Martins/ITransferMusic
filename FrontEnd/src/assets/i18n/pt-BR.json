@@ -25,6 +25,12 @@
       "save": "Salvar nome",
       "success": "Nome atualizado com sucesso."
     },
+    "timezone": {
+      "title": "Fuso horário",
+      "subtitle": "Seu fuso é usado para agendar sincronizações e exibir horários corretamente.",
+      "save": "Salvar fuso horário",
+      "success": "Fuso horário atualizado com sucesso."
+    },
     "password": {
       "title": "Alterar senha",
       "subtitle": "Use ao menos 8 caracteres. Você precisa da senha atual para confirmar.",
@@ -234,6 +240,7 @@
     "mirrorDesc": "Manter as 2 playlists exatamente iguais.",
     "confirm": "Criar sincronização",
     "close": "Fechar",
+    "timezoneHint": "O horário segue seu fuso",
     "successTitle": "Sincronização criada com sucesso!",
     "successBody": "Sua playlist será verificada e atualizada automaticamente no horário configurado."
   },
@@ -273,11 +280,27 @@
     "save": "Salvar"
   },
   "help": {
-    "title": "Central de Ajuda",
-    "subtitle": "Encontre respostas para as dúvidas mais comuns.",
+    "title": "Perguntas frequentes",
+    "subtitle": "Tem dúvidas sobre como transferir suas músicas, salvar suas playlists ou sincronizar entre plataformas? Você está no lugar certo. Aqui está tudo o que você precisa saber antes de começar.",
     "faq": {
-      "q1": "Meus dados estão seguros?",
-      "a1": "Sim. Os tokens dos serviços de música são criptografados antes de serem armazenados."
+      "q1": "O que é ITransferMusic?",
+      "a1": "ITransferMusic é uma plataforma para transferir e sincronizar playlists entre os principais serviços de streaming. Através de integrações oficiais com Spotify, YouTube Music, Apple Music, Amazon Music e mais, nosso objetivo é ser a solução mais simples e confiável para migrar sua biblioteca musical sem precisar refazer nada do zero.",
+      "q2": "Como funciona a transferência?",
+      "a2": "Você conecta a conta da plataforma origem e a da plataforma destino via OAuth oficial, escolhe a playlist que quer levar e clica em Iniciar Transferência. O ITransferMusic lê cada faixa, busca o equivalente no destino e cria uma playlist nova com o máximo de correspondências possíveis. Tudo acontece em segundo plano — você pode fechar a página e voltar depois.",
+      "q3": "Meus dados estão seguros?",
+      "a3": "Sim. Usamos exclusivamente OAuth oficial — nunca solicitamos nem armazenamos a senha das suas contas de streaming. Os tokens de acesso são criptografados com Fernet (AES 128) antes de serem salvos no banco. Você pode desvincular uma conta a qualquer momento pelo painel de configurações, o que invalida imediatamente os tokens guardados.",
+      "q4": "As playlists transferidas ficam sincronizadas automaticamente?",
+      "a4": "Não por padrão. Cada transferência cria uma cópia estática no momento em que você clicou em Iniciar. Se quiser manter as duas playlists espelhadas ao longo do tempo, ative uma Sincronização pela ação Sincronizar no dashboard — você escolhe a frequência (diária ou semanal), o horário e se quer apenas adicionar novas faixas ou manter as duas idênticas (espelho).",
+      "q5": "O que acontece se algumas músicas não puderem ser combinadas?",
+      "a5": "A correspondência entre plataformas é feita por busca textual (nome da faixa + artista). Algumas faixas podem não ser encontradas no destino por estarem fora da região, não licenciadas ou por diferenças de metadados (versões explícitas, remasters, etc). Nesses casos, a playlist é criada como transferência parcial: você vê quantas faixas bateram (ex: 42/50) e a lista completa fica registrada no Histórico de Transferências para consulta.",
+      "q6": "Posso vincular mais de uma conta do mesmo serviço?",
+      "a6": "No momento, apenas uma conta ativa por serviço por vez. Se quiser trocar de conta — por exemplo, migrar de um perfil pessoal para um profissional no Spotify — basta clicar em Mudar de conta na etapa de seleção: o token atual é invalidado e você refaz o login com a nova conta.",
+      "q7": "Vocês cobram alguma coisa?",
+      "a7": "Enquanto o projeto estiver em desenvolvimento, o uso é totalmente gratuito e sem limite de transferências. A ideia é liberar todas as ferramentas para que você possa experimentar antes que ajustemos o modelo de monetização no futuro.",
+      "q8": "Posso compartilhar uma playlist transferida?",
+      "a8": "Sim. Depois que a transferência termina, um botão Partilhar fica disponível tanto no dashboard quanto no histórico. Ele gera uma página pública com a lista de faixas, capas e botões para abrir a playlist em qualquer serviço compatível. Só quem tem o link consegue visualizar, e você pode editar o nome e a descrição da página a qualquer momento.",
+      "q9": "O que acontece se eu apagar a playlist no Spotify/YouTube depois?",
+      "a9": "O ITransferMusic detecta automaticamente quando a playlist destino foi removida no provedor. Nesse caso, o card some do dashboard (para evitar links quebrados), mas o registro permanece no Histórico de Transferências com todas as faixas, capas, nome e descrição gerados — assim você nunca perde o que foi migrado, mesmo que a playlist original não exista mais."
     }
   },
   "contact": {
@@ -292,6 +315,9 @@
     "tagline": "Conecte suas contas de streaming e transfira suas playlists entre plataformas em poucos cliques.",
     "navigate": "Navegar",
     "follow": "Siga-nos",
+    "legal": "Legal",
+    "terms": "Termos de Uso",
+    "privacy": "Política de Privacidade",
     "rights": "Todos os direitos reservados."
   }
 }

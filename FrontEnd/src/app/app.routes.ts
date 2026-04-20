@@ -95,6 +95,24 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/share/share.component').then((m) => m.ShareComponent),
   },
+  {
+    path: 'terms',
+    loadComponent: () =>
+      import('./pages/legal/terms.component').then((m) => m.TermsComponent),
+  },
+  {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./pages/legal/privacy.component').then((m) => m.PrivacyComponent),
+  },
+  {
+    path: 'generator',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/generator/generator.component').then(
+        (m) => m.GeneratorComponent,
+      ),
+  },
   // Redirect para compatibilidade com a rota antiga
   { path: 'profile', redirectTo: '/account/profile', pathMatch: 'full' },
   { path: '**', redirectTo: '' },

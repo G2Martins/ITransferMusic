@@ -45,6 +45,7 @@ class PlaylistSyncDocument(BaseModel):
 
     frequency: SyncFrequency = SyncFrequency.DAILY
     run_hour: int = 2  # 0-23, horario UTC em que roda
+    run_minute: int = 0  # 0-59, minuto UTC em que roda
     method: SyncMethod = SyncMethod.ADD_ONLY
 
     status: SyncStatus = SyncStatus.ACTIVE
