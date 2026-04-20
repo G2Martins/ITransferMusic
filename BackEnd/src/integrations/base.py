@@ -45,3 +45,34 @@ class MusicProviderClient(ABC):
     ) -> str:
         """Cria a playlist no destino e retorna o ID criado."""
         ...
+
+    async def playlist_exists(self, playlist_id: str, auth: ProviderAuth) -> bool:
+        """Verifica se a playlist ainda existe no provedor.
+
+        Implementacao default: tenta ler faixas e trata 404/403 como 'nao existe'.
+        Clients podem sobrescrever com uma chamada mais leve.
+        """
+        try:
+            await self.get_playlist_tracks(playlist_id, auth)
+            return True
+        except Exception:  # noqa: BLE001
+            return False
+
+    async def add_tracks_to_playlist(
+        self, playlist_id: str, track_ids: list[str], auth: ProviderAuth
+    ) -> None:
+        """Adiciona faixas a uma playlist existente. Opcional (sync).
+
+        Por padrao, levanta NotImplementedError.
+        """
+        raise NotImplementedError(
+            f"add_tracks_to_playlist nao implementado para {self.provider.value}"
+        )
+
+    async def remove_tracks_from_playlist(
+        self, playlist_id: str, track_ids: list[str], auth: ProviderAuth
+    ) -> None:
+        """Remove faixas de uma playlist existente. Opcional (sync mirror)."""
+        raise NotImplementedError(
+            f"remove_tracks_from_playlist nao implementado para {self.provider.value}"
+        )

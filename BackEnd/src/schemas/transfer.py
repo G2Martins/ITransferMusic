@@ -1,9 +1,16 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 from src.models.common import Provider
 from src.models.transfer import TransferStatus, TransferTrackResult
+
+
+def _serialize_utc(dt: datetime) -> str:
+    """Garante timezone UTC com sufixo Z para o frontend interpretar corretamente."""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
 class PlaylistTransferCreate(BaseModel):
@@ -33,3 +40,7 @@ class TransferResponse(BaseModel):
     error_message: str | None = None
     created_at: datetime
     updated_at: datetime
+
+    @field_serializer("created_at", "updated_at")
+    def _ser_dt(self, dt: datetime) -> str:
+        return _serialize_utc(dt)

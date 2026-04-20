@@ -88,6 +88,19 @@ async def update_me(
     return await service.update_profile(user_id, payload.name)
 
 
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_account(
+    user_id: CurrentUserId,
+    service: AuthServiceDep,
+) -> None:
+    try:
+        await service.delete_account(user_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
+        ) from exc
+
+
 @router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
 async def change_password(
     payload: ChangePasswordRequest,

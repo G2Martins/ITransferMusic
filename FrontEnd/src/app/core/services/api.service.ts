@@ -131,9 +131,21 @@ export class ApiService {
   deleteSync(id: string) {
     return this.http.delete<void>(`${this.base}/syncs/${id}`);
   }
+
+  runSyncNow(id: string) {
+    return this.http.post<{ status: string }>(`${this.base}/syncs/${id}/run`, {});
+  }
+
+  checkTransferAlive(transferId: string) {
+    return this.http.get<{ alive: boolean }>(
+      `${this.base}/transfers/${transferId}/alive`,
+    );
+  }
 }
 
 export type SyncStatus = 'active' | 'paused' | 'error';
+export type SyncFrequency = 'daily' | 'weekly';
+export type SyncMethod = 'add_only' | 'mirror';
 
 export interface PlaylistSync {
   id: string;
@@ -143,6 +155,9 @@ export interface PlaylistSync {
   target_provider: Provider;
   target_playlist_id: string;
   target_playlist_name: string | null;
+  frequency: SyncFrequency;
+  run_hour: number;
+  method: SyncMethod;
   status: SyncStatus;
   last_synced_at: string | null;
   last_error: string | null;
@@ -158,4 +173,7 @@ export interface SyncCreatePayload {
   target_provider: Provider;
   target_playlist_id: string;
   target_playlist_name?: string;
+  frequency?: SyncFrequency;
+  run_hour?: number;
+  method?: SyncMethod;
 }

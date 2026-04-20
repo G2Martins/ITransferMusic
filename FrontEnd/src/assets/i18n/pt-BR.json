@@ -39,6 +39,12 @@
       "subtitle": "Conecte suas contas para que possamos transferir playlists entre elas.",
       "connected": "Conectado",
       "disconnected": "Não conectado"
+    },
+    "danger": {
+      "title": "Zona de perigo",
+      "subtitle": "Excluir sua conta remove permanentemente seus dados, histórico de transferências, sincronizações e contas vinculadas. Essa ação não pode ser desfeita.",
+      "button": "Excluir minha conta",
+      "confirm": "Tem certeza que deseja excluir sua conta? Essa ação é irreversível."
     }
   },
   "account": {
@@ -209,6 +215,24 @@
     "linkAction": "Vincular",
     "unlinkAction": "Desvincular",
     "newTransfer": "Nova transferência"
+  },
+  "syncModal": {
+    "title": "Sincronização criada",
+    "description": "Criar uma tarefa de sincronização irá manter sua playlist atualizada a todo o tempo e mudará sempre que você fizer uma alteração na playlist fonte original.",
+    "learnMore": "Saiba Mais",
+    "playlistLabel": "Nome da playlist",
+    "frequencyLabel": "Frequência",
+    "daily": "Diária",
+    "weekly": "Semanal",
+    "methodLabel": "Método",
+    "addOnly": "Adicionar apenas",
+    "addOnlyDesc": "Cada faixa adicionada à lista de reprodução de origem será adicionada à lista de reprodução de destino.",
+    "mirror": "Espelho",
+    "mirrorDesc": "Manter as 2 playlists exatamente iguais.",
+    "confirm": "Criar sincronização",
+    "close": "Fechar",
+    "successTitle": "Sincronização criada com sucesso!",
+    "successBody": "Sua playlist será verificada e atualizada automaticamente no horário configurado."
   },
   "transferNew": {
     "title": "Nova Transferência",

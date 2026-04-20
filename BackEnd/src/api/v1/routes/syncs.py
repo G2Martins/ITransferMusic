@@ -12,6 +12,7 @@ from src.schemas.sync import (
     PlaylistSyncResponse,
     PlaylistSyncToggle,
 )
+from src.services.sync_runner import run_sync_by_id
 from src.services.sync_service import SyncNotFoundError, SyncService
 
 
@@ -35,6 +36,9 @@ def _to_response(doc: PlaylistSyncDocument) -> PlaylistSyncResponse:
         target_provider=doc.target_provider,
         target_playlist_id=doc.target_playlist_id,
         target_playlist_name=doc.target_playlist_name,
+        frequency=doc.frequency,
+        run_hour=doc.run_hour,
+        method=doc.method,
         status=doc.status,
         last_synced_at=doc.last_synced_at,
         last_error=doc.last_error,
@@ -95,3 +99,14 @@ async def delete_sync(
     service: SyncServiceDep,
 ) -> None:
     await service.delete(user_id, sync_id)
+
+
+@router.post("/{sync_id}/run", status_code=status.HTTP_202_ACCEPTED)
+async def run_sync_now(
+    sync_id: str,
+    user_id: CurrentUserId,
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_database)],
+) -> dict[str, str]:
+    """Dispara a execucao da sync imediatamente (ad-hoc)."""
+    await run_sync_by_id(db, user_id, sync_id)
+    return {"status": "ok"}

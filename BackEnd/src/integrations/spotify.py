@@ -262,5 +262,41 @@ class SpotifyClient(MusicProviderClient):
             )
             resp.raise_for_status()
 
+    async def add_tracks_to_playlist(
+        self, playlist_id: str, track_ids: list[str], auth: ProviderAuth
+    ) -> None:
+        if not track_ids:
+            return
+        await self._add_tracks(playlist_id, track_ids, auth)
+
+    async def remove_tracks_from_playlist(
+        self, playlist_id: str, track_ids: list[str], auth: ProviderAuth
+    ) -> None:
+        if not track_ids:
+            return
+        for chunk_start in range(0, len(track_ids), 100):
+            chunk = track_ids[chunk_start : chunk_start + 100]
+            tracks = [{"uri": f"spotify:track:{tid}"} for tid in chunk]
+            resp = await self._client.request(
+                "DELETE",
+                f"/playlists/{playlist_id}/tracks",
+                headers=self._headers(auth),
+                json={"tracks": tracks},
+            )
+            resp.raise_for_status()
+
+    async def playlist_exists(self, playlist_id: str, auth: ProviderAuth) -> bool:
+        if playlist_id.startswith("__"):
+            # playlists virtuais sao agregacoes pessoais do usuario; sempre "existem".
+            return True
+        try:
+            resp = await self._client.get(
+                f"/playlists/{playlist_id}?fields=id",
+                headers=self._headers(auth),
+            )
+            return resp.status_code == 200
+        except Exception:  # noqa: BLE001
+            return False
+
     async def aclose(self) -> None:
         await self._client.aclose()

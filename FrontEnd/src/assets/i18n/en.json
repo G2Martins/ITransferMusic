@@ -39,6 +39,12 @@
       "subtitle": "Connect your accounts so we can transfer playlists between them.",
       "connected": "Connected",
       "disconnected": "Not connected"
+    },
+    "danger": {
+      "title": "Danger zone",
+      "subtitle": "Deleting your account permanently removes your data, transfer history, syncs, and linked accounts. This action cannot be undone.",
+      "button": "Delete my account",
+      "confirm": "Are you sure you want to delete your account? This cannot be undone."
     }
   },
   "account": {
@@ -209,6 +215,24 @@
     "linkAction": "Link",
     "unlinkAction": "Unlink",
     "newTransfer": "New transfer"
+  },
+  "syncModal": {
+    "title": "Sync created",
+    "description": "Creating a sync task will keep your playlist up to date and mirror every change you make on the source playlist.",
+    "learnMore": "Learn More",
+    "playlistLabel": "Playlist name",
+    "frequencyLabel": "Frequency",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "methodLabel": "Method",
+    "addOnly": "Add only",
+    "addOnlyDesc": "Every track added to the source playlist will be added to the target playlist.",
+    "mirror": "Mirror",
+    "mirrorDesc": "Keep the 2 playlists exactly in sync.",
+    "confirm": "Create sync",
+    "close": "Close",
+    "successTitle": "Sync created successfully!",
+    "successBody": "Your playlist will be checked and updated automatically at the configured time."
   },
   "transferNew": {
     "title": "New Transfer",

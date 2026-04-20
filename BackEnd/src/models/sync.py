@@ -13,6 +13,16 @@ class SyncStatus(StrEnum):
     ERROR = "error"
 
 
+class SyncFrequency(StrEnum):
+    DAILY = "daily"
+    WEEKLY = "weekly"
+
+
+class SyncMethod(StrEnum):
+    ADD_ONLY = "add_only"
+    MIRROR = "mirror"
+
+
 class PlaylistSyncDocument(BaseModel):
     """Mantem duas playlists (origem e destino) em sincronia periodica."""
 
@@ -32,6 +42,10 @@ class PlaylistSyncDocument(BaseModel):
     target_provider: Provider
     target_playlist_id: str
     target_playlist_name: str | None = None
+
+    frequency: SyncFrequency = SyncFrequency.DAILY
+    run_hour: int = 2  # 0-23, horario UTC em que roda
+    method: SyncMethod = SyncMethod.ADD_ONLY
 
     status: SyncStatus = SyncStatus.ACTIVE
     last_synced_at: datetime | None = None

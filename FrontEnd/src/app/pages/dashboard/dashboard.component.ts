@@ -8,13 +8,18 @@ import {
   signal,
 } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import {
   ApiService,
   LinkedAccount,
   Provider,
+  SyncFrequency,
+  SyncMethod,
   TransferResponse,
 } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -23,6 +28,7 @@ import {
   providerIcon,
   providerLabel,
 } from '../../core/utils/playlist-url';
+import { formatApiError } from '../../core/utils/format-error';
 
 interface ProviderMeta {
   id: Provider;
@@ -42,12 +48,14 @@ interface PlaylistCard {
   status: string;
   createdAt: string;
   url: string | null;
+  sourcePlaylistId: string;
+  targetPlaylistId: string;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [DatePipe, NgClass, RouterLink, TranslocoPipe],
+  imports: [DatePipe, FormsModule, NgClass, RouterLink, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
@@ -210,13 +218,14 @@ interface PlaylistCard {
                       <iconify-icon icon="ph:share-network-duotone" class="text-lg"></iconify-icon>
                       {{ 'dashboard.share' | transloco }}
                     </button>
-                    <a
-                      [routerLink]="['/account/syncs']"
+                    <button
+                      type="button"
+                      (click)="openSyncModal(c)"
                       class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-brand transition-colors hover:border-brand-accent hover:text-brand-accent dark:border-white/15 dark:text-white"
                     >
                       <iconify-icon icon="ph:arrows-clockwise-duotone" class="text-lg"></iconify-icon>
                       {{ 'dashboard.sync' | transloco }}
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -225,6 +234,165 @@ interface PlaylistCard {
         }
       </div>
     </section>
+
+    @if (syncModalCard(); as c) {
+      <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        (click)="closeSyncModal()"
+      >
+        <div
+          class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-surface-mutedDark"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2">
+              <iconify-icon
+                icon="ph:arrows-clockwise-duotone"
+                class="text-3xl text-brand-accent"
+              ></iconify-icon>
+              <h3 class="text-2xl font-bold text-brand dark:text-white">
+                {{ 'syncModal.title' | transloco }}
+              </h3>
+            </div>
+            <button
+              type="button"
+              (click)="closeSyncModal()"
+              class="rounded-full p-1 text-brand/60 hover:text-brand-accent dark:text-white/60"
+              aria-label="Fechar"
+            >
+              <iconify-icon icon="ph:x-bold" class="text-xl"></iconify-icon>
+            </button>
+          </div>
+
+          @if (syncCreated()) {
+            <div class="mt-6 rounded-lg bg-green-50 p-4 text-sm text-green-700 dark:bg-green-500/10 dark:text-green-300">
+              <p class="font-semibold">{{ 'syncModal.successTitle' | transloco }}</p>
+              <p class="mt-1">{{ 'syncModal.successBody' | transloco }}</p>
+            </div>
+            <div class="mt-6 flex justify-end">
+              <button type="button" class="btn-primary" (click)="closeSyncModal()">
+                {{ 'syncModal.close' | transloco }}
+              </button>
+            </div>
+          } @else {
+            <p class="mt-3 text-sm text-brand/70 dark:text-white/70">
+              {{ 'syncModal.description' | transloco }}
+              <a
+                [routerLink]="['/feature/sincronizar']"
+                class="font-semibold text-brand-accent hover:underline"
+              >
+                {{ 'syncModal.learnMore' | transloco }}
+              </a>
+            </p>
+
+            <!-- Playlist -->
+            <p class="mt-5 text-sm font-semibold text-brand dark:text-white">
+              {{ 'syncModal.playlistLabel' | transloco }}
+            </p>
+            <div class="mt-2 flex items-center gap-3 rounded-xl surface-border p-3">
+              <iconify-icon
+                [attr.icon]="c.sourceIcon"
+                class="text-2xl text-brand dark:text-white"
+              ></iconify-icon>
+              <iconify-icon
+                icon="ph:arrow-right-bold"
+                class="text-lg text-brand/40 dark:text-white/40"
+              ></iconify-icon>
+              <iconify-icon
+                [attr.icon]="c.targetIcon"
+                class="text-2xl text-brand dark:text-white"
+              ></iconify-icon>
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-brand dark:text-white">{{ c.name }}</p>
+                <p class="text-xs text-muted">{{ c.totalTracks }} tracks</p>
+              </div>
+            </div>
+
+            <!-- Frequência -->
+            <p class="mt-5 text-sm font-semibold text-brand dark:text-white">
+              {{ 'syncModal.frequencyLabel' | transloco }}
+            </p>
+            <div class="mt-2 grid grid-cols-2 gap-3">
+              <select
+                class="input-base"
+                [ngModel]="syncFrequency()"
+                (ngModelChange)="syncFrequency.set($event)"
+                name="freq"
+              >
+                <option value="daily">{{ 'syncModal.daily' | transloco }}</option>
+                <option value="weekly">{{ 'syncModal.weekly' | transloco }}</option>
+              </select>
+              <select
+                class="input-base"
+                [ngModel]="syncRunHour()"
+                (ngModelChange)="syncRunHour.set(+$event)"
+                name="hour"
+              >
+                @for (h of hourOptions; track h) {
+                  <option [value]="h">{{ formatHour(h) }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Método -->
+            <p class="mt-5 text-sm font-semibold text-brand dark:text-white">
+              {{ 'syncModal.methodLabel' | transloco }}
+            </p>
+            <div class="mt-2 space-y-2">
+              <label
+                class="flex cursor-pointer items-start gap-3 rounded-xl surface-border p-3"
+                [ngClass]="syncMethod() === 'add_only' ? 'border-brand-accent' : ''"
+              >
+                <input
+                  type="radio"
+                  name="method"
+                  class="mt-1 accent-brand-accent"
+                  [checked]="syncMethod() === 'add_only'"
+                  (change)="syncMethod.set('add_only')"
+                />
+                <div>
+                  <p class="text-sm font-semibold text-brand dark:text-white">
+                    {{ 'syncModal.addOnly' | transloco }}
+                  </p>
+                  <p class="text-xs text-muted">{{ 'syncModal.addOnlyDesc' | transloco }}</p>
+                </div>
+              </label>
+              <label
+                class="flex cursor-pointer items-start gap-3 rounded-xl surface-border p-3"
+                [ngClass]="syncMethod() === 'mirror' ? 'border-brand-accent' : ''"
+              >
+                <input
+                  type="radio"
+                  name="method"
+                  class="mt-1 accent-brand-accent"
+                  [checked]="syncMethod() === 'mirror'"
+                  (change)="syncMethod.set('mirror')"
+                />
+                <div>
+                  <p class="text-sm font-semibold text-brand dark:text-white">
+                    {{ 'syncModal.mirror' | transloco }}
+                  </p>
+                  <p class="text-xs text-muted">{{ 'syncModal.mirrorDesc' | transloco }}</p>
+                </div>
+              </label>
+            </div>
+
+            @if (syncError()) {
+              <p class="alert-error mt-4">{{ syncError() }}</p>
+            }
+
+            <button
+              type="button"
+              class="btn-primary mt-6 w-full"
+              (click)="confirmCreateSync()"
+              [disabled]="creatingSync()"
+            >
+              {{ 'syncModal.confirm' | transloco }}
+            </button>
+          }
+        </div>
+      </div>
+    }
   `,
 })
 export class DashboardComponent implements OnInit {
@@ -240,13 +408,16 @@ export class DashboardComponent implements OnInit {
 
   readonly linked = signal<LinkedAccount[]>([]);
   readonly transfers = signal<TransferResponse[]>([]);
+  /** IDs de transferências cujo playlist destino foi removido do provedor. */
+  readonly deadTransferIds = signal<Set<string>>(new Set());
 
   readonly totalLinked = computed(() => this.linked().length);
   readonly totalTransfers = computed(() => this.transfers().length);
 
-  readonly cards = computed<PlaylistCard[]>(() =>
-    this.transfers()
-      .filter((t) => t.target_playlist_id)
+  readonly cards = computed<PlaylistCard[]>(() => {
+    const dead = this.deadTransferIds();
+    return this.transfers()
+      .filter((t) => t.target_playlist_id && !dead.has(t.id))
       .slice(0, 5)
       .map((t) => ({
         id: t.id,
@@ -260,8 +431,19 @@ export class DashboardComponent implements OnInit {
         status: t.status,
         createdAt: t.created_at,
         url: playlistUrl(t.target_provider, t.target_playlist_id),
-      })),
-  );
+        sourcePlaylistId: t.source_playlist_id,
+        targetPlaylistId: t.target_playlist_id!,
+      }));
+  });
+
+  // --- Modal de sincronização ---
+  readonly syncModalCard = signal<PlaylistCard | null>(null);
+  readonly syncFrequency = signal<SyncFrequency>('weekly');
+  readonly syncRunHour = signal<number>(13); // 13:00 UTC (default)
+  readonly syncMethod = signal<SyncMethod>('add_only');
+  readonly creatingSync = signal(false);
+  readonly syncError = signal<string | null>(null);
+  readonly syncCreated = signal(false);
 
   ngOnInit(): void {
     this.auth.hydrate();
@@ -270,8 +452,29 @@ export class DashboardComponent implements OnInit {
       error: () => this.linked.set([]),
     });
     this.api.listTransfers().subscribe({
-      next: (t) => this.transfers.set(t),
+      next: (t) => {
+        this.transfers.set(t);
+        this.checkAliveStatuses(t);
+      },
       error: () => this.transfers.set([]),
+    });
+  }
+
+  private checkAliveStatuses(transfers: TransferResponse[]): void {
+    const candidates = transfers.filter((t) => t.target_playlist_id).slice(0, 5);
+    if (candidates.length === 0) return;
+    const checks = candidates.map((t) =>
+      this.api.checkTransferAlive(t.id).pipe(
+        map((r) => ({ id: t.id, alive: r.alive })),
+        catchError(() => of({ id: t.id, alive: true })),
+      ),
+    );
+    forkJoin(checks).subscribe((results) => {
+      const dead = new Set<string>();
+      for (const r of results) {
+        if (!r.alive) dead.add(r.id);
+      }
+      if (dead.size) this.deadTransferIds.set(dead);
     });
   }
 
@@ -286,5 +489,53 @@ export class DashboardComponent implements OnInit {
     } else {
       navigator.clipboard.writeText(c.url).catch(() => void 0);
     }
+  }
+
+  openSyncModal(c: PlaylistCard): void {
+    this.syncModalCard.set(c);
+    this.syncFrequency.set('weekly');
+    this.syncRunHour.set(13);
+    this.syncMethod.set('add_only');
+    this.syncError.set(null);
+    this.syncCreated.set(false);
+  }
+
+  closeSyncModal(): void {
+    this.syncModalCard.set(null);
+  }
+
+  readonly hourOptions = Array.from({ length: 24 }, (_, i) => i);
+
+  formatHour(h: number): string {
+    return `${h.toString().padStart(2, '0')}:00 UTC`;
+  }
+
+  confirmCreateSync(): void {
+    const c = this.syncModalCard();
+    if (!c) return;
+    this.creatingSync.set(true);
+    this.syncError.set(null);
+    this.api
+      .createSync({
+        source_provider: c.sourceProvider,
+        source_playlist_id: c.sourcePlaylistId,
+        source_playlist_name: c.name,
+        target_provider: c.targetProvider,
+        target_playlist_id: c.targetPlaylistId,
+        target_playlist_name: c.name,
+        frequency: this.syncFrequency(),
+        run_hour: this.syncRunHour(),
+        method: this.syncMethod(),
+      })
+      .subscribe({
+        next: () => {
+          this.creatingSync.set(false);
+          this.syncCreated.set(true);
+        },
+        error: (err) => {
+          this.creatingSync.set(false);
+          this.syncError.set(formatApiError(err, 'Falha ao criar sincronização'));
+        },
+      });
   }
 }

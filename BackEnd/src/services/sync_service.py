@@ -33,6 +33,9 @@ class SyncService:
             target_provider=payload.target_provider,
             target_playlist_id=payload.target_playlist_id,
             target_playlist_name=payload.target_playlist_name,
+            frequency=payload.frequency,
+            run_hour=payload.run_hour,
+            method=payload.method,
         )
         result = await self._collection.insert_one(doc.to_mongo())
         doc.id = result.inserted_id

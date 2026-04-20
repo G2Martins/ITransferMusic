@@ -109,6 +109,10 @@ export class AuthService {
     return this.http.post<void>(`${this.base}/change-password`, payload);
   }
 
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.base}/me`);
+  }
+
   private storeTokens(res: TokenResponse): void {
     localStorage.setItem(ACCESS_KEY, res.access_token);
     localStorage.setItem(REFRESH_KEY, res.refresh_token);

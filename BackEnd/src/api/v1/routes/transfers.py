@@ -2,6 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 
 from src.core.db import get_database
 from src.dependencies import CurrentUserId, PlaylistTransferServiceDep
+from src.integrations.registry import get_provider_client
 from src.models.transfer import TransferDocument
 from src.schemas.transfer import PlaylistTransferCreate, TransferResponse
 from src.services.account_service import AccountService, LinkedAccountNotFoundError
@@ -84,3 +85,23 @@ async def get_transfer(
             status_code=status.HTTP_404_NOT_FOUND, detail="Transferencia nao encontrada"
         )
     return _to_response(doc)
+
+
+@router.get("/{transfer_id}/alive")
+async def check_transfer_alive(
+    transfer_id: str,
+    user_id: CurrentUserId,
+    service: PlaylistTransferServiceDep,
+) -> dict[str, bool]:
+    """Verifica se a playlist destino da transferencia ainda existe no provedor."""
+    doc = await service.get_transfer(user_id, transfer_id)
+    if not doc or not doc.target_playlist_id:
+        return {"alive": False}
+    try:
+        accounts = AccountService(get_database())
+        auth = await accounts.get_auth(user_id, doc.target_provider)
+        client = get_provider_client(doc.target_provider)
+        alive = await client.playlist_exists(doc.target_playlist_id, auth)
+    except Exception:  # noqa: BLE001
+        alive = False
+    return {"alive": alive}

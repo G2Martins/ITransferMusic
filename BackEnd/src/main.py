@@ -6,14 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.v1.router import api_router
 from src.core.config import get_settings
 from src.core.db import close_mongo_connection, connect_to_mongo
+from src.core.scheduler import shutdown_scheduler, start_scheduler
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     await connect_to_mongo()
+    start_scheduler()
     try:
         yield
     finally:
+        shutdown_scheduler()
         await close_mongo_connection()
 
 

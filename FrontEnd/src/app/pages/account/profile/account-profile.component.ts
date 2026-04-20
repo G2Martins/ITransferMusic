@@ -7,7 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { Router } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { AuthService } from '../../../core/services/auth.service';
 import {
@@ -38,6 +39,11 @@ interface ProviderMeta {
 export class AccountProfileComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly api = inject(ApiService);
+  private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
+
+  readonly deleting = signal(false);
+  readonly deleteError = signal<string | null>(null);
 
   readonly name = signal('');
   readonly email = signal('');
@@ -103,6 +109,23 @@ export class AccountProfileComponent implements OnInit {
 
   unlinkProvider(p: Provider): void {
     this.api.unlinkAccount(p).subscribe({ next: () => this.loadLinked() });
+  }
+
+  confirmDelete(): void {
+    const msg = this.transloco.translate('profile.danger.confirm');
+    if (!window.confirm(msg)) return;
+    this.deleteError.set(null);
+    this.deleting.set(true);
+    this.auth.deleteAccount().subscribe({
+      next: () => {
+        this.auth.logout();
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.deleting.set(false);
+        this.deleteError.set(formatApiError(err, 'Falha ao deletar conta'));
+      },
+    });
   }
 
   saveName(): void {

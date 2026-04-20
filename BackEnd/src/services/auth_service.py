@@ -22,6 +22,18 @@ GOOGLE_TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo"
 class AuthService:
     def __init__(self, db: AsyncIOMotorDatabase) -> None:
         self._users = db["users"]
+        self._db = db
+
+    async def delete_account(self, user_id: str) -> None:
+        """Remove usuario e TODOS os dados relacionados (contas vinculadas,
+        transferencias, syncs). Operacao irreversivel."""
+        if not ObjectId.is_valid(user_id):
+            raise ValueError("Usuario invalido")
+        oid = ObjectId(user_id)
+        await self._db["linked_accounts"].delete_many({"user_id": oid})
+        await self._db["transfers"].delete_many({"user_id": oid})
+        await self._db["playlist_syncs"].delete_many({"user_id": oid})
+        await self._users.delete_one({"_id": oid})
 
     async def register(self, payload: RegisterRequest) -> TokenResponse:
         existing = await self._users.find_one({"email": payload.email})

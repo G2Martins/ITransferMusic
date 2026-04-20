@@ -70,6 +70,12 @@ class YouTubeClient(MusicProviderClient):
                 video_id = resource.get("videoId")
                 if not video_id:
                     continue
+                thumbnails = snippet.get("thumbnails") or {}
+                thumb = (
+                    (thumbnails.get("default") or thumbnails.get("medium") or {}).get(
+                        "url"
+                    )
+                )
                 tracks.append(
                     Track(
                         id=video_id,
@@ -77,6 +83,7 @@ class YouTubeClient(MusicProviderClient):
                         artist=snippet.get("videoOwnerChannelTitle")
                         or snippet.get("channelTitle", ""),
                         album=None,
+                        image_url=thumb,
                         uri=f"youtube:video:{video_id}",
                         provider=self.provider,
                     )
@@ -101,11 +108,16 @@ class YouTubeClient(MusicProviderClient):
         if not video_id:
             return None
         snippet = item.get("snippet") or {}
+        thumbnails = snippet.get("thumbnails") or {}
+        thumb = (
+            (thumbnails.get("default") or thumbnails.get("medium") or {}).get("url")
+        )
         return Track(
             id=video_id,
             name=snippet.get("title", ""),
             artist=snippet.get("channelTitle", ""),
             album=None,
+            image_url=thumb,
             uri=f"youtube:video:{video_id}",
             provider=self.provider,
         )
@@ -150,6 +162,25 @@ class YouTubeClient(MusicProviderClient):
             json=body,
         )
         resp.raise_for_status()
+
+    async def add_tracks_to_playlist(
+        self, playlist_id: str, track_ids: list[str], auth: ProviderAuth
+    ) -> None:
+        for video_id in track_ids:
+            await self._add_video(playlist_id, video_id, auth)
+
+    async def playlist_exists(self, playlist_id: str, auth: ProviderAuth) -> bool:
+        try:
+            resp = await self._client.get(
+                "/playlists",
+                params={"part": "id", "id": playlist_id},
+                headers=self._headers(auth),
+            )
+            if resp.status_code != 200:
+                return False
+            return len(resp.json().get("items") or []) > 0
+        except Exception:  # noqa: BLE001
+            return False
 
     async def aclose(self) -> None:
         await self._client.aclose()
