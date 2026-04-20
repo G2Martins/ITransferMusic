@@ -8,5 +8,6 @@ class Track(BaseModel):
     name: str
     artist: str
     album: str | None = None
+    image_url: str | None = None
     uri: str
     provider: Provider

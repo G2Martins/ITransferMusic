@@ -21,7 +21,12 @@ import {
   Track,
 } from '../../core/services/api.service';
 import { formatApiError } from '../../core/utils/format-error';
-import { providerIcon, providerLabel } from '../../core/utils/playlist-url';
+import {
+  playlistUrl,
+  providerIcon,
+  providerLabel,
+  trackUrl,
+} from '../../core/utils/playlist-url';
 
 type WizardStep = 1 | 2 | 3 | 4;
 
@@ -150,6 +155,16 @@ export class NewTransferComponent implements OnInit {
     return providerIcon(p);
   }
 
+  playlistUrl(id: string): string | null {
+    const src = this.source();
+    return src ? playlistUrl(src, id) : null;
+  }
+
+  trackUrl(id: string): string | null {
+    const src = this.source();
+    return src ? trackUrl(src, id) : null;
+  }
+
   sourceLinkedAccount(): LinkedAccount | undefined {
     const s = this.source();
     if (!s) return undefined;
@@ -253,6 +268,17 @@ export class NewTransferComponent implements OnInit {
     }
   }
 
+  /**
+   * Clique na linha da playlist: se ja selecionada, alterna expansao;
+   * se nao, seleciona + expande + carrega faixas.
+   */
+  async onPlaylistRowClick(pl: PlaylistSummary): Promise<void> {
+    if (!this.selected().has(pl.id)) {
+      this.togglePlaylist(pl);
+    }
+    await this.toggleExpand(pl.id);
+  }
+
   private async loadTracksFor(draft: PlaylistDraft): Promise<void> {
     const src = this.source();
     if (!src) return;
@@ -326,6 +352,10 @@ export class NewTransferComponent implements OnInit {
       return draft.playlist.track_count ?? draft.tracks?.length ?? 0;
     }
     return draft.selectedTrackIds.size;
+  }
+
+  totalTrackCount(draft: PlaylistDraft): number | null {
+    return draft.playlist.track_count ?? draft.tracks?.length ?? null;
   }
 
   draftList(): PlaylistDraft[] {

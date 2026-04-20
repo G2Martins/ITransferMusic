@@ -3,6 +3,8 @@ import { Provider } from '../services/api.service';
 /** Devolve a URL publica da playlist no provedor de destino, quando possivel. */
 export function playlistUrl(provider: Provider, id: string | null): string | null {
   if (!id) return null;
+  // IDs virtuais (favoritos, albuns, artistas) nao tem URL publica.
+  if (id.startsWith('__')) return null;
   switch (provider) {
     case 'spotify':
       return `https://open.spotify.com/playlist/${id}`;
@@ -10,6 +12,21 @@ export function playlistUrl(provider: Provider, id: string | null): string | nul
       return `https://www.youtube.com/playlist?list=${id}`;
     case 'apple_music':
       return `https://music.apple.com/library/playlist/${id}`;
+    default:
+      return null;
+  }
+}
+
+/** Devolve a URL publica de uma faixa no provedor, quando possivel. */
+export function trackUrl(provider: Provider, id: string | null): string | null {
+  if (!id) return null;
+  switch (provider) {
+    case 'spotify':
+      return `https://open.spotify.com/track/${id}`;
+    case 'youtube':
+      return `https://music.youtube.com/watch?v=${id}`;
+    case 'apple_music':
+      return `https://music.apple.com/song/${id}`;
     default:
       return null;
   }

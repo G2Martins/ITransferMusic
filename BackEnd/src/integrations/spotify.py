@@ -77,13 +77,16 @@ class SpotifyClient(MusicProviderClient):
             body = resp.json()
             for item in body.get("items", []):
                 images = item.get("images") or []
+                # Feb/2026 migration: `tracks.total` renomeado para `items.total`.
+                # Mantém fallback para o campo antigo.
+                count_block = item.get("items") or item.get("tracks") or {}
                 playlists.append(
                     PlaylistSummary(
                         id=item["id"],
                         name=item.get("name", ""),
                         description=item.get("description"),
                         image_url=images[0]["url"] if images else None,
-                        track_count=(item.get("tracks") or {}).get("total"),
+                        track_count=count_block.get("total"),
                         provider=self.provider,
                     )
                 )
@@ -101,22 +104,24 @@ class SpotifyClient(MusicProviderClient):
         if playlist_id == VIRTUAL_ARTISTS:
             return await self._followed_artist_tracks(auth)
 
+        # Migração Feb/2026 da Spotify: /playlists/{id}/tracks foi removido em
+        # Dev Mode e substituido por /playlists/{id}/items. Campo `track` foi
+        # renomeado para `item` em cada entrada.
+        # Ref: https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide
         tracks: list[Track] = []
-        # `market=from_token` aplica track relinking p/ conteudo region-locked.
-        # `additional_types=track` evita 403 em playlists com episodios de podcast.
         url: str | None = (
-            f"/playlists/{playlist_id}/tracks"
+            f"/playlists/{playlist_id}/items"
             "?limit=100&market=from_token&additional_types=track"
         )
         while url:
             resp = await self._client.get(url, headers=self._headers(auth))
             resp.raise_for_status()
             body = resp.json()
-            for item in body.get("items", []):
-                track_data = item.get("track") or {}
-                if not track_data.get("id"):
-                    continue
-                tracks.append(self._to_track(track_data))
+            for entry in body.get("items", []):
+                # compat: aceita tanto `item` (novo) quanto `track` (legado)
+                track_data = entry.get("item") or entry.get("track") or {}
+                if track_data.get("id"):
+                    tracks.append(self._to_track(track_data))
             next_url = body.get("next")
             url = next_url.replace(self.BASE_URL, "") if next_url else None
         return tracks
@@ -150,8 +155,11 @@ class SpotifyClient(MusicProviderClient):
                     if not t.get("id"):
                         continue
                     # album endpoint nao traz objeto `album` dentro do track;
-                    # injeta para preservar o nome do album.
-                    t["album"] = {"name": album.get("name")}
+                    # injeta para preservar nome e capa do album.
+                    t["album"] = {
+                        "name": album.get("name"),
+                        "images": album.get("images") or [],
+                    }
                     tracks.append(self._to_track(t))
             next_url = body.get("next")
             url = next_url.replace(self.BASE_URL, "") if next_url else None
@@ -188,12 +196,17 @@ class SpotifyClient(MusicProviderClient):
     def _to_track(self, track_data: dict[str, Any]) -> Track:
         artists = track_data.get("artists") or []
         artist = artists[0]["name"] if artists else "Desconhecido"
-        album = (track_data.get("album") or {}).get("name")
+        album_obj = track_data.get("album") or {}
+        album = album_obj.get("name")
+        images = album_obj.get("images") or []
+        # Pega a menor imagem disponivel (para thumbnail) ou a primeira.
+        image_url = images[-1]["url"] if images else None
         return Track(
             id=track_data["id"],
             name=track_data.get("name", ""),
             artist=artist,
             album=album,
+            image_url=image_url,
             uri=track_data.get("uri", f"spotify:track:{track_data['id']}"),
             provider=self.provider,
         )
@@ -208,16 +221,7 @@ class SpotifyClient(MusicProviderClient):
         items = ((resp.json().get("tracks") or {}).get("items")) or []
         if not items:
             return None
-        item = items[0]
-        artists = item.get("artists") or []
-        return Track(
-            id=item["id"],
-            name=item.get("name", ""),
-            artist=artists[0]["name"] if artists else "Desconhecido",
-            album=(item.get("album") or {}).get("name"),
-            uri=item.get("uri", f"spotify:track:{item['id']}"),
-            provider=self.provider,
-        )
+        return self._to_track(items[0])
 
     async def create_playlist(
         self,

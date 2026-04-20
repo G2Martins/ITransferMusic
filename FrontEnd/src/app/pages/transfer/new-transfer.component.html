@@ -172,12 +172,15 @@
                   class="rounded-xl border border-gray-200 transition-colors dark:border-white/10"
                   [ngClass]="isSelected(pl.id) ? 'border-brand-accent' : ''"
                 >
-                  <div class="flex items-center gap-3 p-3">
+                  <div
+                    class="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5"
+                    (click)="onPlaylistRowClick(pl)"
+                  >
                     <input
                       type="checkbox"
                       class="h-5 w-5 rounded accent-brand-accent"
                       [checked]="isSelected(pl.id)"
-                      (change)="togglePlaylist(pl)"
+                      (click)="$event.stopPropagation(); togglePlaylist(pl)"
                     />
                     @if (pl.image_url) {
                       <img [src]="pl.image_url" alt="" class="h-12 w-12 rounded object-cover" />
@@ -187,10 +190,23 @@
                       </div>
                     }
                     <div class="flex-1">
-                      <p class="font-semibold">{{ pl.name }}</p>
+                      @if (playlistUrl(pl.id); as url) {
+                        <a
+                          [href]="url"
+                          target="_blank"
+                          rel="noreferrer"
+                          (click)="$event.stopPropagation()"
+                          class="font-semibold hover:text-brand-accent hover:underline"
+                        >
+                          {{ pl.name }}
+                          <iconify-icon icon="ph:arrow-square-out-bold" class="ml-1 text-sm"></iconify-icon>
+                        </a>
+                      } @else {
+                        <p class="font-semibold">{{ pl.name }}</p>
+                      }
                       @if (isSelected(pl.id)) {
                         <p class="text-xs text-brand-accent">
-                          {{ selectedTrackCount(selected().get(pl.id)!) }}/{{ pl.track_count ?? '?' }}
+                          {{ selectedTrackCount(selected().get(pl.id)!) }}/{{ totalTrackCount(selected().get(pl.id)!) ?? '?' }}
                           {{ 'wizard.selected' | transloco }}
                         </p>
                       } @else if (pl.track_count !== null) {
@@ -198,17 +214,10 @@
                       }
                     </div>
                     @if (isSelected(pl.id)) {
-                      <button
-                        type="button"
-                        (click)="toggleExpand(pl.id)"
-                        class="rounded-full p-2 text-brand/60 hover:text-brand-accent dark:text-white/60"
-                        [attr.aria-label]="'wizard.selectTracks' | transloco"
-                      >
-                        <iconify-icon
-                          [attr.icon]="selected().get(pl.id)?.expanded ? 'ph:caret-up-bold' : 'ph:caret-down-bold'"
-                          class="text-xl"
-                        ></iconify-icon>
-                      </button>
+                      <iconify-icon
+                        [attr.icon]="selected().get(pl.id)?.expanded ? 'ph:caret-up-bold' : 'ph:caret-down-bold'"
+                        class="text-xl text-brand/60 dark:text-white/60"
+                      ></iconify-icon>
                     }
                   </div>
 
@@ -231,18 +240,42 @@
                         </label>
                         <div class="max-h-64 space-y-1 overflow-y-auto pr-2">
                           @for (t of selected().get(pl.id)!.tracks!; track t.id) {
-                            <label class="flex items-center gap-2 py-1 text-sm">
+                            <div class="flex items-center gap-2 py-1 text-sm">
                               <input
                                 type="checkbox"
                                 class="h-4 w-4 rounded accent-brand-accent"
                                 [checked]="isTrackChecked(selected().get(pl.id)!, t.id)"
                                 (change)="toggleTrack(pl.id, t.id)"
                               />
-                              <span class="flex-1">
-                                <span class="font-medium">{{ t.name }}</span>
-                                <span class="text-brand/50 dark:text-white/50"> — {{ t.artist }}</span>
-                              </span>
-                            </label>
+                              @if (t.image_url) {
+                                <img
+                                  [src]="t.image_url"
+                                  alt=""
+                                  class="h-10 w-10 flex-shrink-0 rounded object-cover"
+                                />
+                              } @else {
+                                <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-brand-accent/10">
+                                  <iconify-icon icon="ph:music-note-duotone" class="text-lg text-brand-accent"></iconify-icon>
+                                </div>
+                              }
+                              <div class="flex-1 min-w-0">
+                                @if (trackUrl(t.id); as url) {
+                                  <a
+                                    [href]="url"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    class="block truncate font-medium hover:text-brand-accent hover:underline"
+                                  >
+                                    {{ t.name }}
+                                  </a>
+                                } @else {
+                                  <p class="truncate font-medium">{{ t.name }}</p>
+                                }
+                                <p class="truncate text-xs text-brand/50 dark:text-white/50">
+                                  {{ t.artist }}@if (t.album) { · {{ t.album }} }
+                                </p>
+                              </div>
+                            </div>
                           }
                         </div>
                       </div>

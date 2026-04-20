@@ -19,6 +19,7 @@ export interface Track {
   name: string;
   artist: string;
   album: string | null;
+  image_url: string | null;
   uri: string;
   provider: Provider;
 }
