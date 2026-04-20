@@ -113,6 +113,11 @@ export const routes: Routes = [
         (m) => m.GeneratorComponent,
       ),
   },
+  {
+    path: 'reviews',
+    loadComponent: () =>
+      import('./pages/reviews/reviews.component').then((m) => m.ReviewsComponent),
+  },
   // Redirect para compatibilidade com a rota antiga
   { path: 'profile', redirectTo: '/account/profile', pathMatch: 'full' },
   { path: '**', redirectTo: '' },

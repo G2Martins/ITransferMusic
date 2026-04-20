@@ -6,6 +6,7 @@ from src.api.v1.routes import (
     generator,
     health,
     playlists,
+    reviews,
     shares,
     syncs,
     transfers,
@@ -23,3 +24,4 @@ api_router.include_router(
 api_router.include_router(syncs.router, prefix="/syncs", tags=["syncs"])
 api_router.include_router(shares.router, prefix="/shares", tags=["shares"])
 api_router.include_router(generator.router, prefix="/generator", tags=["generator"])
+api_router.include_router(reviews.router, prefix="/reviews", tags=["reviews"])

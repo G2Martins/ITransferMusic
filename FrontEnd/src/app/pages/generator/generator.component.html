@@ -192,7 +192,7 @@
           <button
             type="button"
             class="btn-primary mt-6 w-full"
-            (click)="save()"
+            (click)="openSaveModal()"
             [disabled]="saving()"
           >
             Salvar Lista de Reprodução
@@ -221,4 +221,98 @@
       </aside>
     </div>
   </div>
+
+  @if (saveModalOpen()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      (click)="closeSaveModal()"
+    >
+      <div
+        class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-surface-mutedDark"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-brand dark:text-white">
+              Onde salvar a playlist?
+            </h3>
+            <p class="mt-1 text-sm text-muted">
+              Escolha o serviço onde a playlist "<strong>{{ playlistName() }}</strong>" será criada.
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="closeSaveModal()"
+            class="rounded-full p-1 text-brand/60 hover:text-brand-accent dark:text-white/60"
+            [disabled]="saving()"
+            aria-label="Fechar"
+          >
+            <iconify-icon icon="ph:x-bold" class="text-xl"></iconify-icon>
+          </button>
+        </div>
+
+        @if (linked().length === 0) {
+          <div class="empty-box mt-6 min-h-[160px]">
+            <iconify-icon icon="ph:plugs-duotone" class="mb-3 text-4xl text-brand/40 dark:text-white/40"></iconify-icon>
+            <p class="text-sm text-muted">
+              Nenhuma conta vinculada. Acesse <strong>Configurações</strong> para conectar um serviço.
+            </p>
+          </div>
+        } @else {
+          <div class="mt-6 space-y-2">
+            @for (a of linked(); track a.provider) {
+              <button
+                type="button"
+                (click)="targetProvider.set(a.provider)"
+                class="flex w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition-colors"
+                [ngClass]="
+                  targetProvider() === a.provider
+                    ? 'border-brand-accent bg-brand-accent/10'
+                    : 'border-gray-200 hover:border-brand-accent/60 dark:border-white/10'
+                "
+              >
+                <iconify-icon [attr.icon]="providerIcon(a.provider)" class="text-2xl text-brand dark:text-white"></iconify-icon>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-brand dark:text-white">
+                    {{ providerLabel(a.provider) }}
+                  </p>
+                  <p class="truncate text-xs text-muted">
+                    {{ a.provider_display_name || a.provider_user_id || 'Conta vinculada' }}
+                  </p>
+                </div>
+                @if (targetProvider() === a.provider) {
+                  <iconify-icon icon="ph:check-circle-fill" class="text-xl text-brand-accent"></iconify-icon>
+                }
+              </button>
+            }
+          </div>
+
+          <div class="mt-6 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-brand transition-colors hover:bg-gray-100 dark:border-white/15 dark:text-white dark:hover:bg-white/5"
+              (click)="closeSaveModal()"
+              [disabled]="saving()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="confirmSave()"
+              [disabled]="saving() || !targetProvider()"
+            >
+              @if (saving()) {
+                <iconify-icon icon="ph:spinner-gap-bold" class="mr-1 animate-spin"></iconify-icon>
+                Salvando...
+              } @else {
+                <iconify-icon icon="ph:check-bold" class="mr-1"></iconify-icon>
+                Salvar playlist
+              }
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </section>

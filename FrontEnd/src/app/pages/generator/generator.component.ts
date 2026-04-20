@@ -89,6 +89,9 @@ export class GeneratorComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly savedMatched = signal<number | null>(null);
 
+  readonly saveModalOpen = signal(false);
+  readonly targetProvider = signal<Provider | null>(null);
+
   readonly hasSource = computed(() => !!this.sourceProvider());
 
   ngOnInit(): void {
@@ -173,15 +176,27 @@ export class GeneratorComponent implements OnInit {
     }
   }
 
-  async save(): Promise<void> {
-    const src = this.sourceProvider();
-    if (!src || this.tracks().length === 0) return;
+  openSaveModal(): void {
+    if (this.tracks().length === 0) return;
+    this.error.set(null);
+    this.targetProvider.set(this.sourceProvider() ?? this.linked()[0]?.provider ?? null);
+    this.saveModalOpen.set(true);
+  }
+
+  closeSaveModal(): void {
+    if (this.saving()) return;
+    this.saveModalOpen.set(false);
+  }
+
+  async confirmSave(): Promise<void> {
+    const target = this.targetProvider();
+    if (!target || this.tracks().length === 0) return;
     this.saving.set(true);
     this.error.set(null);
     try {
       const r = await firstValueFrom(
         this.api.saveGenerated({
-          target_provider: src,
+          target_provider: target,
           playlist_name: this.playlistName().trim() || 'Minha Playlist Gerada',
           tracks: this.tracks().map((t) => ({
             name: t.name,
@@ -190,6 +205,7 @@ export class GeneratorComponent implements OnInit {
         }),
       );
       this.saving.set(false);
+      this.saveModalOpen.set(false);
       this.savedMatched.set(r.matched_count);
       setTimeout(() => this.router.navigate(['/dashboard']), 1500);
     } catch (err) {

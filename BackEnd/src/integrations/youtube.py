@@ -94,33 +94,52 @@ class YouTubeClient(MusicProviderClient):
         return tracks
 
     async def search_track(self, query: str, auth: ProviderAuth) -> Track | None:
+        results = await self.search_tracks(query, auth, limit=1)
+        return results[0] if results else None
+
+    async def search_tracks(
+        self, query: str, auth: ProviderAuth, limit: int = 5
+    ) -> list[Track]:
+        capped = max(1, min(limit, 25))
         resp = await self._client.get(
             "/search",
-            params={"part": "snippet", "q": query, "type": "video", "maxResults": 1},
+            params={
+                "part": "snippet",
+                "q": query,
+                "type": "video",
+                "maxResults": capped,
+            },
             headers=self._headers(auth),
         )
         resp.raise_for_status()
         items = resp.json().get("items") or []
-        if not items:
-            return None
-        item = items[0]
-        video_id = (item.get("id") or {}).get("videoId")
-        if not video_id:
-            return None
-        snippet = item.get("snippet") or {}
-        thumbnails = snippet.get("thumbnails") or {}
-        thumb = (
-            (thumbnails.get("default") or thumbnails.get("medium") or {}).get("url")
-        )
-        return Track(
-            id=video_id,
-            name=snippet.get("title", ""),
-            artist=snippet.get("channelTitle", ""),
-            album=None,
-            image_url=thumb,
-            uri=f"youtube:video:{video_id}",
-            provider=self.provider,
-        )
+        tracks: list[Track] = []
+        for item in items:
+            video_id = (item.get("id") or {}).get("videoId")
+            if not video_id:
+                continue
+            snippet = item.get("snippet") or {}
+            thumbnails = snippet.get("thumbnails") or {}
+            thumb = (
+                (
+                    thumbnails.get("high")
+                    or thumbnails.get("medium")
+                    or thumbnails.get("default")
+                    or {}
+                ).get("url")
+            )
+            tracks.append(
+                Track(
+                    id=video_id,
+                    name=snippet.get("title", ""),
+                    artist=snippet.get("channelTitle", ""),
+                    album=None,
+                    image_url=thumb,
+                    uri=f"youtube:video:{video_id}",
+                    provider=self.provider,
+                )
+            )
+        return tracks
 
     async def create_playlist(
         self,

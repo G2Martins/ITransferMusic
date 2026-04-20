@@ -70,6 +70,25 @@
 
         <li>
           <a
+            [routerLink]="['/generator']"
+            routerLinkActive="text-brand-accent"
+            class="inline-flex items-center gap-1 rounded-lg px-3 py-2 transition-colors duration-300 hover:text-brand-accent"
+          >
+            <iconify-icon icon="ph:sparkle-duotone" class="text-lg"></iconify-icon>
+            {{ 'nav.generator' | transloco }}
+          </a>
+        </li>
+        <li>
+          <a
+            [routerLink]="['/reviews']"
+            routerLinkActive="text-brand-accent"
+            class="rounded-lg px-3 py-2 transition-colors duration-300 hover:text-brand-accent"
+          >
+            {{ 'nav.reviews' | transloco }}
+          </a>
+        </li>
+        <li>
+          <a
             [routerLink]="['/help']"
             routerLinkActive="text-brand-accent"
             class="rounded-lg px-3 py-2 transition-colors duration-300 hover:text-brand-accent"

@@ -168,6 +168,13 @@ export class FeatureComponent {
         { icon: 'ph:clock-clockwise-duotone', titleKey: `${prefix}.s3t`, descKey: `${prefix}.s3d` },
       ];
     }
+    if (f.slug === 'gerador') {
+      return [
+        { icon: 'ph:sparkle-duotone', titleKey: `${prefix}.s1t`, descKey: `${prefix}.s1d` },
+        { icon: 'ph:sliders-duotone', titleKey: `${prefix}.s2t`, descKey: `${prefix}.s2d` },
+        { icon: 'ph:cloud-arrow-up-duotone', titleKey: `${prefix}.s3t`, descKey: `${prefix}.s3d` },
+      ];
+    }
     return [
       { icon: 'ph:link-duotone', titleKey: `${prefix}.s1t`, descKey: `${prefix}.s1d` },
       { icon: 'ph:share-network-duotone', titleKey: `${prefix}.s2t`, descKey: `${prefix}.s2d` },

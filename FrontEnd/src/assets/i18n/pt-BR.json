@@ -9,6 +9,8 @@
     "login": "Iniciar Sessão",
     "dashboard": "Meu Painel",
     "profile": "Meu perfil",
+    "generator": "Gerador de Playlist",
+    "reviews": "Avaliações",
     "logout": "Sair",
     "profileMenu": {
       "account": "Configurações de Conta",
@@ -69,7 +71,10 @@
     "active": "Ativa",
     "paused": "Pausada",
     "remove": "Remover sincronização",
-    "lastSync": "Última execução"
+    "lastSync": "Última execução",
+    "pickerTitle": "Escolha uma transferência",
+    "pickerSubtitle": "Selecione uma transferência concluída para ativar a sincronização automática entre as playlists.",
+    "pickerEmpty": "Nenhuma transferência disponível para sincronizar. Faça uma nova transferência primeiro."
   },
   "history": {
     "title": "Histórico de Transferências",
@@ -131,6 +136,30 @@
         "b3d": "Só adicionamos faixas novas. Músicas já existentes no destino não são copiadas de novo.",
         "b4t": "Cross-platform",
         "b4d": "Misture qualquer combinação entre Spotify, YouTube Music, Apple Music e Amazon Music."
+      }
+    },
+    "gerador": {
+      "title": "Gerador",
+      "desc": "Crie playlists do zero com IA a partir de gêneros e humores.",
+      "heroTitle": "Crie a playlist perfeita em segundos",
+      "heroSubtitle": "Nosso gerador avançado combina gêneros, humores e um prompt livre para transformar suas ideias em playlists prontas para ouvir — tudo usando músicas reais dos principais serviços de streaming.",
+      "steps": {
+        "s1t": "Descreva o clima",
+        "s1d": "Selecione gêneros (Pop, Rock, Rap…), humores (Feliz, Relaxado, Energético…) ou escreva um prompt como “Trap noturno brasileiro”.",
+        "s2t": "Ajuste as faixas",
+        "s2d": "Receba 20 sugestões com capas reais, remova o que não combina e gere mais quantas vezes quiser até ficar perfeito.",
+        "s3t": "Salve no seu serviço",
+        "s3d": "Um clique cria a playlist na sua conta de Spotify, YouTube Music ou outro provedor vinculado, pronta para tocar."
+      },
+      "benefits": {
+        "b1t": "Sem folha em branco",
+        "b1d": "Em vez de pensar em faixas uma por uma, você começa com 20 sugestões reais e refina.",
+        "b2t": "Cross-provider",
+        "b2d": "As faixas geradas podem ser salvas em qualquer serviço onde você tenha uma conta vinculada.",
+        "b3t": "Sugestões de nome",
+        "b3d": "Dê um clique em um dos nomes criativos pré-prontos ou escreva o seu.",
+        "b4t": "Totalmente gratuito",
+        "b4d": "Enquanto o projeto estiver em beta, sem limite de gerações nem paywall."
       }
     },
     "partilhar": {
@@ -210,7 +239,9 @@
       "history": "Histórico",
       "historyDesc": "transferências realizadas",
       "account": "Configurações",
-      "accountDesc": "serviços vinculados"
+      "accountDesc": "serviços vinculados",
+      "generator": "Gerador IA",
+      "generatorDesc": "Crie uma playlist do zero"
     },
     "myPlaylists": "Minhas Playlists",
     "myPlaylistsEmpty": "Suas playlists transferidas aparecerão aqui.",
@@ -243,6 +274,22 @@
     "timezoneHint": "O horário segue seu fuso",
     "successTitle": "Sincronização criada com sucesso!",
     "successBody": "Sua playlist será verificada e atualizada automaticamente no horário configurado."
+  },
+  "reviews": {
+    "title": "O que a comunidade está dizendo",
+    "subtitle": "Sua opinião ajuda a moldar o futuro do ITransferMusic.",
+    "reviewCount": "avaliações",
+    "loginToRate": "Entre para deixar sua avaliação",
+    "signInAction": "Entrar",
+    "formTitle": "Deixe sua avaliação",
+    "editTitle": "Atualize sua avaliação",
+    "formHint": "Dê de 1 a 5 estrelas e conte o que você achou.",
+    "commentPlaceholder": "Comentário (opcional)",
+    "submitAction": "Enviar avaliação",
+    "updateAction": "Atualizar avaliação",
+    "submitSuccess": "Obrigado pela sua avaliação!",
+    "listTitle": "Últimas avaliações",
+    "listEmpty": "Seja o primeiro a avaliar o ITransferMusic."
   },
   "transferNew": {
     "title": "Nova Transferência",

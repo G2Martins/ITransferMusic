@@ -90,7 +90,7 @@ async def generate_tracks(
     count: int,
     exclude_track_ids: list[str],
 ) -> tuple[list[Track], list[str]]:
-    queries = _build_queries(prompt, genres, moods, count * 2)
+    queries = _build_queries(prompt, genres, moods, count)
     client = get_provider_client(source_provider)
 
     excluded = set(exclude_track_ids or [])
@@ -98,17 +98,25 @@ async def generate_tracks(
     result: list[Track] = []
     used_queries: list[str] = []
 
+    per_query_limit = max(5, (count // max(len(queries), 1)) + 3)
+
     for q in queries:
         if len(result) >= count:
             break
         try:
-            found = await client.search_track(q, auth)
+            found_list = await client.search_tracks(q, auth, limit=per_query_limit)
         except Exception:  # noqa: BLE001
             continue
-        if not found or found.id in seen_ids:
-            continue
-        seen_ids.add(found.id)
-        result.append(found)
-        used_queries.append(q)
+        added_any = False
+        for found in found_list:
+            if len(result) >= count:
+                break
+            if not found or found.id in seen_ids:
+                continue
+            seen_ids.add(found.id)
+            result.append(found)
+            added_any = True
+        if added_any:
+            used_queries.append(q)
 
     return result, used_queries

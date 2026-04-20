@@ -75,46 +75,11 @@ export class PopularSectionComponent {
       label: 'spotify-youtube',
     },
     {
-      from: 'Deezer',
-      to: 'Spotify',
-      fromIcon: 'simple-icons:deezer',
-      toIcon: 'simple-icons:spotify',
-      label: 'deezer-spotify',
-    },
-    {
       from: 'YouTube',
       to: 'Spotify',
       fromIcon: 'simple-icons:youtube',
       toIcon: 'simple-icons:spotify',
       label: 'youtube-spotify',
-    },
-    {
-      from: 'Spotify',
-      to: 'Apple Music',
-      fromIcon: 'simple-icons:spotify',
-      toIcon: 'simple-icons:applemusic',
-      label: 'spotify-apple',
-    },
-    {
-      from: 'Deezer',
-      to: 'YouTube',
-      fromIcon: 'simple-icons:deezer',
-      toIcon: 'simple-icons:youtube',
-      label: 'deezer-youtube',
-    },
-    {
-      from: 'YouTube',
-      to: 'Deezer',
-      fromIcon: 'simple-icons:youtube',
-      toIcon: 'simple-icons:deezer',
-      label: 'youtube-deezer',
-    },
-    {
-      from: 'Apple Music',
-      to: 'Spotify',
-      fromIcon: 'simple-icons:applemusic',
-      toIcon: 'simple-icons:spotify',
-      label: 'apple-spotify',
     },
   ];
 }

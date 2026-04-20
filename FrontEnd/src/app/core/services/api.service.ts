@@ -194,6 +194,23 @@ export class ApiService {
     return this.http.patch<SharePublic>(`${this.base}/shares/${token}`, body);
   }
 
+  // --- Reviews ---
+  listReviews() {
+    return this.http.get<Review[]>(`${this.base}/reviews`);
+  }
+
+  reviewStats() {
+    return this.http.get<ReviewStats>(`${this.base}/reviews/stats`);
+  }
+
+  myReview() {
+    return this.http.get<Review | null>(`${this.base}/reviews/mine`);
+  }
+
+  submitReview(payload: { rating: number; comment?: string }) {
+    return this.http.post<Review>(`${this.base}/reviews`, payload);
+  }
+
   // --- Generator ---
   generateTracks(payload: GeneratorRequest) {
     return this.http.post<GeneratorResponse>(
@@ -235,6 +252,20 @@ export interface GeneratorSaveResponse {
   playlist_id: string;
   matched_count: number;
   total_count: number;
+}
+
+export interface Review {
+  id: string;
+  user_name: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+}
+
+export interface ReviewStats {
+  total: number;
+  average: number;
+  distribution: Record<number, number>;
 }
 
 export type SyncStatus = 'active' | 'paused' | 'error';

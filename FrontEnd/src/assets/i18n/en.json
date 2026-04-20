@@ -9,6 +9,8 @@
     "login": "Sign in",
     "dashboard": "My Dashboard",
     "profile": "My profile",
+    "generator": "Playlist Generator",
+    "reviews": "Reviews",
     "logout": "Sign out",
     "profileMenu": {
       "account": "Account settings",
@@ -69,7 +71,10 @@
     "active": "Active",
     "paused": "Paused",
     "remove": "Remove sync",
-    "lastSync": "Last run"
+    "lastSync": "Last run",
+    "pickerTitle": "Pick a transfer",
+    "pickerSubtitle": "Choose a completed transfer to enable automatic syncing between the playlists.",
+    "pickerEmpty": "No transfers available to sync. Run a new transfer first."
   },
   "history": {
     "title": "Transfer History",
@@ -131,6 +136,30 @@
         "b3d": "We only add new tracks. Songs already on the target are not copied again.",
         "b4t": "Cross-platform",
         "b4d": "Mix any combination of Spotify, YouTube Music, Apple Music and Amazon Music."
+      }
+    },
+    "gerador": {
+      "title": "AI Generator",
+      "desc": "Create playlists from scratch using AI with genres and moods.",
+      "heroTitle": "Create the perfect playlist in seconds",
+      "heroSubtitle": "Our advanced generator combines genres, moods and a free-form prompt to turn your ideas into ready-to-play playlists — all with real tracks from the major streaming services.",
+      "steps": {
+        "s1t": "Describe the vibe",
+        "s1d": "Pick genres (Pop, Rock, Rap…), moods (Happy, Relaxed, Energetic…) or type a prompt like “Late-night Brazilian trap”.",
+        "s2t": "Tune the tracks",
+        "s2d": "Get 20 suggestions with real cover art, remove the ones that don't fit and generate more as many times as you need.",
+        "s3t": "Save to your service",
+        "s3d": "One click creates the playlist in your Spotify, YouTube Music or other linked account, ready to play."
+      },
+      "benefits": {
+        "b1t": "No blank page",
+        "b1d": "Instead of thinking of tracks one by one, you start with 20 real suggestions and refine.",
+        "b2t": "Cross-provider",
+        "b2d": "Generated tracks can be saved to any service you have a linked account with.",
+        "b3t": "Name suggestions",
+        "b3d": "One click applies one of the creative ready-made names or write your own.",
+        "b4t": "Completely free",
+        "b4d": "While the project is in beta, with no generation limit and no paywall."
       }
     },
     "partilhar": {
@@ -210,7 +239,9 @@
       "history": "History",
       "historyDesc": "transfers made",
       "account": "Settings",
-      "accountDesc": "linked services"
+      "accountDesc": "linked services",
+      "generator": "AI Generator",
+      "generatorDesc": "Build a playlist from scratch"
     },
     "myPlaylists": "My Playlists",
     "myPlaylistsEmpty": "Your transferred playlists will show up here.",
@@ -243,6 +274,22 @@
     "timezoneHint": "The time follows your zone",
     "successTitle": "Sync created successfully!",
     "successBody": "Your playlist will be checked and updated automatically at the configured time."
+  },
+  "reviews": {
+    "title": "What the community is saying",
+    "subtitle": "Your feedback shapes the future of ITransferMusic.",
+    "reviewCount": "reviews",
+    "loginToRate": "Sign in to leave your review",
+    "signInAction": "Sign in",
+    "formTitle": "Leave your review",
+    "editTitle": "Update your review",
+    "formHint": "Rate 1 to 5 stars and tell us what you think.",
+    "commentPlaceholder": "Comment (optional)",
+    "submitAction": "Submit review",
+    "updateAction": "Update review",
+    "submitSuccess": "Thanks for your review!",
+    "listTitle": "Latest reviews",
+    "listEmpty": "Be the first to review ITransferMusic."
   },
   "transferNew": {
     "title": "New Transfer",

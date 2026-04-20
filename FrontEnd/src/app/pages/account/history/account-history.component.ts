@@ -19,6 +19,10 @@ import {
   TransferResponse,
 } from '../../../core/services/api.service';
 import {
+  SyncSetupInput,
+  SyncSetupModalComponent,
+} from '../../../shared/sync-setup-modal/sync-setup-modal.component';
+import {
   playlistUrl,
   providerIcon,
   providerLabel,
@@ -36,7 +40,7 @@ interface Row extends TransferResponse {
 @Component({
   selector: 'app-account-history',
   standalone: true,
-  imports: [NgClass, RouterLink, TranslocoPipe, DatePipe],
+  imports: [NgClass, RouterLink, SyncSetupModalComponent, TranslocoPipe, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
@@ -136,6 +140,16 @@ interface Row extends TransferResponse {
                   <iconify-icon icon="ph:share-network-duotone" class="text-lg"></iconify-icon>
                   {{ 'dashboard.share' | transloco }}
                 </button>
+                @if (t.target_playlist_id && !deadTransferIds().has(t.id)) {
+                  <button
+                    type="button"
+                    (click)="openSync(t)"
+                    class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-brand transition-colors hover:border-brand-accent hover:text-brand-accent dark:border-white/15 dark:text-white"
+                  >
+                    <iconify-icon icon="ph:arrows-clockwise-duotone" class="text-lg"></iconify-icon>
+                    {{ 'dashboard.sync' | transloco }}
+                  </button>
+                }
                 <button
                   type="button"
                   (click)="toggleExpand(t.id)"
@@ -228,6 +242,12 @@ interface Row extends TransferResponse {
         }
       </div>
     }
+
+    <app-sync-setup-modal
+      [data]="syncModalData()"
+      (closed)="closeSync()"
+      (created)="closeSync()"
+    />
   `,
 })
 export class AccountHistoryComponent implements OnInit {
@@ -237,6 +257,7 @@ export class AccountHistoryComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly expanded = signal<Set<string>>(new Set());
   readonly deadTransferIds = signal<Set<string>>(new Set());
+  readonly syncModalData = signal<SyncSetupInput | null>(null);
   private readonly raw = signal<TransferResponse[]>([]);
 
   readonly rows = computed<Row[]>(() =>
@@ -299,5 +320,21 @@ export class AccountHistoryComponent implements OnInit {
       },
       error: () => void 0,
     });
+  }
+
+  openSync(t: Row): void {
+    if (!t.target_playlist_id) return;
+    this.syncModalData.set({
+      name: t.target_playlist_name,
+      sourceProvider: t.source_provider,
+      sourcePlaylistId: t.source_playlist_id,
+      targetProvider: t.target_provider,
+      targetPlaylistId: t.target_playlist_id,
+      totalTracks: t.total_tracks,
+    });
+  }
+
+  closeSync(): void {
+    this.syncModalData.set(null);
   }
 }

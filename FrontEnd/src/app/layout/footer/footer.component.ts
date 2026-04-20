@@ -67,6 +67,22 @@ import { TranslocoPipe } from '@jsverse/transloco';
                   {{ 'nav.dashboard' | transloco }}
                 </a>
               </li>
+              <li>
+                <a
+                  [routerLink]="['/generator']"
+                  class="transition-colors hover:text-brand-accent"
+                >
+                  {{ 'nav.generator' | transloco }}
+                </a>
+              </li>
+              <li>
+                <a
+                  [routerLink]="['/reviews']"
+                  class="transition-colors hover:text-brand-accent"
+                >
+                  {{ 'nav.reviews' | transloco }}
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -100,33 +116,35 @@ import { TranslocoPipe } from '@jsverse/transloco';
             <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-white/80">
               {{ 'footer.follow' | transloco }}
             </h3>
-            <div class="flex items-center gap-4 text-2xl">
+            <div class="flex flex-wrap items-center gap-3 text-[2rem] leading-none">
               <a
-                href="https://github.com/G2Martins"
+                href="https://github.com/G2Martins/ITransferMusic"
                 target="_blank"
                 rel="noreferrer"
-                class="transition-colors hover:text-brand-accent"
+                class="flex h-11 w-11 items-center justify-center rounded-lg bg-white/5 transition-colors hover:bg-brand-accent/20 hover:text-brand-accent"
                 aria-label="GitHub"
               >
                 <iconify-icon icon="ph:github-logo-duotone"></iconify-icon>
               </a>
               <a
                 href="#"
-                class="transition-colors hover:text-brand-accent"
+                class="flex h-11 w-11 items-center justify-center rounded-lg bg-white/5 transition-colors hover:bg-brand-accent/20 hover:text-brand-accent"
                 aria-label="Instagram"
               >
                 <iconify-icon icon="ph:instagram-logo-duotone"></iconify-icon>
               </a>
               <a
                 href="#"
-                class="transition-colors hover:text-brand-accent"
+                class="flex h-11 w-11 items-center justify-center rounded-lg bg-white/5 transition-colors hover:bg-brand-accent/20 hover:text-brand-accent"
                 aria-label="Twitter"
               >
                 <iconify-icon icon="ph:x-logo-duotone"></iconify-icon>
               </a>
               <a
-                href="#"
-                class="transition-colors hover:text-brand-accent"
+                href="https://www.linkedin.com/in/g2martins/"
+                target="_blank"
+                rel="noreferrer"
+                class="flex h-11 w-11 items-center justify-center rounded-lg bg-white/5 transition-colors hover:bg-brand-accent/20 hover:text-brand-accent"
                 aria-label="LinkedIn"
               >
                 <iconify-icon icon="ph:linkedin-logo-duotone"></iconify-icon>

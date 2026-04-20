@@ -35,6 +35,17 @@ class MusicProviderClient(ABC):
     async def search_track(self, query: str, auth: ProviderAuth) -> Track | None:
         ...
 
+    async def search_tracks(
+        self, query: str, auth: ProviderAuth, limit: int = 5
+    ) -> list[Track]:
+        """Retorna multiplas faixas para a query.
+
+        Default: cai no `search_track` e devolve lista unitaria. Provedores
+        que suportam `limit > 1` na API devem sobrescrever.
+        """
+        found = await self.search_track(query, auth)
+        return [found] if found else []
+
     @abstractmethod
     async def create_playlist(
         self,

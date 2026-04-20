@@ -55,7 +55,7 @@ import { PopularSectionComponent } from './sections/popular-section.component';
           <span class="text-brand-accent">{{ 'home.featuresHighlight' | transloco }}</span>
         </h2>
 
-        <div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           @for (f of features; track f.slug) {
             <app-feature-card
               [slug]="f.slug"

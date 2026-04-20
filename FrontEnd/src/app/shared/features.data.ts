@@ -30,4 +30,11 @@ export const FEATURES: readonly FeatureDef[] = [
     icon: 'ph:share-network-duotone',
     cta: '/account/history',
   },
+  {
+    slug: 'gerador',
+    titleKey: 'features.gerador.title',
+    descKey: 'features.gerador.desc',
+    icon: 'ph:sparkle-duotone',
+    cta: '/generator',
+  },
 ];

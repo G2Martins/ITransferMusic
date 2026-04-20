@@ -223,6 +223,19 @@ class SpotifyClient(MusicProviderClient):
             return None
         return self._to_track(items[0])
 
+    async def search_tracks(
+        self, query: str, auth: ProviderAuth, limit: int = 5
+    ) -> list[Track]:
+        capped = max(1, min(limit, 50))
+        resp = await self._client.get(
+            "/search",
+            params={"q": query, "type": "track", "limit": capped},
+            headers=self._headers(auth),
+        )
+        resp.raise_for_status()
+        items = ((resp.json().get("tracks") or {}).get("items")) or []
+        return [self._to_track(it) for it in items if it and it.get("id")]
+
     async def create_playlist(
         self,
         name: str,
