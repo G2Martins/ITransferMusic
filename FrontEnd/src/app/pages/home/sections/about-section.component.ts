@@ -7,7 +7,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="bg-white px-6 py-20">
+    <section class="bg-white px-6 py-20 dark:bg-surface-dark">
       <div
         class="container mx-auto flex max-w-5xl flex-col items-center gap-12 md:flex-row md:items-start"
       >
@@ -20,19 +20,19 @@ import { TranslocoPipe } from '@jsverse/transloco';
         </div>
 
         <div class="flex-1 text-left">
-          <h2 class="text-3xl font-bold leading-tight text-brand md:text-4xl">
+          <h2 class="text-3xl font-bold leading-tight text-brand dark:text-white md:text-4xl">
             {{ 'about.titlePrefix' | transloco }}<span class="text-brand-accent">{{
               'about.titleHighlight' | transloco
             }}</span
             >{{ 'about.titleSuffix' | transloco }}
           </h2>
 
-          <p class="mt-6 text-base leading-relaxed text-brand/80 md:text-lg">
+          <p class="mt-6 text-base leading-relaxed text-brand/80 dark:text-white/80 md:text-lg">
             {{ 'about.p1' | transloco }}
           </p>
 
           <p
-            class="mt-5 text-base leading-relaxed text-brand/80 md:text-lg"
+            class="mt-5 text-base leading-relaxed text-brand/80 dark:text-white/80 md:text-lg"
             [innerHTML]="'about.p2' | transloco"
           ></p>
         </div>

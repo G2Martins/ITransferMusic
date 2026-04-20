@@ -66,7 +66,7 @@ declare const google: {
           />
 
           @if (error()) {
-            <p class="text-sm text-red-600">{{ error() }}</p>
+            <p class="text-sm text-red-600 dark:text-red-300">{{ error() }}</p>
           }
 
           <button type="submit" class="btn-primary w-full" [disabled]="loading()">

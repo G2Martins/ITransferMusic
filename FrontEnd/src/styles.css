@@ -46,4 +46,43 @@
   .tab-link-active {
     @apply border-brand-accent text-brand-accent dark:text-brand-accent;
   }
+
+  /* Status badges — legíveis em light e dark */
+  .badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+  }
+  .badge-success {
+    @apply badge bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300;
+  }
+  .badge-warning {
+    @apply badge bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300;
+  }
+  .badge-neutral {
+    @apply badge bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-white/80;
+  }
+  .badge-danger {
+    @apply badge bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300;
+  }
+
+  /* Alert / mensagem de erro com suporte a dark mode */
+  .alert-error {
+    @apply rounded-xl bg-red-50 p-4 text-sm text-red-600
+           dark:bg-red-500/10 dark:text-red-300;
+  }
+
+  /* Caixa emoldurada (empty state / dashed border) com dark mode */
+  .empty-box {
+    @apply flex flex-col items-center justify-center rounded-2xl border border-dashed
+           border-gray-300 p-10 text-center dark:border-white/15;
+  }
+
+  /* Texto "muted" que adapta */
+  .text-muted {
+    @apply text-brand/60 dark:text-white/60;
+  }
+
+  /* Borda neutra (container) que adapta */
+  .surface-border {
+    @apply border border-gray-200 dark:border-white/10;
+  }
 }

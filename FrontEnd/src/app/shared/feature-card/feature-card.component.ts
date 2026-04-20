@@ -28,8 +28,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
           aria-hidden="true"
         ></iconify-icon>
       </div>
-      <h3 class="mt-4 text-lg font-bold text-brand">{{ titleKey() | transloco }}</h3>
-      <p class="mt-2 max-w-xs text-sm text-brand/70">{{ descKey() | transloco }}</p>
+      <h3 class="mt-4 text-lg font-bold text-brand dark:text-white">{{ titleKey() | transloco }}</h3>
+      <p class="mt-2 max-w-xs text-sm text-brand/70 dark:text-white/70">{{ descKey() | transloco }}</p>
     </a>
   `,
 })

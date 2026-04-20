@@ -27,7 +27,7 @@ import { formatApiError } from '../../../core/utils/format-error';
             class="text-5xl text-brand-accent"
           ></iconify-icon>
         </div>
-        <h1 class="text-center text-2xl font-bold text-brand">
+        <h1 class="text-center text-2xl font-bold text-brand dark:text-white">
           {{ 'auth.register.title' | transloco }}
         </h1>
 
@@ -59,7 +59,7 @@ import { formatApiError } from '../../../core/utils/format-error';
           />
 
           @if (error()) {
-            <p class="text-sm text-red-600">{{ error() }}</p>
+            <p class="text-sm text-red-600 dark:text-red-300">{{ error() }}</p>
           }
 
           <button type="submit" class="btn-primary w-full" [disabled]="loading()">
@@ -67,7 +67,7 @@ import { formatApiError } from '../../../core/utils/format-error';
           </button>
         </form>
 
-        <p class="mt-6 text-center text-sm text-brand/70">
+        <p class="mt-6 text-center text-sm text-brand/70 dark:text-white/70">
           {{ 'auth.register.hasAccount' | transloco }}
           <a [routerLink]="['/auth/login']" class="font-semibold text-brand-accent">
             {{ 'auth.register.login' | transloco }}

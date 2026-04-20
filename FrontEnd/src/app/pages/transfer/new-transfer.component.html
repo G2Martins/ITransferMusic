@@ -15,7 +15,7 @@
   </p>
 
   @if (error()) {
-    <p class="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">{{ error() }}</p>
+    <p class="alert-error mt-6">{{ error() }}</p>
   }
 
   <!-- Stepper -->
@@ -109,14 +109,14 @@
         </div>
 
         <!-- Busca -->
-        <div class="mt-4 flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 dark:border-white/10">
-          <iconify-icon icon="ph:magnifying-glass-duotone" class="text-xl text-brand/50"></iconify-icon>
+        <div class="surface-border mt-4 flex items-center gap-2 rounded-xl px-4 py-2">
+          <iconify-icon icon="ph:magnifying-glass-duotone" class="text-xl text-brand/50 dark:text-white/50"></iconify-icon>
           <input
             type="text"
             [value]="search()"
             (input)="search.set($any($event.target).value)"
             [placeholder]="'wizard.searchPlaceholder' | transloco"
-            class="flex-1 bg-transparent text-sm outline-none"
+            class="flex-1 bg-transparent text-sm outline-none placeholder:text-brand/40 dark:text-white dark:placeholder:text-white/40"
           />
         </div>
 
@@ -133,7 +133,7 @@
             <div class="space-y-2">
               @for (pl of personalPlaylists(); track pl.id) {
                 <label
-                  class="flex items-center gap-3 rounded-xl border border-gray-200 p-3 cursor-pointer hover:border-brand-accent dark:border-white/10"
+                  class="surface-border flex items-center gap-3 rounded-xl p-3 cursor-pointer hover:border-brand-accent"
                   [ngClass]="isSelected(pl.id) ? 'border-brand-accent bg-brand-accent/5' : ''"
                 >
                   <input
@@ -153,8 +153,8 @@
                     ></iconify-icon>
                   </div>
                   <div class="flex-1">
-                    <p class="font-semibold">{{ pl.name }}</p>
-                    <p class="text-xs text-brand/60 dark:text-white/60">{{ pl.description }}</p>
+                    <p class="font-semibold text-brand dark:text-white">{{ pl.name }}</p>
+                    <p class="text-xs text-muted">{{ pl.description }}</p>
                   </div>
                 </label>
               }
@@ -169,7 +169,7 @@
             <div class="space-y-2">
               @for (pl of regularPlaylists(); track pl.id) {
                 <div
-                  class="rounded-xl border border-gray-200 transition-colors dark:border-white/10"
+                  class="surface-border rounded-xl transition-colors"
                   [ngClass]="isSelected(pl.id) ? 'border-brand-accent' : ''"
                 >
                   <div
@@ -228,7 +228,7 @@
                         Carregando faixas...
                       </p>
                     } @else if (selected().get(pl.id)?.tracks?.length) {
-                      <div class="border-t border-gray-200 px-4 py-3 dark:border-white/10">
+                      <div class="border-t border-gray-200 px-4 py-3 dark:border-white/10 text-brand dark:text-white">
                         <label class="mb-2 flex items-center gap-2 text-sm font-medium">
                           <input
                             type="checkbox"
@@ -335,7 +335,7 @@
             [attr.icon]="source() ? providerIcon(source()!) : ''"
             class="text-4xl text-brand-accent"
           ></iconify-icon>
-          <iconify-icon icon="ph:arrow-right-bold" class="text-2xl text-gray-400"></iconify-icon>
+          <iconify-icon icon="ph:arrow-right-bold" class="text-2xl text-brand/40 dark:text-white/40"></iconify-icon>
           <iconify-icon
             [attr.icon]="target() ? providerIcon(target()!) : ''"
             class="text-4xl text-brand-accent"
@@ -349,7 +349,7 @@
 
         <div class="mt-6 space-y-3">
           @for (d of draftList(); track d.playlist.id) {
-            <div class="flex items-center gap-3 rounded-xl border border-gray-200 p-3 dark:border-white/10">
+            <div class="surface-border flex items-center gap-3 rounded-xl p-3">
               @if (d.playlist.image_url) {
                 <img [src]="d.playlist.image_url" alt="" class="h-12 w-12 rounded object-cover" />
               } @else {
@@ -358,15 +358,15 @@
                 </div>
               }
               <div class="flex-1">
-                <p class="font-semibold">{{ d.customName || d.playlist.name }}</p>
-                <p class="text-xs text-brand/60 dark:text-white/60">
+                <p class="font-semibold text-brand dark:text-white">{{ d.customName || d.playlist.name }}</p>
+                <p class="text-xs text-muted">
                   {{ selectedTrackCount(d) }} {{ 'wizard.selected' | transloco }}
                 </p>
               </div>
               <button
                 type="button"
                 (click)="openEdit(d)"
-                class="rounded-full border border-gray-300 p-2 text-brand/60 transition-colors hover:border-brand-accent hover:text-brand-accent dark:border-white/15 dark:text-white/60"
+                class="surface-border rounded-full p-2 text-brand/60 transition-colors hover:border-brand-accent hover:text-brand-accent dark:text-white/60"
                 [attr.aria-label]="'wizard.editPlaylist' | transloco"
               >
                 <iconify-icon icon="ph:pencil-duotone" class="text-lg"></iconify-icon>
@@ -374,7 +374,7 @@
               <button
                 type="button"
                 (click)="removeDraft(d.playlist.id)"
-                class="rounded-full p-2 text-brand/60 transition-colors hover:text-red-600 dark:text-white/60"
+                class="rounded-full p-2 text-brand/60 transition-colors hover:text-red-600 dark:text-white/60 dark:hover:text-red-400"
                 [attr.aria-label]="'wizard.removePlaylist' | transloco"
               >
                 <iconify-icon icon="ph:trash-duotone" class="text-lg"></iconify-icon>
@@ -471,9 +471,9 @@
         ></textarea>
       </label>
 
-      <div class="mt-4 rounded-lg bg-gray-50 p-3 text-xs dark:bg-black/20">
+      <div class="mt-4 rounded-lg bg-gray-50 p-3 text-xs dark:bg-white/5 dark:border dark:border-white/10">
         <p class="font-semibold text-brand dark:text-white">{{ 'wizard.previewTitle' | transloco }}</p>
-        <p class="mt-1 text-brand/70 dark:text-white/70"><strong>{{ previewName() }}</strong></p>
+        <p class="mt-1 text-brand/80 dark:text-white/80"><strong>{{ previewName() }}</strong></p>
         <p class="mt-1 text-brand/60 dark:text-white/60">{{ previewDescription() }}</p>
       </div>
 

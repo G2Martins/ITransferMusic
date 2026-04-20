@@ -21,8 +21,8 @@ interface ContactForm {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <section class="container mx-auto max-w-2xl px-6 py-16">
-      <h1 class="text-4xl font-bold text-brand">{{ 'contact.title' | transloco }}</h1>
-      <p class="mt-3 text-brand/70">{{ 'contact.subtitle' | transloco }}</p>
+      <h1 class="text-4xl font-bold text-brand dark:text-white">{{ 'contact.title' | transloco }}</h1>
+      <p class="mt-3 text-brand/70 dark:text-white/70">{{ 'contact.subtitle' | transloco }}</p>
 
       <form (ngSubmit)="submit()" class="mt-10 space-y-5">
         <input
@@ -54,7 +54,7 @@ interface ContactForm {
         </button>
 
         @if (sent()) {
-          <p class="text-sm font-medium text-green-600">
+          <p class="text-sm font-medium text-green-600 dark:text-green-300">
             Mensagem registrada localmente (integração de e-mail virá depois).
           </p>
         }

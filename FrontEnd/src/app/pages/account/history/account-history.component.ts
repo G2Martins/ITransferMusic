@@ -7,7 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -34,7 +34,7 @@ interface Row extends TransferResponse {
 @Component({
   selector: 'app-account-history',
   standalone: true,
-  imports: [RouterLink, TranslocoPipe, DatePipe],
+  imports: [NgClass, RouterLink, TranslocoPipe, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
@@ -53,15 +53,13 @@ interface Row extends TransferResponse {
     </div>
 
     @if (error()) {
-      <p class="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">{{ error() }}</p>
+      <p class="alert-error mt-6">{{ error() }}</p>
     }
 
     @if (loading()) {
       <p class="mt-8 text-brand/70 dark:text-white/70">Carregando...</p>
     } @else if (rows().length === 0) {
-      <div
-        class="mt-10 flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-surface-muted p-10 text-center dark:border-white/15 dark:bg-surface-mutedDark"
-      >
+      <div class="empty-box mt-10 min-h-[220px] bg-surface-muted dark:bg-surface-mutedDark">
         <iconify-icon
           icon="ph:clock-counter-clockwise-duotone"
           class="mb-4 text-5xl text-brand/40 dark:text-white/40"
@@ -106,15 +104,12 @@ interface Row extends TransferResponse {
 
             <div class="flex items-center gap-3">
               <span
-                class="rounded-full px-3 py-1 text-xs font-semibold"
-                [class.bg-green-100]="t.status === 'completed'"
-                [class.text-green-700]="t.status === 'completed'"
-                [class.bg-yellow-100]="t.status === 'partial' || t.status === 'running'"
-                [class.text-yellow-700]="t.status === 'partial' || t.status === 'running'"
-                [class.bg-gray-100]="t.status === 'pending'"
-                [class.text-gray-700]="t.status === 'pending'"
-                [class.bg-red-100]="t.status === 'failed'"
-                [class.text-red-700]="t.status === 'failed'"
+                [ngClass]="{
+                  'badge-success': t.status === 'completed',
+                  'badge-warning': t.status === 'partial' || t.status === 'running',
+                  'badge-neutral': t.status === 'pending',
+                  'badge-danger': t.status === 'failed'
+                }"
               >
                 {{ t.status }}
               </span>

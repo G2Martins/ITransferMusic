@@ -126,9 +126,7 @@ interface PlaylistCard {
         </div>
 
         @if (cards().length === 0) {
-          <div
-            class="flex min-h-[180px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 p-10 text-center dark:border-white/15"
-          >
+          <div class="empty-box min-h-[180px]">
             <iconify-icon
               icon="ph:music-notes-duotone"
               class="mb-4 text-5xl text-brand/40 dark:text-white/40"
@@ -163,12 +161,11 @@ interface PlaylistCard {
                     </p>
                   </div>
                   <span
-                    class="rounded-full px-3 py-1 text-xs font-semibold"
                     [ngClass]="{
-                      'bg-green-100 text-green-700': c.status === 'completed',
-                      'bg-yellow-100 text-yellow-700': c.status === 'partial' || c.status === 'running',
-                      'bg-gray-100 text-gray-700': c.status === 'pending',
-                      'bg-red-100 text-red-700': c.status === 'failed'
+                      'badge-success': c.status === 'completed',
+                      'badge-warning': c.status === 'partial' || c.status === 'running',
+                      'badge-neutral': c.status === 'pending',
+                      'badge-danger': c.status === 'failed'
                     }"
                   >
                     {{ c.status }}

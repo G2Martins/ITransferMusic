@@ -48,9 +48,9 @@ import { PopularSectionComponent } from './sections/popular-section.component';
     </section>
 
     <!-- Features -->
-    <section class="bg-white px-6 py-20">
+    <section class="bg-white px-6 py-20 dark:bg-surface-dark">
       <div class="container mx-auto max-w-5xl text-center">
-        <h2 class="text-3xl font-bold text-brand md:text-4xl">
+        <h2 class="text-3xl font-bold text-brand dark:text-white md:text-4xl">
           {{ 'home.featuresTitle' | transloco }}
           <span class="text-brand-accent">{{ 'home.featuresHighlight' | transloco }}</span>
         </h2>

@@ -40,10 +40,10 @@
       />
 
       @if (nameError()) {
-        <p class="text-sm text-red-600">{{ nameError() }}</p>
+        <p class="text-sm text-red-600 dark:text-red-300">{{ nameError() }}</p>
       }
       @if (nameSuccess()) {
-        <p class="text-sm text-green-600">
+        <p class="text-sm text-green-600 dark:text-green-300">
           {{ 'profile.name.success' | transloco }}
         </p>
       }
@@ -98,10 +98,10 @@
       />
 
       @if (passwordError()) {
-        <p class="text-sm text-red-600">{{ passwordError() }}</p>
+        <p class="text-sm text-red-600 dark:text-red-300">{{ passwordError() }}</p>
       }
       @if (passwordSuccess()) {
-        <p class="text-sm text-green-600">
+        <p class="text-sm text-green-600 dark:text-green-300">
           {{ 'profile.password.success' | transloco }}
         </p>
       }
@@ -127,16 +127,14 @@
 
     <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
       @for (p of providers; track p.id) {
-        <div
-          class="flex items-center justify-between rounded-xl border border-gray-200 p-4 dark:border-white/10"
-        >
+        <div class="surface-border flex items-center justify-between rounded-xl p-4">
           <div class="flex items-center gap-3">
             <iconify-icon
               [attr.icon]="p.icon"
               class="text-3xl text-brand-accent"
             ></iconify-icon>
             <div>
-              <p class="font-semibold">{{ p.label }}</p>
+              <p class="font-semibold text-brand dark:text-white">{{ p.label }}</p>
               @if (isLinked(p.id)) {
                 <p class="text-xs text-green-600">
                   {{ 'profile.linked.connected' | transloco }}

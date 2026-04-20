@@ -40,15 +40,13 @@ import { providerIcon, providerLabel } from '../../../core/utils/playlist-url';
     </div>
 
     @if (error()) {
-      <p class="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">{{ error() }}</p>
+      <p class="alert-error mt-6">{{ error() }}</p>
     }
 
     @if (loading()) {
       <p class="mt-8 text-brand/70 dark:text-white/70">Carregando...</p>
     } @else if (syncs().length === 0) {
-      <div
-        class="mt-10 flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 p-10 text-center dark:border-white/15"
-      >
+      <div class="empty-box mt-10 min-h-[260px]">
         <iconify-icon
           icon="ph:arrows-clockwise-duotone"
           class="mb-4 text-5xl text-brand/40 dark:text-white/40"
@@ -127,9 +125,7 @@ import { providerIcon, providerLabel } from '../../../core/utils/playlist-url';
             </div>
 
             @if (s.last_error) {
-              <p class="mt-3 rounded-lg bg-red-50 p-3 text-xs text-red-600">
-                {{ s.last_error }}
-              </p>
+              <p class="alert-error mt-3 p-3 text-xs">{{ s.last_error }}</p>
             }
           </div>
         }
