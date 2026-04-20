@@ -84,6 +84,12 @@ export class AuthService {
       .pipe(tap((res) => this.storeTokens(res)));
   }
 
+  googleLogin(credential: string): Observable<TokenResponse> {
+    return this.http
+      .post<TokenResponse>(`${this.base}/google/login`, { credential })
+      .pipe(tap((res) => this.storeTokens(res)));
+  }
+
   logout(): void {
     localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem(REFRESH_KEY);

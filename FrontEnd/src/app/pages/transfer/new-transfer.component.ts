@@ -7,6 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -30,7 +31,7 @@ interface ProviderMeta {
 @Component({
   selector: 'app-new-transfer',
   standalone: true,
-  imports: [RouterLink, TranslocoPipe],
+  imports: [NgClass, RouterLink, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './new-transfer.component.html',

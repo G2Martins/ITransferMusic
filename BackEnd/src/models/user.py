@@ -15,7 +15,10 @@ class UserDocument(BaseModel):
     id: PyObjectId | None = Field(default=None, alias="_id")
     name: str
     email: EmailStr
-    hashed_password: str
+    # hashed_password opcional pois usuarios criados via Google Sign-in nao tem senha local.
+    hashed_password: str | None = None
+    google_id: str | None = None
+    avatar_url: str | None = None
     is_active: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

@@ -23,12 +23,11 @@
     @for (s of [1, 2, 3, 4]; track s) {
       <li
         class="flex items-center gap-2 rounded-full px-4 py-2 transition-colors"
-        [class.bg-brand-accent]="step() === s"
-        [class.text-white]="step() === s"
-        [class.bg-gray-100]="step() !== s"
-        [class.dark:bg-surface-mutedDark]="step() !== s"
-        [class.text-brand]="step() !== s"
-        [class.dark:text-white]="step() !== s"
+        [ngClass]="
+          step() === s
+            ? 'bg-brand-accent text-white'
+            : 'bg-gray-100 text-brand dark:bg-surface-mutedDark dark:text-white'
+        "
       >
         <span>{{ s }}.</span>
         <span>
@@ -52,9 +51,11 @@
               type="button"
               (click)="selectSource(p.id)"
               class="flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all"
-              [class.border-brand-accent]="source() === p.id"
-              [class.border-gray-200]="source() !== p.id"
-              [class.dark:border-white/10]="source() !== p.id"
+              [ngClass]="
+                source() === p.id
+                  ? 'border-brand-accent'
+                  : 'border-gray-200 dark:border-white/10'
+              "
               [disabled]="!isLinked(p.id)"
               [class.opacity-40]="!isLinked(p.id)"
             >
@@ -84,9 +85,11 @@
                 type="button"
                 (click)="selectPlaylist(pl)"
                 class="flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all"
-                [class.border-brand-accent]="selectedPlaylist()?.id === pl.id"
-                [class.border-gray-200]="selectedPlaylist()?.id !== pl.id"
-                [class.dark:border-white/10]="selectedPlaylist()?.id !== pl.id"
+                [ngClass]="
+                  selectedPlaylist()?.id === pl.id
+                    ? 'border-brand-accent'
+                    : 'border-gray-200 dark:border-white/10'
+                "
               >
                 @if (pl.image_url) {
                   <img [src]="pl.image_url" alt="" class="h-14 w-14 rounded object-cover" />
@@ -120,9 +123,11 @@
               type="button"
               (click)="selectTarget(p.id)"
               class="flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all"
-              [class.border-brand-accent]="target() === p.id"
-              [class.border-gray-200]="target() !== p.id"
-              [class.dark:border-white/10]="target() !== p.id"
+              [ngClass]="
+                target() === p.id
+                  ? 'border-brand-accent'
+                  : 'border-gray-200 dark:border-white/10'
+              "
               [disabled]="!isLinked(p.id) || p.id === source()"
               [class.opacity-40]="!isLinked(p.id) || p.id === source()"
             >

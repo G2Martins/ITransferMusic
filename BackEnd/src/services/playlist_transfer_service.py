@@ -99,9 +99,21 @@ class PlaylistTransferService:
 
             transfer.matched_tracks = len(matched_ids)
 
+            # Marca d'agua no titulo e descricao
+            watermarked_name = f"{transfer.target_playlist_name} By ITransferMusic"
+            watermarked_desc = (
+                transfer.target_playlist_description + " | "
+                if transfer.target_playlist_description
+                else ""
+            ) + (
+                "This playlist was created by https://www.ITransferMusic.com "
+                "that lets you transfer your playlist to any music platform such as "
+                "Spotify, YouTube Music, Apple Music, Deezer etc."
+            )
+
             target_playlist_id = await target_client.create_playlist(
-                name=transfer.target_playlist_name,
-                description=transfer.target_playlist_description,
+                name=watermarked_name,
+                description=watermarked_desc,
                 track_ids=matched_ids,
                 auth=target_auth,
             )

@@ -1,8 +1,11 @@
 from datetime import UTC, datetime
+from typing import Any
 
+import httpx
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from src.core.config import get_settings
 from src.core.security import (
     create_access_token,
     create_refresh_token,
@@ -12,6 +15,8 @@ from src.core.security import (
 )
 from src.models.user import UserDocument
 from src.schemas.auth import LoginRequest, MeResponse, RegisterRequest, TokenResponse
+
+GOOGLE_TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo"
 
 
 class AuthService:
@@ -33,7 +38,9 @@ class AuthService:
 
     async def login(self, payload: LoginRequest) -> TokenResponse:
         doc = await self._users.find_one({"email": payload.email})
-        if not doc or not verify_password(payload.password, doc["hashed_password"]):
+        if not doc or not doc.get("hashed_password") or not verify_password(
+            payload.password, doc["hashed_password"]
+        ):
             raise ValueError("Credenciais invalidas")
         if not doc.get("is_active", True):
             raise ValueError("Usuario inativo")
@@ -70,10 +77,70 @@ class AuthService:
         )
         return await self.get_me(user_id)
 
+    async def google_login(self, credential: str) -> TokenResponse:
+        """Valida o id_token do Google e emite nosso JWT.
+
+        Cria o usuario local automaticamente na primeira vez.
+        """
+        settings = get_settings()
+        if not settings.google_client_id:
+            raise ValueError("Google OAuth nao configurado no backend")
+
+        info = await self._verify_google_token(credential, settings.google_client_id)
+        email = info.get("email")
+        if not email or info.get("email_verified") not in ("true", True):
+            raise ValueError("E-mail do Google nao verificado")
+
+        doc = await self._users.find_one({"email": email})
+        if doc is None:
+            user = UserDocument(
+                name=info.get("name") or email.split("@")[0],
+                email=email,
+                hashed_password=None,
+                google_id=info.get("sub"),
+                avatar_url=info.get("picture"),
+            )
+            result = await self._users.insert_one(user.to_mongo())
+            return self._issue_tokens(str(result.inserted_id))
+
+        # Atualiza google_id se ainda nao estiver salvo
+        if not doc.get("google_id") and info.get("sub"):
+            await self._users.update_one(
+                {"_id": doc["_id"]},
+                {
+                    "$set": {
+                        "google_id": info["sub"],
+                        "avatar_url": info.get("picture"),
+                        "updated_at": datetime.now(UTC),
+                    }
+                },
+            )
+        return self._issue_tokens(str(doc["_id"]))
+
+    @staticmethod
+    async def _verify_google_token(
+        credential: str, expected_aud: str
+    ) -> dict[str, Any]:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                GOOGLE_TOKENINFO_URL,
+                params={"id_token": credential},
+            )
+        if resp.status_code != 200:
+            raise ValueError("Token Google invalido")
+        data = resp.json()
+        if data.get("aud") != expected_aud:
+            raise ValueError("Token nao pertence a este client_id")
+        return data
+
     async def change_password(
         self, user_id: str, current_password: str, new_password: str
     ) -> None:
         doc = await self._find_user(user_id)
+        if not doc.get("hashed_password"):
+            raise ValueError(
+                "Esta conta foi criada via Google; defina uma senha pela opcao 'Esqueci senha' antes."
+            )
         if not verify_password(current_password, doc["hashed_password"]):
             raise ValueError("Senha atual incorreta")
         if current_password == new_password:

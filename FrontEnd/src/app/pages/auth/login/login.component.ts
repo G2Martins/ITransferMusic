@@ -1,7 +1,10 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  ViewChild,
   inject,
   signal,
 } from '@angular/core';
@@ -9,8 +12,21 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 import { formatApiError } from '../../../core/utils/format-error';
+
+declare const google: {
+  accounts: {
+    id: {
+      initialize: (cfg: {
+        client_id: string;
+        callback: (resp: { credential: string }) => void;
+      }) => void;
+      renderButton: (el: HTMLElement, opts: Record<string, unknown>) => void;
+    };
+  };
+};
 
 @Component({
   selector: 'app-login',
@@ -27,7 +43,7 @@ import { formatApiError } from '../../../core/utils/format-error';
             class="text-5xl text-brand-accent"
           ></iconify-icon>
         </div>
-        <h1 class="text-center text-2xl font-bold text-brand">
+        <h1 class="text-center text-2xl font-bold text-brand dark:text-white">
           {{ 'auth.login.title' | transloco }}
         </h1>
 
@@ -58,7 +74,17 @@ import { formatApiError } from '../../../core/utils/format-error';
           </button>
         </form>
 
-        <p class="mt-6 text-center text-sm text-brand/70">
+        <!-- Divisor -->
+        <div class="my-6 flex items-center gap-3 text-xs text-brand/50 dark:text-white/40">
+          <div class="h-px flex-1 bg-gray-200 dark:bg-white/10"></div>
+          <span>{{ 'auth.login.or' | transloco }}</span>
+          <div class="h-px flex-1 bg-gray-200 dark:bg-white/10"></div>
+        </div>
+
+        <!-- Google Sign-in -->
+        <div #googleButton class="flex justify-center"></div>
+
+        <p class="mt-6 text-center text-sm text-brand/70 dark:text-white/70">
           {{ 'auth.login.noAccount' | transloco }}
           <a [routerLink]="['/auth/register']" class="font-semibold text-brand-accent">
             {{ 'auth.login.register' | transloco }}
@@ -68,10 +94,12 @@ import { formatApiError } from '../../../core/utils/format-error';
     </section>
   `,
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+
+  @ViewChild('googleButton') googleButton!: ElementRef<HTMLDivElement>;
 
   email = '';
   password = '';
@@ -82,15 +110,55 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set(null);
     this.auth.login({ email: this.email, password: this.password }).subscribe({
-      next: () => {
-        this.loading.set(false);
-        const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/dashboard';
-        this.router.navigateByUrl(redirect);
-      },
+      next: () => this.finish(),
       error: (err) => {
         this.loading.set(false);
         this.error.set(formatApiError(err, 'Falha ao entrar'));
       },
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.initGoogleButton();
+  }
+
+  private initGoogleButton(retries = 10): void {
+    if (typeof google === 'undefined' || !google?.accounts?.id) {
+      if (retries > 0) setTimeout(() => this.initGoogleButton(retries - 1), 300);
+      return;
+    }
+    if (!environment.googleClientId) return;
+
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      callback: (resp) => this.handleGoogleCredential(resp.credential),
+    });
+    google.accounts.id.renderButton(this.googleButton.nativeElement, {
+      theme: 'outline',
+      size: 'large',
+      type: 'standard',
+      shape: 'rectangular',
+      text: 'continue_with',
+      logo_alignment: 'left',
+      width: 320,
+    });
+  }
+
+  private handleGoogleCredential(credential: string): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.auth.googleLogin(credential).subscribe({
+      next: () => this.finish(),
+      error: (err) => {
+        this.loading.set(false);
+        this.error.set(formatApiError(err, 'Falha ao entrar com Google'));
+      },
+    });
+  }
+
+  private finish(): void {
+    this.loading.set(false);
+    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/dashboard';
+    this.router.navigateByUrl(redirect);
   }
 }

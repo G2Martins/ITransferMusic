@@ -104,4 +104,48 @@ export class ApiService {
   listTransfers() {
     return this.http.get<TransferResponse[]>(`${this.base}/transfers`);
   }
+
+  // --- Syncs ---
+  listSyncs() {
+    return this.http.get<PlaylistSync[]>(`${this.base}/syncs`);
+  }
+
+  createSync(payload: SyncCreatePayload) {
+    return this.http.post<PlaylistSync>(`${this.base}/syncs`, payload);
+  }
+
+  toggleSync(id: string, status: SyncStatus) {
+    return this.http.patch<PlaylistSync>(`${this.base}/syncs/${id}`, { status });
+  }
+
+  deleteSync(id: string) {
+    return this.http.delete<void>(`${this.base}/syncs/${id}`);
+  }
+}
+
+export type SyncStatus = 'active' | 'paused' | 'error';
+
+export interface PlaylistSync {
+  id: string;
+  source_provider: Provider;
+  source_playlist_id: string;
+  source_playlist_name: string | null;
+  target_provider: Provider;
+  target_playlist_id: string;
+  target_playlist_name: string | null;
+  status: SyncStatus;
+  last_synced_at: string | null;
+  last_error: string | null;
+  tracks_added_last_run: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SyncCreatePayload {
+  source_provider: Provider;
+  source_playlist_id: string;
+  source_playlist_name?: string;
+  target_provider: Provider;
+  target_playlist_id: string;
+  target_playlist_name?: string;
 }

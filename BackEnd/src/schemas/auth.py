@@ -53,3 +53,7 @@ class UpdateProfileRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str = Field(min_length=8, max_length=72)
     new_password: str = Field(min_length=8, max_length=72)
+
+
+class GoogleLoginRequest(BaseModel):
+    credential: str = Field(min_length=10, description="id_token do Google Identity Services")

@@ -50,9 +50,14 @@
   },
   "syncs": {
     "title": "My Playlist Syncs",
-    "subtitle": "Keep your playlists mirrored across platforms.",
+    "subtitle": "Keep 2 playlists across different services always mirrored.",
     "newSync": "New Sync",
-    "empty": "You haven't synced any playlist yet"
+    "empty": "You haven't synced any playlist yet",
+    "emptyHint": "After running a transfer you'll be able to enable daily syncing between the source and the playlist we created.",
+    "active": "Active",
+    "paused": "Paused",
+    "remove": "Remove sync",
+    "lastSync": "Last run"
   },
   "history": {
     "title": "Transfer History",
@@ -63,17 +68,79 @@
     "open": "Open"
   },
   "features": {
+    "howItWorks": "How it works",
+    "benefits": "Why use it",
     "transferir": {
       "title": "Transfer",
-      "desc": "Copy playlists from one service to another easily."
+      "desc": "Copy playlists from one service to another easily.",
+      "heroTitle": "Transfer your playlists to any platform",
+      "heroSubtitle": "Move entire lists between Spotify, YouTube Music, Apple Music and Amazon Music in a few clicks — no need to rebuild anything from scratch.",
+      "steps": {
+        "s1t": "Connect your accounts",
+        "s1d": "Link the source and target services via OAuth. Your tokens are stored encrypted.",
+        "s2t": "Pick the playlist",
+        "s2d": "Select the list you want to move. We read every track including artist and album.",
+        "s3t": "It lands on the target",
+        "s3d": "We create the playlist on the destination platform with as many matched tracks as possible."
+      },
+      "benefits": {
+        "b1t": "Fast",
+        "b1d": "Transfers run in the background — no need to wait on the screen.",
+        "b2t": "Secure",
+        "b2d": "Official OAuth only. We never store your provider password.",
+        "b3t": "No practical limit",
+        "b3d": "Big playlists are paginated and batched automatically.",
+        "b4t": "Free",
+        "b4d": "Use it as many times as you want while the project is in development."
+      }
     },
     "sincronizar": {
       "title": "Sync",
-      "desc": "Keep your playlists always up to date."
+      "desc": "Keep your playlists always up to date.",
+      "heroTitle": "Keep your music in sync",
+      "heroSubtitle": "Link two playlists on different services and keep them mirrored. Anything added on the source is automatically copied to the target.",
+      "steps": {
+        "s1t": "Connect 2 accounts",
+        "s1d": "Link the service where you curate playlists and the one where you want the mirror.",
+        "s2t": "Point the 2 playlists",
+        "s2d": "Pick source and target playlist. Both must already exist on the respective services.",
+        "s3t": "We monitor daily",
+        "s3d": "Every day we check the source and copy new tracks to the destination, without duplicates."
+      },
+      "benefits": {
+        "b1t": "Automatic",
+        "b1d": "Set it once and forget — the sync runs alone in the background.",
+        "b2t": "Reversible",
+        "b2d": "Pause, resume or delete a sync anytime.",
+        "b3t": "No duplicates",
+        "b3d": "We only add new tracks. Songs already on the target are not copied again.",
+        "b4t": "Cross-platform",
+        "b4d": "Mix any combination of Spotify, YouTube Music, Apple Music and Amazon Music."
+      }
     },
     "partilhar": {
       "title": "Share",
-      "desc": "Share your playlists with friends."
+      "desc": "Share your playlists with friends.",
+      "heroTitle": "Share your playlists with anyone",
+      "heroSubtitle": "Send a link that opens the playlist on the recipient's favorite service — even if it's different from yours.",
+      "steps": {
+        "s1t": "Pick the playlist",
+        "s1d": "On the dashboard, select a playlist you have already transferred.",
+        "s2t": "Generate the link",
+        "s2d": "A click on Share copies the direct link from the target service.",
+        "s3t": "Send it to anyone",
+        "s3d": "The recipient opens it in their favourite app and saves it to their library."
+      },
+      "benefits": {
+        "b1t": "Direct",
+        "b1d": "Official Spotify / YouTube / Apple Music links — open in the native app.",
+        "b2t": "Private",
+        "b2d": "Only whoever has the link can access it; you decide what to share.",
+        "b3t": "No conversion",
+        "b3d": "Send it as-is — nobody needs ITransferMusic to open the link.",
+        "b4t": "Built-in",
+        "b4d": "Share button right on each playlist created by the dashboard."
+      }
     }
   },
   "home": {
@@ -104,6 +171,7 @@
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "submit": "Sign in",
+      "or": "or",
       "noAccount": "Don't have an account yet?",
       "register": "Create account"
     },
@@ -119,9 +187,8 @@
     "title": "Dashboard",
     "greeting": "Hello",
     "subtitle": "Everything ready to move your playlists.",
-    "ctaLabel": "Main action",
     "ctaTitle": "New Transfer",
-    "ctaDesc": "Pick a playlist from one service and send it to another in a few clicks.",
+    "ctaShort": "Move a playlist to another service",
     "quick": {
       "syncs": "My Syncs",
       "syncsDesc": "See mirrored playlists",
@@ -130,6 +197,12 @@
       "account": "Settings",
       "accountDesc": "linked services"
     },
+    "myPlaylists": "My Playlists",
+    "myPlaylistsEmpty": "Your transferred playlists will show up here.",
+    "viewAll": "View all",
+    "listOfTracks": "Track list",
+    "share": "Share",
+    "sync": "Sync",
     "linkedShort": "Linked accounts",
     "manage": "Manage",
     "linkedAccounts": "Linked accounts",

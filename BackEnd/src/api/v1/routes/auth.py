@@ -7,6 +7,7 @@ from src.integrations.oauth.registry import get_oauth_provider, is_oauth_support
 from src.models.common import Provider
 from src.schemas.auth import (
     ChangePasswordRequest,
+    GoogleLoginRequest,
     LoginRequest,
     MeResponse,
     OAuthAuthorizeResponse,
@@ -31,6 +32,18 @@ async def register(payload: RegisterRequest, service: AuthServiceDep) -> TokenRe
         return await service.register(payload)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@router.post("/google/login", response_model=TokenResponse)
+async def google_login(
+    payload: GoogleLoginRequest, service: AuthServiceDep
+) -> TokenResponse:
+    try:
+        return await service.google_login(payload.credential)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
+        ) from exc
 
 
 @router.post("/login", response_model=TokenResponse)

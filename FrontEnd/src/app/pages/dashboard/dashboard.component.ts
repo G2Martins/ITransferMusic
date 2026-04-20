@@ -7,6 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { DatePipe, NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -17,8 +18,11 @@ import {
   TransferResponse,
 } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
-import { formatApiError } from '../../core/utils/format-error';
-import { providerIcon, providerLabel } from '../../core/utils/playlist-url';
+import {
+  playlistUrl,
+  providerIcon,
+  providerLabel,
+} from '../../core/utils/playlist-url';
 
 interface ProviderMeta {
   id: Provider;
@@ -26,15 +30,29 @@ interface ProviderMeta {
   icon: string;
 }
 
+interface PlaylistCard {
+  id: string;
+  name: string;
+  sourceProvider: Provider;
+  targetProvider: Provider;
+  targetIcon: string;
+  sourceIcon: string;
+  tracks: number;
+  totalTracks: number;
+  status: string;
+  createdAt: string;
+  url: string | null;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink, TranslocoPipe],
+  imports: [DatePipe, NgClass, RouterLink, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <section class="container mx-auto max-w-5xl px-6 py-12">
-      <header class="mb-10">
+      <header class="mb-8">
         <h1 class="text-3xl font-bold text-brand dark:text-white md:text-4xl">
           {{ 'dashboard.greeting' | transloco }}, {{ auth.firstName() || '...' }}!
         </h1>
@@ -43,34 +61,18 @@ interface ProviderMeta {
         </p>
       </header>
 
-      <!-- CTA principal -->
-      <a
-        [routerLink]="['/transfer/new']"
-        class="block overflow-hidden rounded-3xl bg-gradient-to-br from-brand-accent to-brand-accentDark p-10 text-white shadow-xl transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl"
-      >
-        <div class="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <a
+          [routerLink]="['/transfer/new']"
+          class="card flex items-center gap-4 bg-brand-accent text-white shadow-xl transition-transform hover:-translate-y-1 hover:bg-brand-accentDark dark:bg-brand-accent"
+        >
+          <iconify-icon icon="ph:arrows-left-right-duotone" class="text-4xl"></iconify-icon>
           <div>
-            <p class="text-sm uppercase tracking-wider text-white/70">
-              {{ 'dashboard.ctaLabel' | transloco }}
-            </p>
-            <h2 class="mt-2 text-3xl font-extrabold md:text-4xl">
-              {{ 'dashboard.ctaTitle' | transloco }}
-            </h2>
-            <p class="mt-3 max-w-xl text-white/80">
-              {{ 'dashboard.ctaDesc' | transloco }}
-            </p>
+            <p class="font-semibold">{{ 'dashboard.ctaTitle' | transloco }}</p>
+            <p class="text-xs text-white/80">{{ 'dashboard.ctaShort' | transloco }}</p>
           </div>
-          <div class="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl bg-white/15">
-            <iconify-icon
-              icon="ph:arrows-left-right-duotone"
-              class="text-5xl"
-            ></iconify-icon>
-          </div>
-        </div>
-      </a>
+        </a>
 
-      <!-- Atalhos -->
-      <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
         <a
           [routerLink]="['/account/syncs']"
           class="card flex items-center gap-4 hover:-translate-y-1"
@@ -109,38 +111,121 @@ interface ProviderMeta {
         </a>
       </div>
 
-      <!-- Contas vinculadas (resumo) -->
-      <div class="mt-10">
+      <!-- Minhas playlists (gerenciamento) -->
+      <div class="mt-12">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-xl font-semibold text-brand dark:text-white">
-            {{ 'dashboard.linkedShort' | transloco }}
+            {{ 'dashboard.myPlaylists' | transloco }}
           </h3>
           <a
-            [routerLink]="['/account/profile']"
+            [routerLink]="['/account/history']"
             class="text-sm font-semibold text-brand-accent hover:underline"
           >
-            {{ 'dashboard.manage' | transloco }} →
+            {{ 'dashboard.viewAll' | transloco }} →
           </a>
         </div>
-        <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-          @for (p of providers; track p.id) {
-            <div
-              class="flex items-center gap-2 rounded-xl border p-3 text-sm"
-              [class.border-brand-accent]="isLinked(p.id)"
-              [class.border-gray-200]="!isLinked(p.id)"
-              [class.dark:border-white/10]="!isLinked(p.id)"
-            >
-              <iconify-icon [attr.icon]="p.icon" class="text-2xl"></iconify-icon>
-              <span class="truncate font-medium">{{ p.label }}</span>
-              @if (isLinked(p.id)) {
-                <iconify-icon
-                  icon="ph:check-circle-fill"
-                  class="ml-auto text-lg text-green-500"
-                ></iconify-icon>
-              }
-            </div>
-          }
-        </div>
+
+        @if (cards().length === 0) {
+          <div
+            class="flex min-h-[180px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 p-10 text-center dark:border-white/15"
+          >
+            <iconify-icon
+              icon="ph:music-notes-duotone"
+              class="mb-4 text-5xl text-brand/40 dark:text-white/40"
+            ></iconify-icon>
+            <p class="text-brand/60 dark:text-white/60">
+              {{ 'dashboard.myPlaylistsEmpty' | transloco }}
+            </p>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (c of cards(); track c.id) {
+              <div
+                class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-white/10 dark:bg-surface-mutedDark"
+              >
+                <div class="flex items-center gap-5">
+                  <div class="flex items-center gap-2 text-brand dark:text-white">
+                    <iconify-icon [attr.icon]="c.sourceIcon" class="text-3xl"></iconify-icon>
+                    <iconify-icon icon="ph:arrow-right-bold" class="text-lg text-gray-400"></iconify-icon>
+                    <iconify-icon [attr.icon]="c.targetIcon" class="text-3xl"></iconify-icon>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-baseline gap-4">
+                      <span class="text-xl font-bold text-brand dark:text-white">
+                        {{ c.tracks }}/{{ c.totalTracks }}
+                      </span>
+                      <span class="text-xs text-brand/60 dark:text-white/60">
+                        {{ 'history.tracksProcessed' | transloco }}
+                      </span>
+                    </div>
+                    <p class="text-xs text-brand/40 dark:text-white/40">
+                      {{ c.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                    </p>
+                  </div>
+                  <span
+                    class="rounded-full px-3 py-1 text-xs font-semibold"
+                    [ngClass]="{
+                      'bg-green-100 text-green-700': c.status === 'completed',
+                      'bg-yellow-100 text-yellow-700': c.status === 'partial' || c.status === 'running',
+                      'bg-gray-100 text-gray-700': c.status === 'pending',
+                      'bg-red-100 text-red-700': c.status === 'failed'
+                    }"
+                  >
+                    {{ c.status }}
+                  </span>
+                </div>
+
+                <div class="mt-4 flex flex-wrap items-center gap-4 border-t border-gray-100 pt-4 dark:border-white/10">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-accent/10"
+                    >
+                      <iconify-icon
+                        icon="ph:music-notes-duotone"
+                        class="text-2xl text-brand-accent"
+                      ></iconify-icon>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-brand dark:text-white">{{ c.name }}</p>
+                      <p class="text-xs text-brand/60 dark:text-white/60">
+                        {{ 'dashboard.listOfTracks' | transloco }} · {{ c.totalTracks }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="ml-auto flex flex-wrap items-center gap-2">
+                    @if (c.url) {
+                      <a
+                        [href]="c.url"
+                        target="_blank"
+                        rel="noreferrer"
+                        class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-brand transition-colors hover:border-brand-accent hover:text-brand-accent dark:border-white/15 dark:text-white"
+                      >
+                        <iconify-icon icon="ph:arrow-square-out-duotone" class="text-lg"></iconify-icon>
+                        {{ 'history.open' | transloco }}
+                      </a>
+                    }
+                    <button
+                      type="button"
+                      (click)="share(c)"
+                      class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-brand transition-colors hover:border-brand-accent hover:text-brand-accent dark:border-white/15 dark:text-white"
+                    >
+                      <iconify-icon icon="ph:share-network-duotone" class="text-lg"></iconify-icon>
+                      {{ 'dashboard.share' | transloco }}
+                    </button>
+                    <a
+                      [routerLink]="['/account/syncs']"
+                      class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-brand transition-colors hover:border-brand-accent hover:text-brand-accent dark:border-white/15 dark:text-white"
+                    >
+                      <iconify-icon icon="ph:arrows-clockwise-duotone" class="text-lg"></iconify-icon>
+                      {{ 'dashboard.sync' | transloco }}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
     </section>
   `,
@@ -162,6 +247,25 @@ export class DashboardComponent implements OnInit {
   readonly totalLinked = computed(() => this.linked().length);
   readonly totalTransfers = computed(() => this.transfers().length);
 
+  readonly cards = computed<PlaylistCard[]>(() =>
+    this.transfers()
+      .filter((t) => t.target_playlist_id)
+      .slice(0, 5)
+      .map((t) => ({
+        id: t.id,
+        name: t.target_playlist_name,
+        sourceProvider: t.source_provider,
+        targetProvider: t.target_provider,
+        sourceIcon: providerIcon(t.source_provider),
+        targetIcon: providerIcon(t.target_provider),
+        tracks: t.matched_tracks,
+        totalTracks: t.total_tracks,
+        status: t.status,
+        createdAt: t.created_at,
+        url: playlistUrl(t.target_provider, t.target_playlist_id),
+      })),
+  );
+
   ngOnInit(): void {
     this.auth.hydrate();
     this.api.listLinkedAccounts().subscribe({
@@ -178,6 +282,12 @@ export class DashboardComponent implements OnInit {
     return this.linked().some((a) => a.provider === p);
   }
 
-  // referenciado apenas indiretamente via template
-  protected readonly formatApiError = formatApiError;
+  share(c: PlaylistCard): void {
+    if (!c.url) return;
+    if (navigator.share) {
+      navigator.share({ title: c.name, url: c.url }).catch(() => void 0);
+    } else {
+      navigator.clipboard.writeText(c.url).catch(() => void 0);
+    }
+  }
 }
