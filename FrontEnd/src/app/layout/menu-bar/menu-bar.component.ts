@@ -11,6 +11,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { FEATURES } from '../../shared/features.data';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-menu-bar',
@@ -23,10 +24,12 @@ import { AuthService } from '../../core/services/auth.service';
 export class MenuBarComponent {
   private readonly transloco = inject(TranslocoService);
   readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
 
   readonly features = FEATURES;
   readonly featuresOpen = signal(false);
   readonly langOpen = signal(false);
+  readonly profileOpen = signal(false);
   readonly currentLang = signal(this.transloco.getActiveLang());
 
   readonly languages = [
@@ -37,16 +40,25 @@ export class MenuBarComponent {
   toggleFeatures(): void {
     this.featuresOpen.update((v) => !v);
     this.langOpen.set(false);
+    this.profileOpen.set(false);
   }
 
   toggleLang(): void {
     this.langOpen.update((v) => !v);
     this.featuresOpen.set(false);
+    this.profileOpen.set(false);
+  }
+
+  toggleProfile(): void {
+    this.profileOpen.update((v) => !v);
+    this.featuresOpen.set(false);
+    this.langOpen.set(false);
   }
 
   closeMenus(): void {
     this.featuresOpen.set(false);
     this.langOpen.set(false);
+    this.profileOpen.set(false);
   }
 
   changeLang(code: string): void {
@@ -60,7 +72,12 @@ export class MenuBarComponent {
   }
 
   logout(): void {
+    this.closeMenus();
     this.auth.logout();
+  }
+
+  toggleTheme(): void {
+    this.theme.toggle();
   }
 
   @HostListener('document:click', ['$event'])

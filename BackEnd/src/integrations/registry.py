@@ -14,8 +14,9 @@ _REGISTRY: dict[Provider, type[MusicProviderClient]] = {
 }
 
 
-def get_provider_client(provider: Provider) -> MusicProviderClient:
+def get_provider_client(provider: Provider | str) -> MusicProviderClient:
     try:
-        return _REGISTRY[provider]()
-    except KeyError as exc:
+        p = provider if isinstance(provider, Provider) else Provider(str(provider))
+        return _REGISTRY[p]()
+    except (KeyError, ValueError) as exc:
         raise ValueError(f"Provedor nao suportado: {provider}") from exc

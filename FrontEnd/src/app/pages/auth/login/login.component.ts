@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 import { AuthService } from '../../../core/services/auth.service';
@@ -71,6 +71,7 @@ import { formatApiError } from '../../../core/utils/format-error';
 export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   email = '';
   password = '';
@@ -83,7 +84,8 @@ export class LoginComponent {
     this.auth.login({ email: this.email, password: this.password }).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/dashboard']);
+        const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/dashboard';
+        this.router.navigateByUrl(redirect);
       },
       error: (err) => {
         this.loading.set(false);

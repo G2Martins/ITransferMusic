@@ -1,0 +1,172 @@
+<div class="mb-8 flex items-center gap-4">
+  <div
+    class="flex h-16 w-16 items-center justify-center rounded-full bg-brand-accent/10"
+  >
+    <iconify-icon
+      icon="ph:user-circle-duotone"
+      class="text-4xl text-brand-accent"
+    ></iconify-icon>
+  </div>
+  <div>
+    <h1 class="text-3xl font-bold text-brand dark:text-white">
+      {{ 'profile.title' | transloco }}
+    </h1>
+    <p class="text-sm text-brand/60 dark:text-white/60">{{ email() }}</p>
+  </div>
+</div>
+
+@if (loadingMe()) {
+  <p class="text-brand/70 dark:text-white/70">Carregando...</p>
+} @else {
+  <!-- Alterar nome -->
+  <div class="card mb-6">
+    <h2 class="text-xl font-semibold text-brand dark:text-white">
+      {{ 'profile.name.title' | transloco }}
+    </h2>
+    <p class="mt-1 text-sm text-brand/60 dark:text-white/60">
+      {{ 'profile.name.subtitle' | transloco }}
+    </p>
+
+    <form (ngSubmit)="saveName()" class="mt-5 space-y-4">
+      <input
+        class="input-base"
+        type="text"
+        [value]="name()"
+        (input)="name.set($any($event.target).value)"
+        required
+        minlength="1"
+        maxlength="120"
+        [attr.placeholder]="'profile.name.label' | transloco"
+      />
+
+      @if (nameError()) {
+        <p class="text-sm text-red-600">{{ nameError() }}</p>
+      }
+      @if (nameSuccess()) {
+        <p class="text-sm text-green-600">
+          {{ 'profile.name.success' | transloco }}
+        </p>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="savingName()">
+        {{ 'profile.name.save' | transloco }}
+      </button>
+    </form>
+  </div>
+
+  <!-- Alterar senha -->
+  <div class="card mb-6">
+    <h2 class="text-xl font-semibold text-brand dark:text-white">
+      {{ 'profile.password.title' | transloco }}
+    </h2>
+    <p class="mt-1 text-sm text-brand/60 dark:text-white/60">
+      {{ 'profile.password.subtitle' | transloco }}
+    </p>
+
+    <form (ngSubmit)="savePassword()" class="mt-5 space-y-4">
+      <input
+        class="input-base"
+        type="password"
+        [(ngModel)]="currentPassword"
+        name="currentPassword"
+        required
+        minlength="8"
+        [attr.placeholder]="'profile.password.current' | transloco"
+        autocomplete="current-password"
+      />
+      <input
+        class="input-base"
+        type="password"
+        [(ngModel)]="newPassword"
+        name="newPassword"
+        required
+        minlength="8"
+        maxlength="72"
+        [attr.placeholder]="'profile.password.new' | transloco"
+        autocomplete="new-password"
+      />
+      <input
+        class="input-base"
+        type="password"
+        [(ngModel)]="confirmPassword"
+        name="confirmPassword"
+        required
+        minlength="8"
+        maxlength="72"
+        [attr.placeholder]="'profile.password.confirm' | transloco"
+        autocomplete="new-password"
+      />
+
+      @if (passwordError()) {
+        <p class="text-sm text-red-600">{{ passwordError() }}</p>
+      }
+      @if (passwordSuccess()) {
+        <p class="text-sm text-green-600">
+          {{ 'profile.password.success' | transloco }}
+        </p>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="savingPassword()">
+        {{ 'profile.password.save' | transloco }}
+      </button>
+    </form>
+  </div>
+
+  <!-- Servicos de musica vinculados -->
+  <div class="card">
+    <h2 class="text-xl font-semibold text-brand dark:text-white">
+      {{ 'profile.linked.title' | transloco }}
+    </h2>
+    <p class="mt-1 text-sm text-brand/60 dark:text-white/60">
+      {{ 'profile.linked.subtitle' | transloco }}
+    </p>
+
+    @if (accountsError()) {
+      <p class="mt-3 text-sm text-red-600">{{ accountsError() }}</p>
+    }
+
+    <div class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+      @for (p of providers; track p.id) {
+        <div
+          class="flex items-center justify-between rounded-xl border border-gray-200 p-4 dark:border-white/10"
+        >
+          <div class="flex items-center gap-3">
+            <iconify-icon
+              [attr.icon]="p.icon"
+              class="text-3xl text-brand-accent"
+            ></iconify-icon>
+            <div>
+              <p class="font-semibold">{{ p.label }}</p>
+              @if (isLinked(p.id)) {
+                <p class="text-xs text-green-600">
+                  {{ 'profile.linked.connected' | transloco }}
+                </p>
+              } @else {
+                <p class="text-xs text-brand/50 dark:text-white/50">
+                  {{ 'profile.linked.disconnected' | transloco }}
+                </p>
+              }
+            </div>
+          </div>
+          @if (isLinked(p.id)) {
+            <button
+              type="button"
+              class="text-sm font-semibold text-brand-accent hover:underline"
+              (click)="unlinkProvider(p.id)"
+            >
+              {{ 'dashboard.unlinkAction' | transloco }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="rounded-lg bg-brand-accent px-4 py-2 text-sm font-semibold text-white hover:bg-brand-accentDark"
+              (click)="linkProvider(p.id)"
+            >
+              {{ 'dashboard.linkAction' | transloco }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

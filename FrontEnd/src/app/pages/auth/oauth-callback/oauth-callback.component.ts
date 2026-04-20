@@ -41,14 +41,19 @@ export class OAuthCallbackComponent implements OnInit {
   readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
-    const provider = this.route.snapshot.paramMap.get('provider') as Provider | null;
+    const raw = this.route.snapshot.paramMap.get('provider');
     const code = this.route.snapshot.queryParamMap.get('code');
     const state = this.route.snapshot.queryParamMap.get('state');
 
-    if (!provider || !code || !state) {
+    if (!raw || !code || !state) {
       this.error.set('Parametros OAuth ausentes na URL.');
       return;
     }
+
+    // O redirect_uri do Google Cloud e `/auth/callback/google`, mas o provedor
+    // interno da API e `youtube` (Google OAuth e apenas o meio para acessar
+    // a YouTube Data API). Mapeamos aqui antes de chamar o backend.
+    const provider = (raw === 'google' ? 'youtube' : raw) as Provider;
 
     this.api.oauthCallback(provider, code, state).subscribe({
       next: () => this.router.navigate(['/dashboard']),

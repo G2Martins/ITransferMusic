@@ -3,13 +3,21 @@
     "features": "Funcionalidades",
     "help": "Ajuda",
     "contact": "Contato",
+    "home": "Início",
+    "theme": "Alternar tema",
+    "hello": "Olá",
     "login": "Iniciar Sessão",
     "dashboard": "Meu Painel",
     "profile": "Meu perfil",
-    "logout": "Sair"
+    "logout": "Sair",
+    "profileMenu": {
+      "account": "Configurações de Conta",
+      "syncs": "Minhas Sincronizações",
+      "history": "Histórico de Transferências"
+    }
   },
   "profile": {
-    "title": "Meu perfil",
+    "title": "Configurações de Conta",
     "name": {
       "title": "Seu nome",
       "subtitle": "Como deseja ser chamado na plataforma.",
@@ -25,7 +33,34 @@
       "confirm": "Confirmar nova senha",
       "save": "Alterar senha",
       "success": "Senha alterada com sucesso."
+    },
+    "linked": {
+      "title": "Serviços de música vinculados",
+      "subtitle": "Conecte suas contas para que possamos transferir playlists entre elas.",
+      "connected": "Conectado",
+      "disconnected": "Não conectado"
     }
+  },
+  "account": {
+    "tabs": {
+      "profile": "Configurações de Conta",
+      "syncs": "Minhas Sincronizações",
+      "history": "Histórico de Transferências"
+    }
+  },
+  "syncs": {
+    "title": "Minhas Sincronizações de Playlists",
+    "subtitle": "Mantenha suas playlists espelhadas entre plataformas.",
+    "newSync": "Nova Sincronização",
+    "empty": "Ainda não sincronizou nenhuma playlist"
+  },
+  "history": {
+    "title": "Histórico de Transferências",
+    "subtitle": "Acompanhe todas as transferências que você já realizou.",
+    "newTransfer": "Nova Transferência",
+    "empty": "Você ainda não realizou nenhuma transferência.",
+    "tracksProcessed": "faixas processadas",
+    "open": "Abrir"
   },
   "features": {
     "transferir": {
@@ -81,11 +116,31 @@
     }
   },
   "dashboard": {
-    "title": "Painel de transferências",
+    "title": "Meu Painel",
+    "greeting": "Olá",
+    "subtitle": "Tudo pronto para mover suas playlists.",
+    "ctaLabel": "Ação principal",
+    "ctaTitle": "Nova Transferência",
+    "ctaDesc": "Escolha uma playlist de um serviço e envie para outro em poucos cliques.",
+    "quick": {
+      "syncs": "Minhas Sincronizações",
+      "syncsDesc": "Ver playlists espelhadas",
+      "history": "Histórico",
+      "historyDesc": "transferências realizadas",
+      "account": "Configurações",
+      "accountDesc": "serviços vinculados"
+    },
+    "linkedShort": "Contas vinculadas",
+    "manage": "Gerenciar",
     "linkedAccounts": "Contas vinculadas",
     "linkAction": "Vincular",
     "unlinkAction": "Desvincular",
     "newTransfer": "Nova transferência"
+  },
+  "transferNew": {
+    "title": "Nova Transferência",
+    "subtitle": "Monte sua transferência em 4 passos.",
+    "back": "Voltar ao painel"
   },
   "wizard": {
     "step1": "Escolher origem",
@@ -94,7 +149,9 @@
     "step4": "Confirmar",
     "next": "Avançar",
     "back": "Voltar",
-    "start": "Iniciar transferência"
+    "start": "Iniciar transferência",
+    "notLinked": "Não vinculado",
+    "playlistName": "Nome da nova playlist"
   },
   "help": {
     "title": "Central de Ajuda",

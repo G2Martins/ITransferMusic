@@ -1,0 +1,188 @@
+<section class="container mx-auto max-w-5xl px-6 py-12">
+  <a
+    [routerLink]="['/dashboard']"
+    class="mb-6 inline-flex items-center gap-2 text-sm text-brand/60 transition-colors hover:text-brand-accent dark:text-white/60"
+  >
+    <iconify-icon icon="ph:arrow-left-bold"></iconify-icon>
+    {{ 'transferNew.back' | transloco }}
+  </a>
+
+  <h1 class="text-3xl font-bold text-brand dark:text-white md:text-4xl">
+    {{ 'transferNew.title' | transloco }}
+  </h1>
+  <p class="mt-2 text-brand/60 dark:text-white/60">
+    {{ 'transferNew.subtitle' | transloco }}
+  </p>
+
+  @if (error()) {
+    <p class="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">{{ error() }}</p>
+  }
+
+  <!-- Stepper -->
+  <ol class="mt-8 flex flex-wrap items-center gap-3 text-sm font-medium">
+    @for (s of [1, 2, 3, 4]; track s) {
+      <li
+        class="flex items-center gap-2 rounded-full px-4 py-2 transition-colors"
+        [class.bg-brand-accent]="step() === s"
+        [class.text-white]="step() === s"
+        [class.bg-gray-100]="step() !== s"
+        [class.dark:bg-surface-mutedDark]="step() !== s"
+        [class.text-brand]="step() !== s"
+        [class.dark:text-white]="step() !== s"
+      >
+        <span>{{ s }}.</span>
+        <span>
+          @switch (s) {
+            @case (1) { {{ 'wizard.step1' | transloco }} }
+            @case (2) { {{ 'wizard.step2' | transloco }} }
+            @case (3) { {{ 'wizard.step3' | transloco }} }
+            @case (4) { {{ 'wizard.step4' | transloco }} }
+          }
+        </span>
+      </li>
+    }
+  </ol>
+
+  <div class="card mt-6">
+    @switch (step()) {
+      @case (1) {
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+          @for (p of providers; track p.id) {
+            <button
+              type="button"
+              (click)="selectSource(p.id)"
+              class="flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all"
+              [class.border-brand-accent]="source() === p.id"
+              [class.border-gray-200]="source() !== p.id"
+              [class.dark:border-white/10]="source() !== p.id"
+              [disabled]="!isLinked(p.id)"
+              [class.opacity-40]="!isLinked(p.id)"
+            >
+              <iconify-icon
+                [attr.icon]="p.icon"
+                class="text-3xl text-brand-accent"
+              ></iconify-icon>
+              <span class="text-sm font-semibold">{{ p.label }}</span>
+              @if (!isLinked(p.id)) {
+                <span class="text-xs text-brand/50 dark:text-white/50">
+                  {{ 'wizard.notLinked' | transloco }}
+                </span>
+              }
+            </button>
+          }
+        </div>
+      }
+      @case (2) {
+        @if (loadingPlaylists()) {
+          <p class="text-brand/70 dark:text-white/70">Carregando playlists...</p>
+        } @else if (playlists().length === 0) {
+          <p class="text-brand/70 dark:text-white/70">Nenhuma playlist encontrada.</p>
+        } @else {
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            @for (pl of playlists(); track pl.id) {
+              <button
+                type="button"
+                (click)="selectPlaylist(pl)"
+                class="flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all"
+                [class.border-brand-accent]="selectedPlaylist()?.id === pl.id"
+                [class.border-gray-200]="selectedPlaylist()?.id !== pl.id"
+                [class.dark:border-white/10]="selectedPlaylist()?.id !== pl.id"
+              >
+                @if (pl.image_url) {
+                  <img [src]="pl.image_url" alt="" class="h-14 w-14 rounded object-cover" />
+                } @else {
+                  <div
+                    class="flex h-14 w-14 items-center justify-center rounded bg-brand-accent/10"
+                  >
+                    <iconify-icon
+                      icon="ph:music-notes-duotone"
+                      class="text-2xl text-brand-accent"
+                    ></iconify-icon>
+                  </div>
+                }
+                <div>
+                  <p class="font-semibold">{{ pl.name }}</p>
+                  @if (pl.track_count !== null) {
+                    <p class="text-xs text-brand/60 dark:text-white/60">
+                      {{ pl.track_count }} faixas
+                    </p>
+                  }
+                </div>
+              </button>
+            }
+          </div>
+        }
+      }
+      @case (3) {
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+          @for (p of providers; track p.id) {
+            <button
+              type="button"
+              (click)="selectTarget(p.id)"
+              class="flex flex-col items-center gap-2 rounded-xl border-2 p-5 transition-all"
+              [class.border-brand-accent]="target() === p.id"
+              [class.border-gray-200]="target() !== p.id"
+              [class.dark:border-white/10]="target() !== p.id"
+              [disabled]="!isLinked(p.id) || p.id === source()"
+              [class.opacity-40]="!isLinked(p.id) || p.id === source()"
+            >
+              <iconify-icon
+                [attr.icon]="p.icon"
+                class="text-3xl text-brand-accent"
+              ></iconify-icon>
+              <span class="text-sm font-semibold">{{ p.label }}</span>
+            </button>
+          }
+        </div>
+      }
+      @case (4) {
+        <div class="space-y-4">
+          <p class="text-brand/70 dark:text-white/70">
+            Transferir <strong>{{ selectedPlaylist()?.name }}</strong>
+            de <strong>{{ source() }}</strong> para <strong>{{ target() }}</strong>.
+          </p>
+          <label class="block">
+            <span class="text-sm font-medium">{{ 'wizard.playlistName' | transloco }}</span>
+            <input
+              class="input-base mt-1"
+              type="text"
+              [value]="newTransferName()"
+              (input)="newTransferName.set($any($event.target).value)"
+            />
+          </label>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="mt-6 flex justify-between">
+    <button
+      type="button"
+      class="btn-ghost"
+      (click)="back()"
+      [disabled]="step() === 1"
+    >
+      {{ 'wizard.back' | transloco }}
+    </button>
+
+    @if (step() < 4) {
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="next()"
+        [disabled]="!canAdvance()"
+      >
+        {{ 'wizard.next' | transloco }}
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="startTransfer()"
+        [disabled]="!canAdvance() || creatingTransfer()"
+      >
+        {{ 'wizard.start' | transloco }}
+      </button>
+    }
+  </div>
+</section>

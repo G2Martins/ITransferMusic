@@ -45,8 +45,24 @@ export class AuthService {
   private readonly accessToken = signal<string | null>(localStorage.getItem(ACCESS_KEY));
   readonly isAuthenticated = computed(() => !!this.accessToken());
 
+  readonly currentUser = signal<MeResponse | null>(null);
+  readonly firstName = computed(() => {
+    const name = this.currentUser()?.name ?? '';
+    return name.trim().split(/\s+/)[0] ?? '';
+  });
+
   getAccessToken(): string | null {
     return this.accessToken();
+  }
+
+  /** Carrega o usuario atual se houver token e cache ainda vazio. */
+  hydrate(): void {
+    if (this.isAuthenticated() && !this.currentUser()) {
+      this.getMe().subscribe({
+        next: (me) => this.currentUser.set(me),
+        error: () => this.currentUser.set(null),
+      });
+    }
   }
 
   login(payload: LoginPayload): Observable<TokenResponse> {
@@ -72,6 +88,7 @@ export class AuthService {
     localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem(REFRESH_KEY);
     this.accessToken.set(null);
+    this.currentUser.set(null);
   }
 
   getMe(): Observable<MeResponse> {
@@ -90,5 +107,6 @@ export class AuthService {
     localStorage.setItem(ACCESS_KEY, res.access_token);
     localStorage.setItem(REFRESH_KEY, res.refresh_token);
     this.accessToken.set(res.access_token);
+    this.hydrate();
   }
 }

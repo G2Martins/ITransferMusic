@@ -3,13 +3,21 @@
     "features": "Features",
     "help": "Help",
     "contact": "Contact",
+    "home": "Home",
+    "theme": "Toggle theme",
+    "hello": "Hello",
     "login": "Sign in",
     "dashboard": "My Dashboard",
     "profile": "My profile",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "profileMenu": {
+      "account": "Account settings",
+      "syncs": "My Syncs",
+      "history": "Transfer History"
+    }
   },
   "profile": {
-    "title": "My profile",
+    "title": "Account settings",
     "name": {
       "title": "Your name",
       "subtitle": "How you want to be called on the platform.",
@@ -25,7 +33,34 @@
       "confirm": "Confirm new password",
       "save": "Change password",
       "success": "Password changed successfully."
+    },
+    "linked": {
+      "title": "Linked music services",
+      "subtitle": "Connect your accounts so we can transfer playlists between them.",
+      "connected": "Connected",
+      "disconnected": "Not connected"
     }
+  },
+  "account": {
+    "tabs": {
+      "profile": "Account settings",
+      "syncs": "My Syncs",
+      "history": "Transfer History"
+    }
+  },
+  "syncs": {
+    "title": "My Playlist Syncs",
+    "subtitle": "Keep your playlists mirrored across platforms.",
+    "newSync": "New Sync",
+    "empty": "You haven't synced any playlist yet"
+  },
+  "history": {
+    "title": "Transfer History",
+    "subtitle": "Track every transfer you've made.",
+    "newTransfer": "New Transfer",
+    "empty": "You haven't run any transfer yet.",
+    "tracksProcessed": "tracks processed",
+    "open": "Open"
   },
   "features": {
     "transferir": {
@@ -81,11 +116,31 @@
     }
   },
   "dashboard": {
-    "title": "Transfers dashboard",
+    "title": "Dashboard",
+    "greeting": "Hello",
+    "subtitle": "Everything ready to move your playlists.",
+    "ctaLabel": "Main action",
+    "ctaTitle": "New Transfer",
+    "ctaDesc": "Pick a playlist from one service and send it to another in a few clicks.",
+    "quick": {
+      "syncs": "My Syncs",
+      "syncsDesc": "See mirrored playlists",
+      "history": "History",
+      "historyDesc": "transfers made",
+      "account": "Settings",
+      "accountDesc": "linked services"
+    },
+    "linkedShort": "Linked accounts",
+    "manage": "Manage",
     "linkedAccounts": "Linked accounts",
     "linkAction": "Link",
     "unlinkAction": "Unlink",
     "newTransfer": "New transfer"
+  },
+  "transferNew": {
+    "title": "New Transfer",
+    "subtitle": "Build your transfer in 4 steps.",
+    "back": "Back to dashboard"
   },
   "wizard": {
     "step1": "Choose source",
@@ -94,7 +149,9 @@
     "step4": "Confirm",
     "next": "Next",
     "back": "Back",
-    "start": "Start transfer"
+    "start": "Start transfer",
+    "notLinked": "Not linked",
+    "playlistName": "New playlist name"
   },
   "help": {
     "title": "Help Center",

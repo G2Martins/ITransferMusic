@@ -9,19 +9,35 @@ import {
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 
-import { AuthService } from '../../core/services/auth.service';
-import { formatApiError } from '../../core/utils/format-error';
+import { AuthService } from '../../../core/services/auth.service';
+import {
+  ApiService,
+  LinkedAccount,
+  Provider,
+} from '../../../core/services/api.service';
+import { formatApiError } from '../../../core/utils/format-error';
+import {
+  providerIcon,
+  providerLabel,
+} from '../../../core/utils/playlist-url';
+
+interface ProviderMeta {
+  id: Provider;
+  label: string;
+  icon: string;
+}
 
 @Component({
-  selector: 'app-profile',
+  selector: 'app-account-profile',
   standalone: true,
   imports: [FormsModule, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  templateUrl: './profile.component.html',
+  templateUrl: './account-profile.component.html',
 })
-export class ProfileComponent implements OnInit {
+export class AccountProfileComponent implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly api = inject(ApiService);
 
   readonly name = signal('');
   readonly email = signal('');
@@ -38,12 +54,23 @@ export class ProfileComponent implements OnInit {
   readonly passwordSuccess = signal(false);
   readonly passwordError = signal<string | null>(null);
 
+  readonly providers: ProviderMeta[] = [
+    { id: 'spotify', label: providerLabel('spotify'), icon: providerIcon('spotify') },
+    { id: 'youtube', label: providerLabel('youtube'), icon: providerIcon('youtube') },
+    { id: 'apple_music', label: providerLabel('apple_music'), icon: providerIcon('apple_music') },
+    { id: 'amazon_music', label: providerLabel('amazon_music'), icon: providerIcon('amazon_music') },
+  ];
+
+  readonly linked = signal<LinkedAccount[]>([]);
+  readonly accountsError = signal<string | null>(null);
+
   ngOnInit(): void {
     this.loadingMe.set(true);
     this.auth.getMe().subscribe({
       next: (me) => {
         this.name.set(me.name);
         this.email.set(me.email);
+        this.auth.currentUser.set(me);
         this.loadingMe.set(false);
       },
       error: (err) => {
@@ -51,6 +78,31 @@ export class ProfileComponent implements OnInit {
         this.nameError.set(formatApiError(err, 'Falha ao carregar perfil'));
       },
     });
+
+    this.loadLinked();
+  }
+
+  loadLinked(): void {
+    this.api.listLinkedAccounts().subscribe({
+      next: (rows) => this.linked.set(rows),
+      error: (err) => this.accountsError.set(formatApiError(err, 'Falha ao listar contas')),
+    });
+  }
+
+  isLinked(p: Provider): boolean {
+    return this.linked().some((a) => a.provider === p);
+  }
+
+  linkProvider(p: Provider): void {
+    this.api.oauthAuthorize(p).subscribe({
+      next: (res) => (window.location.href = res.authorize_url),
+      error: (err) =>
+        this.accountsError.set(formatApiError(err, 'Provedor nao configurado')),
+    });
+  }
+
+  unlinkProvider(p: Provider): void {
+    this.api.unlinkAccount(p).subscribe({ next: () => this.loadLinked() });
   }
 
   saveName(): void {
@@ -65,6 +117,7 @@ export class ProfileComponent implements OnInit {
     this.auth.updateProfile({ name }).subscribe({
       next: (me) => {
         this.name.set(me.name);
+        this.auth.currentUser.set(me);
         this.savingName.set(false);
         this.nameSuccess.set(true);
       },

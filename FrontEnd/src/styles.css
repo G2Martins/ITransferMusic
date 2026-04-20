@@ -8,7 +8,7 @@
     height: 100%;
   }
   body {
-    @apply bg-white text-brand;
+    @apply bg-white text-brand dark:bg-surface-dark dark:text-white;
   }
 }
 
@@ -29,10 +29,21 @@
   .input-base {
     @apply w-full rounded-xl border border-gray-300 px-4 py-3 text-brand
            focus:border-brand-accent focus:outline-none focus:ring-2 focus:ring-brand-accent/40
-           placeholder:text-gray-400;
+           placeholder:text-gray-400
+           dark:border-white/15 dark:bg-surface-mutedDark dark:text-white dark:placeholder:text-white/40;
   }
 
   .card {
-    @apply rounded-2xl bg-white shadow-lg p-6 transition-transform duration-300;
+    @apply rounded-2xl bg-white shadow-lg p-6 transition-transform duration-300
+           dark:bg-surface-mutedDark dark:shadow-black/40;
+  }
+
+  .tab-link {
+    @apply inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-semibold
+           text-brand/70 transition-colors hover:text-brand-accent
+           dark:text-white/70 dark:hover:text-brand-accent;
+  }
+  .tab-link-active {
+    @apply border-brand-accent text-brand-accent dark:text-brand-accent;
   }
 }

@@ -14,6 +14,17 @@ from src.models.linked_account import LinkedAccountDocument
 _REFRESH_MARGIN = timedelta(seconds=60)
 
 
+def _normalize(provider: Provider | str) -> str:
+    """Aceita Provider enum ou str e retorna sempre o value string.
+
+    Necessario porque TransferDocument usa `use_enum_values=True`, entao ao
+    recarregar do Mongo o campo `source_provider`/`target_provider` volta como str.
+    """
+    if isinstance(provider, Provider):
+        return provider.value
+    return str(provider)
+
+
 class LinkedAccountNotFoundError(Exception):
     pass
 
@@ -31,7 +42,7 @@ class AccountService:
         self,
         *,
         user_id: str,
-        provider: Provider,
+        provider: Provider | str,
         access_token: str,
         refresh_token: str | None = None,
         provider_user_id: str | None = None,
@@ -52,7 +63,7 @@ class AccountService:
             scope=scope,
         )
         await self._collection.update_one(
-            {"user_id": ObjectId(user_id), "provider": provider.value},
+            {"user_id": ObjectId(user_id), "provider": _normalize(provider)},
             {"$set": doc.to_mongo()},
             upsert=True,
         )
@@ -60,12 +71,14 @@ class AccountService:
 
     async def get_auth(self, user_id: str, provider: Provider) -> ProviderAuth:
         doc = await self._collection.find_one(
-            {"user_id": ObjectId(user_id), "provider": provider.value}
+            {"user_id": ObjectId(user_id), "provider": _normalize(provider)}
         )
         if not doc:
             raise LinkedAccountNotFoundError(
-                f"Conta do provedor '{provider.value}' nao vinculada"
+                f"Conta do provedor '{_normalize(provider)}' nao vinculada"
             )
+
+
 
         doc = await self._refresh_if_needed(doc, provider)
         return ProviderAuth(
@@ -90,7 +103,7 @@ class AccountService:
 
     async def unlink(self, user_id: str, provider: Provider) -> None:
         await self._collection.delete_one(
-            {"user_id": ObjectId(user_id), "provider": provider.value}
+            {"user_id": ObjectId(user_id), "provider": _normalize(provider)}
         )
 
     async def _refresh_if_needed(

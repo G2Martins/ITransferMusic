@@ -51,12 +51,46 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'profile',
+    path: 'transfer/new',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./pages/profile/profile.component').then(
-        (m) => m.ProfileComponent,
+      import('./pages/transfer/new-transfer.component').then(
+        (m) => m.NewTransferComponent,
       ),
   },
+  {
+    path: 'account',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/account/account-layout.component').then(
+        (m) => m.AccountLayoutComponent,
+      ),
+    children: [
+      { path: '', redirectTo: 'profile', pathMatch: 'full' },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/account/profile/account-profile.component').then(
+            (m) => m.AccountProfileComponent,
+          ),
+      },
+      {
+        path: 'syncs',
+        loadComponent: () =>
+          import('./pages/account/syncs/account-syncs.component').then(
+            (m) => m.AccountSyncsComponent,
+          ),
+      },
+      {
+        path: 'history',
+        loadComponent: () =>
+          import('./pages/account/history/account-history.component').then(
+            (m) => m.AccountHistoryComponent,
+          ),
+      },
+    ],
+  },
+  // Redirect para compatibilidade com a rota antiga
+  { path: 'profile', redirectTo: '/account/profile', pathMatch: 'full' },
   { path: '**', redirectTo: '' },
 ];
