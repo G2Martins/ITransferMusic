@@ -483,12 +483,15 @@ export class DashboardComponent implements OnInit {
   }
 
   share(c: PlaylistCard): void {
-    if (!c.url) return;
-    if (navigator.share) {
-      navigator.share({ title: c.name, url: c.url }).catch(() => void 0);
-    } else {
-      navigator.clipboard.writeText(c.url).catch(() => void 0);
-    }
+    // Gera share_token + abre a pagina publica em nova aba.
+    this.api.createShare(c.id).subscribe({
+      next: (r) => {
+        const url = `${window.location.origin}/share/${r.token}`;
+        navigator.clipboard.writeText(url).catch(() => void 0);
+        window.open(url, '_blank', 'noopener');
+      },
+      error: () => void 0,
+    });
   }
 
   openSyncModal(c: PlaylistCard): void {

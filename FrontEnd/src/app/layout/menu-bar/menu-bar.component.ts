@@ -74,6 +74,9 @@ export class MenuBarComponent {
   logout(): void {
     this.closeMenus();
     this.auth.logout();
+    // Reload total para /: limpa caches, derruba qualquer assinatura pendente
+    // e garante que o usuario caia na tela de login-less.
+    window.location.href = '/';
   }
 
   toggleTheme(): void {

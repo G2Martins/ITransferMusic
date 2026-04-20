@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import Any
 
 import httpx
 from bson import ObjectId
@@ -118,6 +119,10 @@ class PlaylistTransferService:
                 source_tracks = [t for t in source_tracks if t.id in wanted]
             transfer.total_tracks = len(source_tracks)
 
+            # Captura a capa da playlist origem (primeira faixa) se ainda nao temos.
+            if not transfer.source_playlist_image_url and source_tracks:
+                transfer.source_playlist_image_url = source_tracks[0].image_url
+
             matched_ids: list[str] = []
             for track in source_tracks:
                 query = f"{track.name} {track.artist}".strip()
@@ -127,6 +132,8 @@ class PlaylistTransferService:
                         source_track_id=track.id,
                         source_name=track.name,
                         source_artist=track.artist,
+                        source_album=track.album,
+                        image_url=track.image_url,
                         matched_target_id=found.id if found else None,
                         matched=found is not None,
                     )
@@ -206,3 +213,56 @@ class PlaylistTransferService:
             .limit(limit)
         )
         return [TransferDocument.model_validate(doc) async for doc in cursor]
+
+    async def ensure_share_token(self, user_id: str, transfer_id: str) -> str | None:
+        """Gera (ou retorna o existente) share_token para a transferencia."""
+        import secrets
+
+        if not ObjectId.is_valid(transfer_id):
+            return None
+        raw = await self._transfers.find_one(
+            {"_id": ObjectId(transfer_id), "user_id": ObjectId(user_id)}
+        )
+        if not raw:
+            return None
+        token = raw.get("share_token")
+        if token:
+            return token
+        token = secrets.token_urlsafe(12)
+        await self._transfers.update_one(
+            {"_id": raw["_id"]},
+            {"$set": {"share_token": token, "updated_at": datetime.now(UTC)}},
+        )
+        return token
+
+    async def get_by_share_token(self, token: str) -> TransferDocument | None:
+        doc = await self._transfers.find_one({"share_token": token})
+        if not doc:
+            return None
+        return TransferDocument.model_validate(doc)
+
+    async def update_share_metadata(
+        self,
+        user_id: str,
+        transfer_id: str,
+        name: str | None,
+        description: str | None,
+    ) -> TransferDocument | None:
+        """Permite que o dono edite nome/descricao do share (sem afetar o provedor)."""
+        if not ObjectId.is_valid(transfer_id):
+            return None
+        update: dict[str, Any] = {"updated_at": datetime.now(UTC)}
+        if name is not None:
+            update["target_playlist_name"] = name
+        if description is not None:
+            update["target_playlist_description"] = description
+        await self._transfers.update_one(
+            {"_id": ObjectId(transfer_id), "user_id": ObjectId(user_id)},
+            {"$set": update},
+        )
+        raw = await self._transfers.find_one(
+            {"_id": ObjectId(transfer_id), "user_id": ObjectId(user_id)}
+        )
+        if not raw:
+            return None
+        return TransferDocument.model_validate(raw)

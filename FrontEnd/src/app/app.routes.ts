@@ -90,6 +90,11 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'share/:token',
+    loadComponent: () =>
+      import('./pages/share/share.component').then((m) => m.ShareComponent),
+  },
   // Redirect para compatibilidade com a rota antiga
   { path: 'profile', redirectTo: '/account/profile', pathMatch: 'full' },
   { path: '**', redirectTo: '' },

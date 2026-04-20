@@ -1,0 +1,179 @@
+<section
+  class="min-h-screen bg-gradient-to-br from-brand via-brand to-brand-dark px-6 py-16 text-white"
+>
+  <div class="container mx-auto max-w-2xl">
+    @if (loading()) {
+      <p class="text-center text-white/80">Carregando...</p>
+    } @else if (error()) {
+      <div class="alert-error text-center">{{ error() }}</div>
+    } @else if (share()) {
+      <!-- Cabecalho com capa + nome -->
+      <div
+        class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+      >
+        <div class="flex items-start gap-5">
+          @if (share()!.playlist_image_url) {
+            <img
+              [src]="share()!.playlist_image_url"
+              alt=""
+              class="h-28 w-28 flex-shrink-0 rounded-xl object-cover shadow-2xl"
+            />
+          } @else {
+            <div
+              class="flex h-28 w-28 flex-shrink-0 items-center justify-center rounded-xl bg-brand-accent/20"
+            >
+              <iconify-icon icon="ph:music-notes-duotone" class="text-5xl text-brand-accent"></iconify-icon>
+            </div>
+          }
+          <div class="flex-1 min-w-0">
+            <p class="text-xs uppercase tracking-wider text-white/50">
+              Lista de reprodução · {{ share()!.total_tracks }} músicas
+            </p>
+            @if (editing()) {
+              <input
+                type="text"
+                class="input-base mt-2 text-brand"
+                [value]="editName()"
+                (input)="editName.set($any($event.target).value)"
+                placeholder="Nome da playlist"
+              />
+            } @else {
+              <h1 class="mt-1 break-words text-2xl font-extrabold md:text-3xl">
+                {{ share()!.playlist_name }}
+              </h1>
+            }
+            @if (!editing()) {
+              <p class="mt-3 text-sm text-white/70">
+                <strong>{{ share()!.owner_name }}</strong> shared this playlist with you.
+              </p>
+            }
+
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              @if (isOwner() && !editing()) {
+                <button
+                  type="button"
+                  (click)="startEdit()"
+                  class="inline-flex items-center gap-1 rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold hover:border-brand-accent hover:text-brand-accent"
+                >
+                  <iconify-icon icon="ph:pencil-duotone" class="text-base"></iconify-icon>
+                  Editar página
+                </button>
+              }
+              <button
+                type="button"
+                (click)="copyLink()"
+                class="inline-flex items-center gap-1 rounded-lg border border-white/20 px-3 py-1.5 text-xs font-semibold hover:border-brand-accent hover:text-brand-accent"
+              >
+                <iconify-icon icon="ph:link-bold" class="text-base"></iconify-icon>
+                Partilhar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        @if (editing()) {
+          <div class="mt-5">
+            <label class="block text-xs uppercase tracking-wider text-white/50">
+              Descrição
+            </label>
+            <textarea
+              class="input-base mt-1 min-h-[90px] text-brand"
+              [value]="editDescription()"
+              (input)="editDescription.set($any($event.target).value)"
+            ></textarea>
+            @if (editError()) {
+              <p class="mt-2 text-sm text-red-300">{{ editError() }}</p>
+            }
+            <div class="mt-3 flex justify-end gap-2">
+              <button type="button" class="btn-ghost text-white" (click)="cancelEdit()">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="btn-primary"
+                (click)="saveEdit()"
+                [disabled]="savingEdit()"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (!editing() && share()!.playlist_description) {
+          <p class="mt-5 whitespace-pre-line text-sm text-white/80">
+            {{ share()!.playlist_description }}
+          </p>
+        }
+
+        <!-- Lista de faixas -->
+        @if (share()!.tracks.length > 0) {
+          <div class="mt-6 space-y-2 border-t border-white/10 pt-5">
+            @for (t of share()!.tracks; track t.source_track_id) {
+              <div class="flex items-center gap-3">
+                @if (t.image_url) {
+                  <img
+                    [src]="t.image_url"
+                    alt=""
+                    class="h-10 w-10 flex-shrink-0 rounded object-cover"
+                  />
+                } @else {
+                  <div
+                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-white/10"
+                  >
+                    <iconify-icon icon="ph:music-note-duotone" class="text-lg text-white/60"></iconify-icon>
+                  </div>
+                }
+                <div class="flex-1 min-w-0">
+                  <p class="truncate text-sm font-medium">{{ t.source_name }}</p>
+                  <p class="truncate text-xs text-white/50">
+                    {{ t.source_artist }}{{ t.source_album ? ' · ' + t.source_album : '' }}
+                  </p>
+                </div>
+                @if (!t.matched) {
+                  <span class="text-xs text-yellow-300">sem match</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Reproduza na sua plataforma -->
+      <p class="mt-12 text-center text-lg font-bold">
+        Reproduza na sua plataforma de música
+      </p>
+
+      <div class="mt-6 space-y-3">
+        @for (opt of openTargets(); track opt.provider) {
+          @if (opt.url) {
+            <a
+              [href]="opt.url"
+              target="_blank"
+              rel="noreferrer"
+              class="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accentDark px-6 py-4 font-semibold text-white shadow-lg transition-transform hover:-translate-y-0.5"
+            >
+              <iconify-icon [attr.icon]="opt.icon" class="text-2xl"></iconify-icon>
+              {{ opt.label }}
+            </a>
+          } @else {
+            <div
+              class="flex cursor-not-allowed items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 font-semibold text-white/60"
+              title="Disponível em breve"
+            >
+              <iconify-icon [attr.icon]="opt.icon" class="text-2xl"></iconify-icon>
+              {{ opt.label }}
+            </div>
+          }
+        }
+      </div>
+
+      <p class="mt-10 text-center text-xs text-white/40">
+        Compartilhado via
+        <a href="/" class="font-semibold text-brand-accent hover:underline">
+          ITransferMusic
+        </a>
+      </p>
+    }
+  </div>
+</section>

@@ -71,7 +71,10 @@
     "newTransfer": "Nova Transferência",
     "empty": "Você ainda não realizou nenhuma transferência.",
     "tracksProcessed": "faixas processadas",
-    "open": "Abrir"
+    "open": "Abrir",
+    "generatedPlaylist": "Playlist gerada",
+    "tracks": "Faixas",
+    "playlistDeleted": "Esta playlist foi removida do provedor de destino. Os dados abaixo ficam preservados no seu histórico."
   },
   "features": {
     "howItWorks": "Como funciona",

@@ -71,7 +71,10 @@
     "newTransfer": "New Transfer",
     "empty": "You haven't run any transfer yet.",
     "tracksProcessed": "tracks processed",
-    "open": "Open"
+    "open": "Open",
+    "generatedPlaylist": "Generated playlist",
+    "tracks": "Tracks",
+    "playlistDeleted": "This playlist has been removed from the target provider. The data below is preserved in your history."
   },
   "features": {
     "howItWorks": "How it works",

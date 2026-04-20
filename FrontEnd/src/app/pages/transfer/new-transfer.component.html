@@ -272,7 +272,7 @@
                                   <p class="truncate font-medium">{{ t.name }}</p>
                                 }
                                 <p class="truncate text-xs text-brand/50 dark:text-white/50">
-                                  {{ t.artist }}@if (t.album) { · {{ t.album }} }
+                                  {{ t.artist }}{{ t.album ? ' · ' + t.album : '' }}
                                 </p>
                               </div>
                             </div>

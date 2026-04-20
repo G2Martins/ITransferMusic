@@ -31,13 +31,17 @@ class TransferResponse(BaseModel):
     source_provider: Provider
     target_provider: Provider
     source_playlist_id: str
+    source_playlist_name: str | None = None
+    source_playlist_image_url: str | None = None
     target_playlist_id: str | None = None
     target_playlist_name: str
+    target_playlist_description: str | None = None
     status: TransferStatus
     total_tracks: int
     matched_tracks: int
     results: list[TransferTrackResult]
     error_message: str | None = None
+    share_token: str | None = None
     created_at: datetime
     updated_at: datetime
 

@@ -19,6 +19,8 @@ class TransferTrackResult(BaseModel):
     source_track_id: str
     source_name: str
     source_artist: str
+    source_album: str | None = None
+    image_url: str | None = None
     matched_target_id: str | None = None
     matched: bool = False
 
@@ -41,8 +43,12 @@ class TransferDocument(BaseModel):
     target_playlist_name: str
     target_playlist_description: str | None = None
     source_playlist_name: str | None = None
+    source_playlist_image_url: str | None = None
     selected_track_ids: list[str] | None = None
     apply_watermark: bool = True
+
+    # Token aleatorio para compartilhamento publico (preenchido on-demand).
+    share_token: str | None = None
 
     status: TransferStatus = TransferStatus.PENDING
     total_tracks: int = 0

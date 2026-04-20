@@ -24,6 +24,16 @@ export interface Track {
   provider: Provider;
 }
 
+export interface TransferTrackResult {
+  source_track_id: string;
+  source_name: string;
+  source_artist: string;
+  source_album: string | null;
+  image_url: string | null;
+  matched_target_id: string | null;
+  matched: boolean;
+}
+
 export interface LinkedAccount {
   provider: Provider;
   provider_display_name: string | null;
@@ -38,16 +48,42 @@ export interface OAuthAuthorizeResponse {
 export interface TransferResponse {
   id: string;
   source_provider: Provider;
+  source_playlist_name: string | null;
+  source_playlist_image_url: string | null;
   target_provider: Provider;
   source_playlist_id: string;
   target_playlist_id: string | null;
   target_playlist_name: string;
+  target_playlist_description: string | null;
   status: 'pending' | 'running' | 'completed' | 'failed' | 'partial';
   total_tracks: number;
   matched_tracks: number;
+  results: TransferTrackResult[];
   error_message: string | null;
+  share_token: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface SharePublic {
+  token: string;
+  owner_name: string;
+  owner_id: string;
+  playlist_name: string;
+  playlist_description: string | null;
+  playlist_image_url: string | null;
+  source_provider: Provider;
+  source_playlist_id: string;
+  target_provider: Provider;
+  target_playlist_id: string | null;
+  total_tracks: number;
+  matched_tracks: number;
+  tracks: TransferTrackResult[];
+}
+
+export interface ShareTokenResponse {
+  token: string;
+  share_url: string;
 }
 
 export interface TransferCreatePayload {
@@ -140,6 +176,22 @@ export class ApiService {
     return this.http.get<{ alive: boolean }>(
       `${this.base}/transfers/${transferId}/alive`,
     );
+  }
+
+  // --- Share ---
+  createShare(transferId: string) {
+    return this.http.post<ShareTokenResponse>(
+      `${this.base}/transfers/${transferId}/share`,
+      {},
+    );
+  }
+
+  getShare(token: string) {
+    return this.http.get<SharePublic>(`${this.base}/shares/${token}`);
+  }
+
+  updateShare(token: string, body: { playlist_name?: string; playlist_description?: string }) {
+    return this.http.patch<SharePublic>(`${this.base}/shares/${token}`, body);
   }
 }
 
