@@ -124,11 +124,12 @@
     <form (ngSubmit)="saveTimezone()" class="mt-5 space-y-4">
       <select
         class="input-base"
-        [value]="timezoneOffsetMinutes()"
-        (change)="timezoneOffsetMinutes.set(+$any($event.target).value)"
+        name="timezone"
+        [ngModel]="timezoneOffsetMinutes()"
+        (ngModelChange)="timezoneOffsetMinutes.set(+$event)"
       >
-        @for (tz of timezoneOptions; track tz.label) {
-          <option [value]="tz.offsetMinutes">{{ tz.label }}</option>
+        @for (tz of timezoneOptions; track tz.offsetMinutes) {
+          <option [ngValue]="tz.offsetMinutes">{{ tz.label }}</option>
         }
       </select>
 

@@ -224,12 +224,19 @@ class SpotifyClient(MusicProviderClient):
         return self._to_track(items[0])
 
     async def search_tracks(
-        self, query: str, auth: ProviderAuth, limit: int = 5
+        self, query: str, auth: ProviderAuth, limit: int = 5, offset: int = 0
     ) -> list[Track]:
         capped = max(1, min(limit, 50))
+        # Spotify aceita offset <= 1000 para search.
+        offset = max(0, min(offset, 1000 - capped))
         resp = await self._client.get(
             "/search",
-            params={"q": query, "type": "track", "limit": capped},
+            params={
+                "q": query,
+                "type": "track",
+                "limit": capped,
+                "offset": offset,
+            },
             headers=self._headers(auth),
         )
         resp.raise_for_status()
@@ -254,6 +261,20 @@ class SpotifyClient(MusicProviderClient):
             headers=self._headers(auth),
             json=body,
         )
+        if resp.status_code == 403:
+            spotify_msg = ""
+            try:
+                spotify_msg = (resp.json().get("error") or {}).get("message", "") or ""
+            except Exception:  # noqa: BLE001
+                spotify_msg = resp.text[:200]
+            raise PermissionError(
+                "Spotify recusou a criacao da playlist (403). "
+                f"Resposta do Spotify: '{spotify_msg}'. "
+                "Causas comuns: (1) app em Developer Mode e o usuario nao foi "
+                "adicionado em Dashboard > Users and Access; (2) a conta foi "
+                "autorizada sem o escopo 'playlist-modify-private/public' - "
+                "neste caso, desvincule e vincule novamente o Spotify."
+            )
         resp.raise_for_status()
         playlist_id = resp.json()["id"]
 

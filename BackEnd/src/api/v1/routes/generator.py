@@ -72,12 +72,17 @@ async def save_generated(
         if found:
             matched_ids.append(found.id)
 
-    playlist_id = await client.create_playlist(
-        name=payload.playlist_name,
-        description=payload.playlist_description,
-        track_ids=matched_ids,
-        auth=auth,
-    )
+    try:
+        playlist_id = await client.create_playlist(
+            name=payload.playlist_name,
+            description=payload.playlist_description,
+            track_ids=matched_ids,
+            auth=auth,
+        )
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail=str(exc)
+        ) from exc
     return GeneratorSaveResponse(
         playlist_id=playlist_id,
         matched_count=len(matched_ids),

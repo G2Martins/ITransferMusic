@@ -98,21 +98,25 @@ class YouTubeClient(MusicProviderClient):
         return results[0] if results else None
 
     async def search_tracks(
-        self, query: str, auth: ProviderAuth, limit: int = 5
+        self, query: str, auth: ProviderAuth, limit: int = 5, offset: int = 0
     ) -> list[Track]:
+        # YouTube Data API nao suporta offset; sobre-pedimos e descartamos o prefixo.
         capped = max(1, min(limit, 25))
+        fetch = max(1, min(capped + offset, 50))
         resp = await self._client.get(
             "/search",
             params={
                 "part": "snippet",
                 "q": query,
                 "type": "video",
-                "maxResults": capped,
+                "maxResults": fetch,
             },
             headers=self._headers(auth),
         )
         resp.raise_for_status()
         items = resp.json().get("items") or []
+        if offset:
+            items = items[offset:]
         tracks: list[Track] = []
         for item in items:
             video_id = (item.get("id") or {}).get("videoId")

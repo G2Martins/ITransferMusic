@@ -24,7 +24,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
               <img
                 src="logos/logo-horizontal.png"
                 alt="ITransferMusic"
-                class="h-20 w-auto object-contain"
+                class="h-32 w-auto object-contain md:h-36"
               />
             </a>
             <p class="max-w-xs text-sm leading-relaxed text-white/70">

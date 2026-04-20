@@ -5,7 +5,8 @@ export interface TimezoneOption {
 
 /** Lista de fusos horarios comuns. Valores em minutos relativos ao UTC. */
 export const TIMEZONE_OPTIONS: TimezoneOption[] = [
-  { label: '(UTC-5) Acre, Rio Branco', offsetMinutes: -300 },
+  { label: '(UTC-8) Los Angeles', offsetMinutes: -480 },
+  { label: '(UTC-5) Rio Branco, Nova York, Toronto', offsetMinutes: -300 },
   { label: '(UTC-4) Manaus, Boa Vista', offsetMinutes: -240 },
   { label: '(UTC-3) Brasília, São Paulo, Rio de Janeiro', offsetMinutes: -180 },
   { label: '(UTC-2) Fernando de Noronha', offsetMinutes: -120 },
@@ -16,8 +17,6 @@ export const TIMEZONE_OPTIONS: TimezoneOption[] = [
   { label: '(UTC+4) Dubai', offsetMinutes: 240 },
   { label: '(UTC+8) Pequim, Singapura', offsetMinutes: 480 },
   { label: '(UTC+9) Tóquio, Seul', offsetMinutes: 540 },
-  { label: '(UTC-8) Los Angeles', offsetMinutes: -480 },
-  { label: '(UTC-5) Nova York, Toronto', offsetMinutes: -300 },
 ];
 
 /**

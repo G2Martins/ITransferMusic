@@ -7,6 +7,7 @@ Deduplica por id.
 
 from __future__ import annotations
 
+import logging
 import random
 from typing import Any
 
@@ -14,6 +15,8 @@ from src.integrations.base import ProviderAuth
 from src.integrations.registry import get_provider_client
 from src.models.common import Provider
 from src.schemas.track import Track
+
+logger = logging.getLogger(__name__)
 
 
 _MOOD_KEYWORDS = {
@@ -98,25 +101,53 @@ async def generate_tracks(
     result: list[Track] = []
     used_queries: list[str] = []
 
-    per_query_limit = max(5, (count // max(len(queries), 1)) + 3)
+    unique_queries = list(dict.fromkeys(q.lower() for q in queries))
+    unique_query_count = len(unique_queries) or 1
+    per_query_limit = max(5, min(25, (count * 2) // unique_query_count))
 
-    for q in queries:
+    # Se o usuario ja tem faixas (segundo clique em "Gerar"), comecamos com
+    # offset aleatorio para trazer novidades. Se e a primeira geracao, offset=0
+    # garante os resultados top.
+    first_pass_offset = random.randint(5, 40) if excluded else 0
+
+    async def _pass(offset: int) -> None:
+        nonlocal result
+        for q in queries:
+            if len(result) >= count:
+                return
+            try:
+                found_list = await client.search_tracks(
+                    q, auth, limit=per_query_limit, offset=offset
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "generator search_tracks falhou: provider=%s query=%r offset=%s err=%s",
+                    source_provider,
+                    q,
+                    offset,
+                    exc,
+                )
+                continue
+            added = False
+            for found in found_list:
+                if len(result) >= count:
+                    return
+                if not found or found.id in seen_ids:
+                    continue
+                seen_ids.add(found.id)
+                result.append(found)
+                added = True
+            if added and q not in used_queries:
+                used_queries.append(q)
+
+    await _pass(first_pass_offset)
+
+    # Fallback progressivo com offsets variados ate alcancar `count`.
+    for extra_offset in (0, 20, 50, 80):
         if len(result) >= count:
             break
-        try:
-            found_list = await client.search_tracks(q, auth, limit=per_query_limit)
-        except Exception:  # noqa: BLE001
+        if extra_offset == first_pass_offset:
             continue
-        added_any = False
-        for found in found_list:
-            if len(result) >= count:
-                break
-            if not found or found.id in seen_ids:
-                continue
-            seen_ids.add(found.id)
-            result.append(found)
-            added_any = True
-        if added_any:
-            used_queries.append(q)
+        await _pass(extra_offset)
 
     return result, used_queries
