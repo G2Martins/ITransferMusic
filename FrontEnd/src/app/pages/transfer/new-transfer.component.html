@@ -44,6 +44,7 @@
 
   <div class="card mt-6">
     @switch (step()) {
+      <!-- STEP 1: source -->
       @case (1) {
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
           @for (p of providers; track p.id) {
@@ -73,49 +74,202 @@
           }
         </div>
       }
+
+      <!-- STEP 2: select playlists + tracks -->
       @case (2) {
+        <!-- Cabeçalho com conta vinculada + trocar conta -->
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-gray-50 p-4 dark:bg-surface-mutedDark">
+          <div class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              class="h-5 w-5 rounded accent-brand-accent"
+              [checked]="allSelected()"
+              (change)="selectAll($any($event.target).checked)"
+            />
+            <iconify-icon
+              [attr.icon]="source() ? providerIcon(source()!) : ''"
+              class="text-3xl text-brand-accent"
+            ></iconify-icon>
+            <div>
+              <p class="font-semibold text-brand dark:text-white">
+                {{ 'wizard.selectAll' | transloco }}
+              </p>
+              <p class="text-xs text-brand/60 dark:text-white/60">
+                {{ sourceLinkedAccount()?.provider_display_name || '—' }}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            (click)="switchAccount()"
+            class="text-sm font-semibold text-brand-accent hover:underline"
+          >
+            {{ 'wizard.switchAccount' | transloco }}
+          </button>
+        </div>
+
+        <!-- Busca -->
+        <div class="mt-4 flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 dark:border-white/10">
+          <iconify-icon icon="ph:magnifying-glass-duotone" class="text-xl text-brand/50"></iconify-icon>
+          <input
+            type="text"
+            [value]="search()"
+            (input)="search.set($any($event.target).value)"
+            [placeholder]="'wizard.searchPlaceholder' | transloco"
+            class="flex-1 bg-transparent text-sm outline-none"
+          />
+        </div>
+
         @if (loadingPlaylists()) {
-          <p class="text-brand/70 dark:text-white/70">Carregando playlists...</p>
+          <p class="mt-6 text-brand/70 dark:text-white/70">Carregando playlists...</p>
         } @else if (playlists().length === 0) {
-          <p class="text-brand/70 dark:text-white/70">Nenhuma playlist encontrada.</p>
+          <p class="mt-6 text-brand/70 dark:text-white/70">Nenhuma playlist encontrada.</p>
         } @else {
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-            @for (pl of playlists(); track pl.id) {
-              <button
-                type="button"
-                (click)="selectPlaylist(pl)"
-                class="flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all"
-                [ngClass]="
-                  selectedPlaylist()?.id === pl.id
-                    ? 'border-brand-accent'
-                    : 'border-gray-200 dark:border-white/10'
-                "
-              >
-                @if (pl.image_url) {
-                  <img [src]="pl.image_url" alt="" class="h-14 w-14 rounded object-cover" />
-                } @else {
-                  <div
-                    class="flex h-14 w-14 items-center justify-center rounded bg-brand-accent/10"
-                  >
+          <!-- Playlists pessoais (Favoritos / Álbuns / Artistas) -->
+          @if (personalPlaylists().length > 0) {
+            <p class="mt-6 mb-2 text-xs font-semibold uppercase tracking-wider text-brand/50 dark:text-white/50">
+              {{ 'wizard.personalSources' | transloco }}
+            </p>
+            <div class="space-y-2">
+              @for (pl of personalPlaylists(); track pl.id) {
+                <label
+                  class="flex items-center gap-3 rounded-xl border border-gray-200 p-3 cursor-pointer hover:border-brand-accent dark:border-white/10"
+                  [ngClass]="isSelected(pl.id) ? 'border-brand-accent bg-brand-accent/5' : ''"
+                >
+                  <input
+                    type="checkbox"
+                    class="h-5 w-5 rounded accent-brand-accent"
+                    [checked]="isSelected(pl.id)"
+                    (change)="togglePlaylist(pl)"
+                  />
+                  <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-accent/10">
                     <iconify-icon
-                      icon="ph:music-notes-duotone"
+                      [attr.icon]="
+                        pl.id === '__liked_songs__' ? 'ph:heart-duotone' :
+                        pl.id === '__saved_albums__' ? 'ph:vinyl-record-duotone' :
+                        'ph:user-duotone'
+                      "
                       class="text-2xl text-brand-accent"
                     ></iconify-icon>
                   </div>
-                }
-                <div>
-                  <p class="font-semibold">{{ pl.name }}</p>
-                  @if (pl.track_count !== null) {
-                    <p class="text-xs text-brand/60 dark:text-white/60">
-                      {{ pl.track_count }} faixas
-                    </p>
+                  <div class="flex-1">
+                    <p class="font-semibold">{{ pl.name }}</p>
+                    <p class="text-xs text-brand/60 dark:text-white/60">{{ pl.description }}</p>
+                  </div>
+                </label>
+              }
+            </div>
+          }
+
+          <!-- Playlists normais -->
+          @if (regularPlaylists().length > 0) {
+            <p class="mt-6 mb-2 text-xs font-semibold uppercase tracking-wider text-brand/50 dark:text-white/50">
+              {{ 'wizard.playlists' | transloco }} ({{ regularPlaylists().length }})
+            </p>
+            <div class="space-y-2">
+              @for (pl of regularPlaylists(); track pl.id) {
+                <div
+                  class="rounded-xl border border-gray-200 transition-colors dark:border-white/10"
+                  [ngClass]="isSelected(pl.id) ? 'border-brand-accent' : ''"
+                >
+                  <div class="flex items-center gap-3 p-3">
+                    <input
+                      type="checkbox"
+                      class="h-5 w-5 rounded accent-brand-accent"
+                      [checked]="isSelected(pl.id)"
+                      (change)="togglePlaylist(pl)"
+                    />
+                    @if (pl.image_url) {
+                      <img [src]="pl.image_url" alt="" class="h-12 w-12 rounded object-cover" />
+                    } @else {
+                      <div class="flex h-12 w-12 items-center justify-center rounded bg-brand-accent/10">
+                        <iconify-icon icon="ph:music-notes-duotone" class="text-2xl text-brand-accent"></iconify-icon>
+                      </div>
+                    }
+                    <div class="flex-1">
+                      <p class="font-semibold">{{ pl.name }}</p>
+                      @if (isSelected(pl.id)) {
+                        <p class="text-xs text-brand-accent">
+                          {{ selectedTrackCount(selected().get(pl.id)!) }}/{{ pl.track_count ?? '?' }}
+                          {{ 'wizard.selected' | transloco }}
+                        </p>
+                      } @else if (pl.track_count !== null) {
+                        <p class="text-xs text-brand/60 dark:text-white/60">{{ pl.track_count }} faixas</p>
+                      }
+                    </div>
+                    @if (isSelected(pl.id)) {
+                      <button
+                        type="button"
+                        (click)="toggleExpand(pl.id)"
+                        class="rounded-full p-2 text-brand/60 hover:text-brand-accent dark:text-white/60"
+                        [attr.aria-label]="'wizard.selectTracks' | transloco"
+                      >
+                        <iconify-icon
+                          [attr.icon]="selected().get(pl.id)?.expanded ? 'ph:caret-up-bold' : 'ph:caret-down-bold'"
+                          class="text-xl"
+                        ></iconify-icon>
+                      </button>
+                    }
+                  </div>
+
+                  <!-- Track list expansivel -->
+                  @if (isSelected(pl.id) && selected().get(pl.id)?.expanded) {
+                    @if (selected().get(pl.id)?.loadingTracks) {
+                      <p class="px-4 pb-4 text-sm text-brand/60 dark:text-white/60">
+                        Carregando faixas...
+                      </p>
+                    } @else if (selected().get(pl.id)?.tracks?.length) {
+                      <div class="border-t border-gray-200 px-4 py-3 dark:border-white/10">
+                        <label class="mb-2 flex items-center gap-2 text-sm font-medium">
+                          <input
+                            type="checkbox"
+                            class="h-4 w-4 rounded accent-brand-accent"
+                            [checked]="allTracksChecked(selected().get(pl.id)!)"
+                            (change)="toggleAllTracks(pl.id, $any($event.target).checked)"
+                          />
+                          {{ 'wizard.allTracks' | transloco }}
+                        </label>
+                        <div class="max-h-64 space-y-1 overflow-y-auto pr-2">
+                          @for (t of selected().get(pl.id)!.tracks!; track t.id) {
+                            <label class="flex items-center gap-2 py-1 text-sm">
+                              <input
+                                type="checkbox"
+                                class="h-4 w-4 rounded accent-brand-accent"
+                                [checked]="isTrackChecked(selected().get(pl.id)!, t.id)"
+                                (change)="toggleTrack(pl.id, t.id)"
+                              />
+                              <span class="flex-1">
+                                <span class="font-medium">{{ t.name }}</span>
+                                <span class="text-brand/50 dark:text-white/50"> — {{ t.artist }}</span>
+                              </span>
+                            </label>
+                          }
+                        </div>
+                      </div>
+                    } @else {
+                      <p class="px-4 pb-4 text-sm text-brand/60 dark:text-white/60">
+                        Nenhuma faixa encontrada.
+                      </p>
+                    }
                   }
                 </div>
-              </button>
-            }
+              }
+            </div>
+          }
+        }
+
+        <!-- Rodapé fixo com contagem -->
+        @if (selectedCount() > 0) {
+          <div class="sticky bottom-4 mt-6 rounded-full bg-brand-accent px-6 py-3 text-center text-white shadow-xl">
+            <span class="font-semibold">{{ selectedCount() }}</span>
+            {{ 'wizard.playlistsSelected' | transloco }} ·
+            <span class="font-semibold">{{ totalSelectedTracks() }}</span>
+            {{ 'wizard.tracksSelected' | transloco }}
           </div>
         }
       }
+
+      <!-- STEP 3: target -->
       @case (3) {
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
           @for (p of providers; track p.id) {
@@ -140,21 +294,60 @@
           }
         </div>
       }
+
+      <!-- STEP 4: review + edit -->
       @case (4) {
-        <div class="space-y-4">
-          <p class="text-brand/70 dark:text-white/70">
-            Transferir <strong>{{ selectedPlaylist()?.name }}</strong>
-            de <strong>{{ source() }}</strong> para <strong>{{ target() }}</strong>.
-          </p>
-          <label class="block">
-            <span class="text-sm font-medium">{{ 'wizard.playlistName' | transloco }}</span>
-            <input
-              class="input-base mt-1"
-              type="text"
-              [value]="newTransferName()"
-              (input)="newTransferName.set($any($event.target).value)"
-            />
-          </label>
+        <div class="flex items-center justify-center gap-4 rounded-xl bg-gray-50 p-4 dark:bg-surface-mutedDark">
+          <iconify-icon
+            [attr.icon]="source() ? providerIcon(source()!) : ''"
+            class="text-4xl text-brand-accent"
+          ></iconify-icon>
+          <iconify-icon icon="ph:arrow-right-bold" class="text-2xl text-gray-400"></iconify-icon>
+          <iconify-icon
+            [attr.icon]="target() ? providerIcon(target()!) : ''"
+            class="text-4xl text-brand-accent"
+          ></iconify-icon>
+        </div>
+
+        <p class="mt-4 text-center text-sm font-semibold text-brand dark:text-white">
+          {{ 'wizard.transferring' | transloco }} {{ selectedCount() }} {{ 'wizard.playlistsSelected' | transloco }}
+          ({{ totalSelectedTracks() }} {{ 'wizard.tracksSelected' | transloco }})
+        </p>
+
+        <div class="mt-6 space-y-3">
+          @for (d of draftList(); track d.playlist.id) {
+            <div class="flex items-center gap-3 rounded-xl border border-gray-200 p-3 dark:border-white/10">
+              @if (d.playlist.image_url) {
+                <img [src]="d.playlist.image_url" alt="" class="h-12 w-12 rounded object-cover" />
+              } @else {
+                <div class="flex h-12 w-12 items-center justify-center rounded bg-brand-accent/10">
+                  <iconify-icon icon="ph:music-notes-duotone" class="text-2xl text-brand-accent"></iconify-icon>
+                </div>
+              }
+              <div class="flex-1">
+                <p class="font-semibold">{{ d.customName || d.playlist.name }}</p>
+                <p class="text-xs text-brand/60 dark:text-white/60">
+                  {{ selectedTrackCount(d) }} {{ 'wizard.selected' | transloco }}
+                </p>
+              </div>
+              <button
+                type="button"
+                (click)="openEdit(d)"
+                class="rounded-full border border-gray-300 p-2 text-brand/60 transition-colors hover:border-brand-accent hover:text-brand-accent dark:border-white/15 dark:text-white/60"
+                [attr.aria-label]="'wizard.editPlaylist' | transloco"
+              >
+                <iconify-icon icon="ph:pencil-duotone" class="text-lg"></iconify-icon>
+              </button>
+              <button
+                type="button"
+                (click)="removeDraft(d.playlist.id)"
+                class="rounded-full p-2 text-brand/60 transition-colors hover:text-red-600 dark:text-white/60"
+                [attr.aria-label]="'wizard.removePlaylist' | transloco"
+              >
+                <iconify-icon icon="ph:trash-duotone" class="text-lg"></iconify-icon>
+              </button>
+            </div>
+          }
         </div>
       }
     }
@@ -191,3 +384,74 @@
     }
   </div>
 </section>
+
+<!-- Modal de edição -->
+@if (editing(); as d) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    (click)="closeEdit()"
+  >
+    <div
+      class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-surface-mutedDark"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-start justify-between">
+        <h3 class="text-xl font-bold text-brand dark:text-white">
+          {{ 'wizard.editTitle' | transloco }}
+        </h3>
+        <button
+          type="button"
+          (click)="closeEdit()"
+          class="rounded-full p-1 text-brand/60 hover:text-brand-accent dark:text-white/60"
+          aria-label="Fechar"
+        >
+          <iconify-icon icon="ph:x-bold" class="text-xl"></iconify-icon>
+        </button>
+      </div>
+
+      <label class="mt-4 block">
+        <span class="text-sm font-medium">{{ 'wizard.playlistName' | transloco }}</span>
+        <input
+          type="text"
+          class="input-base mt-1"
+          [value]="editForm().name"
+          (input)="updateEditForm({ name: $any($event.target).value })"
+        />
+      </label>
+
+      <label class="mt-4 flex items-center gap-2">
+        <input
+          type="checkbox"
+          class="h-4 w-4 rounded accent-brand-accent"
+          [checked]="editForm().applyWatermark"
+          (change)="updateEditForm({ applyWatermark: $any($event.target).checked })"
+        />
+        <span class="text-sm font-medium">{{ 'wizard.useWatermark' | transloco }}</span>
+      </label>
+
+      <label class="mt-4 block">
+        <span class="text-sm font-medium">{{ 'wizard.playlistDescription' | transloco }}</span>
+        <textarea
+          class="input-base mt-1 min-h-[90px]"
+          [value]="editForm().description"
+          (input)="updateEditForm({ description: $any($event.target).value })"
+        ></textarea>
+      </label>
+
+      <div class="mt-4 rounded-lg bg-gray-50 p-3 text-xs dark:bg-black/20">
+        <p class="font-semibold text-brand dark:text-white">{{ 'wizard.previewTitle' | transloco }}</p>
+        <p class="mt-1 text-brand/70 dark:text-white/70"><strong>{{ previewName() }}</strong></p>
+        <p class="mt-1 text-brand/60 dark:text-white/60">{{ previewDescription() }}</p>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-3">
+        <button type="button" class="btn-ghost" (click)="closeEdit()">
+          {{ 'wizard.cancel' | transloco }}
+        </button>
+        <button type="button" class="btn-primary" (click)="saveEdit()">
+          {{ 'wizard.save' | transloco }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

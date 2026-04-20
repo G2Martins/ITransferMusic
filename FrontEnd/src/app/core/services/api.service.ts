@@ -53,9 +53,18 @@ export interface TransferCreatePayload {
   source_provider: Provider;
   target_provider: Provider;
   source_playlist_id: string;
+  source_playlist_name?: string;
   target_playlist_name: string;
   target_playlist_description?: string;
+  selected_track_ids?: string[] | null;
+  apply_watermark?: boolean;
 }
+
+export const SPOTIFY_VIRTUAL = {
+  LIKED: '__liked_songs__',
+  ALBUMS: '__saved_albums__',
+  ARTISTS: '__followed_artists__',
+} as const;
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {

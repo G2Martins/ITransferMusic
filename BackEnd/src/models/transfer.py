@@ -40,6 +40,9 @@ class TransferDocument(BaseModel):
 
     target_playlist_name: str
     target_playlist_description: str | None = None
+    source_playlist_name: str | None = None
+    selected_track_ids: list[str] | None = None
+    apply_watermark: bool = True
 
     status: TransferStatus = TransferStatus.PENDING
     total_tracks: int = 0

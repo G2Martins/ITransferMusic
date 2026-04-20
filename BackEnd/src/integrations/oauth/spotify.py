@@ -16,9 +16,12 @@ class SpotifyOAuthProvider(OAuthProvider):
     USERINFO_URL = "https://api.spotify.com/v1/me"
     SCOPES = [
         "playlist-read-private",
+        "playlist-read-collaborative",
         "playlist-modify-private",
         "playlist-modify-public",
         "user-read-email",
+        "user-library-read",
+        "user-follow-read",
     ]
 
     def _settings(self) -> Settings:

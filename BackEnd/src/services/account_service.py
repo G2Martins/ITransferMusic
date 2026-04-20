@@ -78,12 +78,47 @@ class AccountService:
                 f"Conta do provedor '{_normalize(provider)}' nao vinculada"
             )
 
-
-
         doc = await self._refresh_if_needed(doc, provider)
         return ProviderAuth(
             access_token=decrypt_provider_token(doc["access_token_encrypted"]),
         )
+
+    async def force_refresh(self, user_id: str, provider: Provider) -> ProviderAuth | None:
+        """Forca refresh do access_token ignorando `expires_at`.
+
+        Usado quando a API externa responde 401 — pode acontecer quando o token
+        foi revogado ou esta prestes a expirar fora da margem default.
+        Retorna None se nao for possivel refrescar.
+        """
+        doc = await self._collection.find_one(
+            {"user_id": ObjectId(user_id), "provider": _normalize(provider)}
+        )
+        if not doc:
+            return None
+
+        refresh_cipher = doc.get("refresh_token_encrypted")
+        if not refresh_cipher or not is_oauth_supported(provider):
+            return None
+
+        oauth = get_oauth_provider(provider)
+        refresh_plain = decrypt_provider_token(refresh_cipher)
+        try:
+            tokens = await oauth.refresh(refresh_plain)
+        except httpx.HTTPError:
+            return None
+
+        update: dict[str, Any] = {
+            "access_token_encrypted": encrypt_provider_token(tokens.access_token),
+            "expires_at": tokens.expires_at,
+            "updated_at": datetime.now(UTC),
+        }
+        if tokens.refresh_token and tokens.refresh_token != refresh_plain:
+            update["refresh_token_encrypted"] = encrypt_provider_token(tokens.refresh_token)
+        if tokens.scope:
+            update["scope"] = tokens.scope
+
+        await self._collection.update_one({"_id": doc["_id"]}, {"$set": update})
+        return ProviderAuth(access_token=tokens.access_token)
 
     async def list_for_user(self, user_id: str) -> list[dict[str, Any]]:
         cursor = self._collection.find({"user_id": ObjectId(user_id)})

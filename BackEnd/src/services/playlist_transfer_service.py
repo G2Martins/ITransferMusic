@@ -1,8 +1,10 @@
 from datetime import UTC, datetime
 
+import httpx
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from src.integrations.base import ProviderAuth
 from src.integrations.registry import get_provider_client
 from src.models.common import Provider
 from src.models.transfer import TransferDocument, TransferStatus, TransferTrackResult
@@ -29,14 +31,28 @@ class PlaylistTransferService:
     ) -> list[PlaylistSummary]:
         auth = await self._accounts.get_auth(user_id, provider)
         client = get_provider_client(provider)
-        return await client.list_user_playlists(auth)
+        try:
+            return await client.list_user_playlists(auth)
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in (401, 403):
+                fresh = await self._accounts.force_refresh(user_id, provider)
+                if fresh:
+                    return await client.list_user_playlists(fresh)
+            raise
 
     async def get_playlist_tracks(
         self, user_id: str, provider: Provider, playlist_id: str
     ) -> list[Track]:
         auth = await self._accounts.get_auth(user_id, provider)
         client = get_provider_client(provider)
-        return await client.get_playlist_tracks(playlist_id, auth)
+        try:
+            return await client.get_playlist_tracks(playlist_id, auth)
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code in (401, 403):
+                fresh = await self._accounts.force_refresh(user_id, provider)
+                if fresh:
+                    return await client.get_playlist_tracks(playlist_id, fresh)
+            raise
 
     async def create_transfer(
         self, user_id: str, payload: PlaylistTransferCreate
@@ -49,8 +65,11 @@ class PlaylistTransferService:
             source_provider=payload.source_provider,
             target_provider=payload.target_provider,
             source_playlist_id=payload.source_playlist_id,
+            source_playlist_name=payload.source_playlist_name,
             target_playlist_name=payload.target_playlist_name,
             target_playlist_description=payload.target_playlist_description,
+            selected_track_ids=payload.selected_track_ids,
+            apply_watermark=payload.apply_watermark,
             status=TransferStatus.PENDING,
         )
         result = await self._transfers.insert_one(transfer.to_mongo())
@@ -76,9 +95,27 @@ class PlaylistTransferService:
             source_client = get_provider_client(transfer.source_provider)
             target_client = get_provider_client(transfer.target_provider)
 
-            source_tracks = await source_client.get_playlist_tracks(
-                transfer.source_playlist_id, source_auth
-            )
+            try:
+                source_tracks = await source_client.get_playlist_tracks(
+                    transfer.source_playlist_id, source_auth
+                )
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code in (401, 403):
+                    fresh = await self._accounts.force_refresh(
+                        user_id, transfer.source_provider
+                    )
+                    if fresh:
+                        source_auth = fresh
+                        source_tracks = await source_client.get_playlist_tracks(
+                            transfer.source_playlist_id, source_auth
+                        )
+                    else:
+                        raise
+                else:
+                    raise
+            if transfer.selected_track_ids:
+                wanted = set(transfer.selected_track_ids)
+                source_tracks = [t for t in source_tracks if t.id in wanted]
             transfer.total_tracks = len(source_tracks)
 
             matched_ids: list[str] = []
@@ -99,17 +136,21 @@ class PlaylistTransferService:
 
             transfer.matched_tracks = len(matched_ids)
 
-            # Marca d'agua no titulo e descricao
-            watermarked_name = f"{transfer.target_playlist_name} By ITransferMusic"
-            watermarked_desc = (
-                transfer.target_playlist_description + " | "
-                if transfer.target_playlist_description
-                else ""
-            ) + (
-                "This playlist was created by https://www.ITransferMusic.com "
-                "that lets you transfer your playlist to any music platform such as "
-                "Spotify, YouTube Music, Apple Music, Deezer etc."
-            )
+            # Marca d'agua opcional no titulo e descricao
+            if transfer.apply_watermark:
+                watermarked_name = f"{transfer.target_playlist_name} By ITransferMusic"
+                watermarked_desc = (
+                    (transfer.target_playlist_description + " | ")
+                    if transfer.target_playlist_description
+                    else ""
+                ) + (
+                    "This playlist was created by https://www.ITransferMusic.com "
+                    "that lets you transfer your playlist to any music platform such as "
+                    "Spotify, YouTube Music, Apple Music, Deezer etc."
+                )
+            else:
+                watermarked_name = transfer.target_playlist_name
+                watermarked_desc = transfer.target_playlist_description or ""
 
             target_playlist_id = await target_client.create_playlist(
                 name=watermarked_name,
