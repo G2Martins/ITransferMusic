@@ -184,6 +184,10 @@ class YouTubeClient(MusicProviderClient):
             headers=self._headers(auth),
             json=body,
         )
+        # 409: video ja esta na playlist. 404: video indisponivel.
+        # Em ambos os casos, ignorar silenciosamente para nao abortar a criacao.
+        if resp.status_code in (404, 409):
+            return
         resp.raise_for_status()
 
     async def add_tracks_to_playlist(

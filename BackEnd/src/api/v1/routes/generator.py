@@ -9,7 +9,7 @@ from src.schemas.generator import (
     GeneratorSaveResponse,
 )
 from src.services.account_service import LinkedAccountNotFoundError
-from src.services.generator_service import generate_tracks
+from src.services.generator_service import GeneratorAuthError, generate_tracks
 
 router = APIRouter()
 
@@ -27,15 +27,47 @@ async def generate(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
         ) from exc
 
-    tracks, used = await generate_tracks(
-        source_provider=payload.source_provider,
-        auth=auth,
-        prompt=payload.prompt,
-        genres=payload.genres,
-        moods=payload.moods,
-        count=payload.count,
-        exclude_track_ids=payload.exclude_track_ids,
-    )
+    async def _generate(current_auth):
+        return await generate_tracks(
+            source_provider=payload.source_provider,
+            auth=current_auth,
+            prompt=payload.prompt,
+            genres=payload.genres,
+            moods=payload.moods,
+            count=payload.count,
+            exclude_track_ids=payload.exclude_track_ids,
+        )
+
+    try:
+        tracks, used = await _generate(auth)
+    except GeneratorAuthError:
+        # Token foi rejeitado. Tenta um force_refresh e repete uma unica vez.
+        refreshed = await accounts.force_refresh(user_id, payload.source_provider)
+        if refreshed is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=(
+                    f"Token do {payload.source_provider.value} foi rejeitado e "
+                    "nao pudemos renova-lo. Revincule a conta em Configuracoes."
+                ),
+            )
+        try:
+            tracks, used = await _generate(refreshed)
+        except GeneratorAuthError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
+            ) from exc
+
+    if not tracks and not payload.exclude_track_ids:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=(
+                f"Nenhuma faixa retornada pelo {payload.source_provider.value}. "
+                "Verifique os logs do backend. Possiveis causas: token invalido, "
+                "filtros muito restritivos ou quota da API esgotada."
+            ),
+        )
+
     return GeneratorResponse(tracks=tracks, used_queries=used)
 
 
@@ -59,6 +91,7 @@ async def save_generated(
     client = get_provider_client(payload.target_provider)
 
     matched_ids: list[str] = []
+    seen_ids: set[str] = set()
     for t in payload.tracks:
         name = (t.get("name") or "").strip()
         artist = (t.get("artist") or "").strip()
@@ -69,8 +102,9 @@ async def save_generated(
             found = await client.search_track(query, auth)
         except Exception:  # noqa: BLE001
             continue
-        if found:
+        if found and found.id not in seen_ids:
             matched_ids.append(found.id)
+            seen_ids.add(found.id)
 
     try:
         playlist_id = await client.create_playlist(

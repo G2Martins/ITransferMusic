@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 import httpx
@@ -6,6 +7,8 @@ from src.integrations.base import MusicProviderClient, ProviderAuth
 from src.models.common import Provider
 from src.schemas.playlist import PlaylistSummary
 from src.schemas.track import Track
+
+logger = logging.getLogger(__name__)
 
 
 # IDs virtuais para "playlists" pessoais do Spotify que nao sao playlists reais.
@@ -239,9 +242,26 @@ class SpotifyClient(MusicProviderClient):
             },
             headers=self._headers(auth),
         )
-        resp.raise_for_status()
+        if resp.status_code >= 400:
+            body = resp.text[:300]
+            logger.warning(
+                "spotify search_tracks HTTP %s query=%r offset=%s body=%s",
+                resp.status_code,
+                query,
+                offset,
+                body,
+            )
+            resp.raise_for_status()
         items = ((resp.json().get("tracks") or {}).get("items")) or []
-        return [self._to_track(it) for it in items if it and it.get("id")]
+        tracks = [self._to_track(it) for it in items if it and it.get("id")]
+        if not tracks:
+            logger.info(
+                "spotify search_tracks vazio query=%r offset=%s (total=%s)",
+                query,
+                offset,
+                ((resp.json().get("tracks") or {}).get("total")),
+            )
+        return tracks
 
     async def create_playlist(
         self,

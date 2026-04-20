@@ -11,12 +11,18 @@ import logging
 import random
 from typing import Any
 
+import httpx
+
 from src.integrations.base import ProviderAuth
 from src.integrations.registry import get_provider_client
 from src.models.common import Provider
 from src.schemas.track import Track
 
 logger = logging.getLogger(__name__)
+
+
+class GeneratorAuthError(Exception):
+    """O provedor rejeitou o token (401). Pede re-vinculacao."""
 
 
 _MOOD_KEYWORDS = {
@@ -119,6 +125,20 @@ async def generate_tracks(
                 found_list = await client.search_tracks(
                     q, auth, limit=per_query_limit, offset=offset
                 )
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code == 401:
+                    raise GeneratorAuthError(
+                        f"Token do {source_provider} foi rejeitado (401). "
+                        "Revincule a conta em Configuracoes."
+                    ) from exc
+                logger.warning(
+                    "generator search_tracks HTTP %s: provider=%s query=%r offset=%s",
+                    exc.response.status_code,
+                    source_provider,
+                    q,
+                    offset,
+                )
+                continue
             except Exception as exc:  # noqa: BLE001
                 logger.warning(
                     "generator search_tracks falhou: provider=%s query=%r offset=%s err=%s",
