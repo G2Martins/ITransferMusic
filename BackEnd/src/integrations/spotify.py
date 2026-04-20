@@ -229,17 +229,23 @@ class SpotifyClient(MusicProviderClient):
     async def search_tracks(
         self, query: str, auth: ProviderAuth, limit: int = 5, offset: int = 0
     ) -> list[Track]:
-        capped = max(1, min(limit, 50))
+        # Spotify /search em Developer Mode (Feb/2026) passou a rejeitar limit > 10
+        # com HTTP 400 "Invalid limit". Capamos defensivamente em 10.
+        capped = max(1, min(limit, 10))
         # Spotify aceita offset <= 1000 para search.
         offset = max(0, min(offset, 1000 - capped))
+        params: dict[str, Any] = {
+            "q": query,
+            "type": "track",
+            "limit": capped,
+            "market": "from_token",
+        }
+        # Evita incluir offset=0 explicitamente (reduz superficie de erro do endpoint).
+        if offset > 0:
+            params["offset"] = offset
         resp = await self._client.get(
             "/search",
-            params={
-                "q": query,
-                "type": "track",
-                "limit": capped,
-                "offset": offset,
-            },
+            params=params,
             headers=self._headers(auth),
         )
         if resp.status_code >= 400:

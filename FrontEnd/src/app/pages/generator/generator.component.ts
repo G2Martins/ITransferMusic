@@ -199,8 +199,11 @@ export class GeneratorComponent implements OnInit {
           target_provider: target,
           playlist_name: this.playlistName().trim() || 'Minha Playlist Gerada',
           tracks: this.tracks().map((t) => ({
+            id: t.id,
             name: t.name,
             artist: t.artist,
+            album: t.album,
+            image_url: t.image_url,
           })),
         }),
       );

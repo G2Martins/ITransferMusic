@@ -162,6 +162,25 @@ class YouTubeClient(MusicProviderClient):
             headers=self._headers(auth),
             json=body,
         )
+        if resp.status_code in (401, 403):
+            yt_msg = ""
+            try:
+                err = (resp.json().get("error") or {})
+                yt_msg = err.get("message", "") or ""
+                reasons = [
+                    (e.get("reason") or "") for e in (err.get("errors") or [])
+                ]
+                yt_msg = f"{yt_msg} | reasons={','.join(filter(None, reasons))}"
+            except Exception:  # noqa: BLE001
+                yt_msg = resp.text[:200]
+            raise PermissionError(
+                f"YouTube recusou a criacao da playlist ({resp.status_code}). "
+                f"Resposta do YouTube: '{yt_msg}'. "
+                "Causas comuns: (1) a conta Google vinculada nao tem um canal do "
+                "YouTube criado (acesse youtube.com e crie um canal); "
+                "(2) quota diaria da YouTube Data API esgotada; "
+                "(3) YouTube Data API v3 desabilitada no Google Cloud Console."
+            )
         resp.raise_for_status()
         playlist_id = resp.json()["id"]
 

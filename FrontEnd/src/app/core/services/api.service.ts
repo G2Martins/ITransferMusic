@@ -245,7 +245,13 @@ export interface GeneratorSavePayload {
   target_provider: Provider;
   playlist_name: string;
   playlist_description?: string;
-  tracks: { name: string; artist: string }[];
+  tracks: {
+    id?: string;
+    name: string;
+    artist: string;
+    album?: string | null;
+    image_url?: string | null;
+  }[];
 }
 
 export interface GeneratorSaveResponse {

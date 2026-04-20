@@ -109,31 +109,49 @@ async def generate_tracks(
 
     unique_queries = list(dict.fromkeys(q.lower() for q in queries))
     unique_query_count = len(unique_queries) or 1
-    per_query_limit = max(5, min(25, (count * 2) // unique_query_count))
+    # Em Dev Mode o Spotify /search rejeita limit > 10; manter defensivo.
+    per_query_limit = max(5, min(10, (count * 2) // unique_query_count))
 
     # Se o usuario ja tem faixas (segundo clique em "Gerar"), comecamos com
     # offset aleatorio para trazer novidades. Se e a primeira geracao, offset=0
     # garante os resultados top.
     first_pass_offset = random.randint(5, 40) if excluded else 0
 
+    # Flag de rate-limit: assim que o provedor sinaliza 429, abortamos as
+    # tentativas seguintes (continuar so agrava o throttling).
+    rate_limited = False
+
     async def _pass(offset: int) -> None:
-        nonlocal result
+        nonlocal result, rate_limited
         for q in queries:
-            if len(result) >= count:
+            if len(result) >= count or rate_limited:
                 return
             try:
                 found_list = await client.search_tracks(
                     q, auth, limit=per_query_limit, offset=offset
                 )
             except httpx.HTTPStatusError as exc:
-                if exc.response.status_code == 401:
+                status_code = exc.response.status_code
+                if status_code == 401:
                     raise GeneratorAuthError(
                         f"Token do {source_provider} foi rejeitado (401). "
                         "Revincule a conta em Configuracoes."
                     ) from exc
+                if status_code == 429:
+                    retry_after = exc.response.headers.get("Retry-After")
+                    logger.warning(
+                        "generator search_tracks rate limited (429): provider=%s "
+                        "query=%r offset=%s retry_after=%s. Abortando retries.",
+                        source_provider,
+                        q,
+                        offset,
+                        retry_after,
+                    )
+                    rate_limited = True
+                    return
                 logger.warning(
                     "generator search_tracks HTTP %s: provider=%s query=%r offset=%s",
-                    exc.response.status_code,
+                    status_code,
                     source_provider,
                     q,
                     offset,
@@ -164,7 +182,7 @@ async def generate_tracks(
 
     # Fallback progressivo com offsets variados ate alcancar `count`.
     for extra_offset in (0, 20, 50, 80):
-        if len(result) >= count:
+        if len(result) >= count or rate_limited:
             break
         if extra_offset == first_pass_offset:
             continue

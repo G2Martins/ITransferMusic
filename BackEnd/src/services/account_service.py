@@ -120,6 +120,19 @@ class AccountService:
         await self._collection.update_one({"_id": doc["_id"]}, {"$set": update})
         return ProviderAuth(access_token=tokens.access_token)
 
+    async def get_scope(self, user_id: str, provider: Provider) -> str | None:
+        """Retorna a string de escopo armazenada para a conta vinculada.
+
+        Usado para diagnosticar 403s do provedor (ex.: token foi concedido
+        sem `playlist-modify-*` antes de esses escopos serem adicionados).
+        """
+        doc = await self._collection.find_one(
+            {"user_id": ObjectId(user_id), "provider": _normalize(provider)}
+        )
+        if not doc:
+            return None
+        return doc.get("scope")
+
     async def list_for_user(self, user_id: str) -> list[dict[str, Any]]:
         cursor = self._collection.find({"user_id": ObjectId(user_id)})
         result: list[dict[str, Any]] = []
