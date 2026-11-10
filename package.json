@@ -1,0 +1,42 @@
+{
+  "name": "itransfermusic",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "ng": "ng",
+    "start": "npm run seo && ng serve",
+    "start:api": "ng serve --configuration api",
+    "seo": "node scripts/seo.ts",
+    "og": "python scripts/og.py",
+    "build": "npm run seo && ng build",
+    "check": "node scripts/check.ts",
+    "test": "node scripts/demo-api.test.ts",
+    "build:pages": "npm run test && npm run build && npm run check && node scripts/pages.ts"
+  },
+  "packageManager": "npm@11.12.1",
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/platform-server": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "@angular/ssr": "^21.2.29",
+    "@fontsource-variable/geist": "^5.2.0",
+    "@fontsource-variable/geist-mono": "^5.2.0",
+    "@jsverse/transloco": "^8.4.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.29",
+    "@angular/cli": "^21.2.29",
+    "@angular/compiler-cli": "^21.2.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.10.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.9.2"
+  }
+}

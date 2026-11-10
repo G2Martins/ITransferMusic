@@ -1,0 +1,71 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "ITransferMusic": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": { "skipTests": true, "inlineStyle": true }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/itransfermusic",
+            "browser": "src/main.ts",
+            "index": { "input": "src/index.html", "preloadInitial": false },
+            "server": "src/main.server.ts",
+            "outputMode": "static",
+            "baseHref": "/ITransferMusic/",
+            "tsConfig": "tsconfig.app.json",
+            "define": { "DEMO_API": "true" },
+            "assets": [
+              { "glob": "**/*", "input": "public" },
+              { "glob": "geist-latin-wght-normal.woff2", "input": "node_modules/@fontsource-variable/geist/files", "output": "fonts" },
+              { "glob": "geist-mono-latin-wght-normal.woff2", "input": "node_modules/@fontsource-variable/geist-mono/files", "output": "fonts" }
+            ],
+            "styles": ["src/styles.css"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                { "type": "initial", "maximumWarning": "450kB", "maximumError": "600kB" },
+                { "type": "anyComponentStyle", "maximumWarning": "4kB", "maximumError": "8kB" }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            },
+            "api": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "define": { "DEMO_API": "false" }
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": { "buildTarget": "ITransferMusic:build:production" },
+            "development": { "buildTarget": "ITransferMusic:build:development" },
+            "api": { "buildTarget": "ITransferMusic:build:api" }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+# Build output (docs/ is the published site and IS committed)
+dist/
+/out-tsc
+/.angular
+.angular/
+
+# Dependencies
+node_modules/
+
+# Python (BackEnd/)
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Secrets: any env file (the versioned template is BackEnd/.env.example)
+.env
+.env.*
+!.env.example
+
+# Local screenshots (QA)
+.shots/
+
+# Editors and OS
+.idea/
+.vscode/
+.history/
+.DS_Store
+Thumbs.db
+npm-debug.log

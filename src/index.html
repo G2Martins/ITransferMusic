@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>ITransferMusic | Transfira playlists entre serviços de streaming</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Transfira, gere e sincronize playlists entre Spotify, YouTube Music, Apple Music, Amazon Music e Deezer. Demo estática de portfólio de Gustavo Martins Gripaldi.">
+  <meta name="author" content="Gustavo Martins Gripaldi">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#faf8f5">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="preload" href="fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- Reveal bootstrap before first paint. Content shows anyway if JS never boots. -->
+  <script>
+    (function () {
+      var c = document.documentElement.classList;
+      c.add('js');
+      setTimeout(function () { if (!c.contains('reveal-ready')) c.add('reveal-all'); }, 3000);
+    })();
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

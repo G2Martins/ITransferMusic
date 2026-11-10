@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Disallow: /ITransferMusic/entrar/
+Disallow: /ITransferMusic/painel/
+Disallow: /ITransferMusic/conexoes/
+Disallow: /ITransferMusic/playlists/
+Disallow: /ITransferMusic/transferir/
+Disallow: /ITransferMusic/transferencias/
+Disallow: /ITransferMusic/sincronizacoes/
+Disallow: /ITransferMusic/gerador/
+Disallow: /ITransferMusic/oauth/simulado/
+Disallow: /ITransferMusic/auth/callback/spotify/
+Disallow: /ITransferMusic/auth/callback/youtube/
+Disallow: /ITransferMusic/auth/callback/apple_music/
+Disallow: /ITransferMusic/auth/callback/amazon_music/
+Disallow: /ITransferMusic/auth/callback/deezer/
+
+Sitemap: https://g2martins.github.io/ITransferMusic/sitemap.xml
